@@ -179,15 +179,14 @@ Some Examples of using EasyTest
     }
     
     
-<B>CASE 6</B>: User can also use their custom defined objects when RegistryEditor support is not enough. The user simply has to either extend AbstractConverter class or implement the Converter interface and register it with the framework using ConverterManager class.
+<B>CASE 5</B>: User can also use their custom defined objects when RegistryEditor support is not enough. The user simply has to either extend AbstractConverter class or implement the Converter interface and register it with the framework using ConverterManager class.
 
     @RunWith(DataDrivenTestRunner.class)
     @DataLoader(filePaths = { "getItemsData.csv" }, loaderType = LoaderType.CSV)
     public class TestConditionsSupportedByEasyTestRunner {
 
     @BeforeClass
-    public static void before(){
-      //This is optional in case your editors follow Java Editor definition convention    
+    public static void before(){   
       ConverterManager.registerConverter(ItemConverter.class);
       }
       
@@ -199,7 +198,8 @@ Some Examples of using EasyTest
         
     }
     
-    And the framework supports many more functionalities. To review the functionalities supported, please visit :https://github.com/EaseTech/easytest/wiki    
+    
+And the framework supports many more functionalities. To review the functionalities supported, please visit :https://github.com/EaseTech/easytest/wiki    
     
 Conclusion
 -----------
