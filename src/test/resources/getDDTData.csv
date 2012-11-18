@@ -1,0 +1,18 @@
+testDDTGetItem,LibraryId,itemType,searchText
+,4,journal,batman
+,1,ebook,potter
+testDDTGetItemsWithCustomLoader,LibraryId,itemType,searchText
+,10,book,catwoman
+,2,journal,spiderman
+testDDTConverter,itemDescription,itemId,itemType,items
+,item Description 1, 1212, ebook,1:2:3
+,item Description 2, 3434, journal,4:5:6
+testBug,className,dateDebut,dateFin
+,model.class1.ServiceName,08/12/2012,09/12/2013
+,model1.Class1.ServiceName,10/12/2012,11/12/2013
+,model2.Class1.ServiceName,10/12/2012,11/12/2013
+,model3.Class1.ServiceName,10/12/2012,11/12/2013
+,model4.Class1.ServiceName,10/12/2013,11/12/2013
+,model4.Class1.ServiceName,10/12/2012,11/12/2013
+,model5.Class1.ServiceName,10/12/2012,11/12/2013
+,model6.Class1.ServiceName,10/12/2012,11/12/2013

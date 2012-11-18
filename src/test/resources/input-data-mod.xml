@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<easytest:InputTestData xmlns:easytest="urn:org:easetech:easytest:1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="urn:org:easetech:easytest:1.0 testDataSchema.xsd">
+
+ <TestMethod name="getItemsDataFromXMLLoaderModified">
+  <Description>The method with name GetItemsData will be executed 3
+   times by the EasyTest framework,
+   once each for the given TestRecord.
+  </Description>
+  <TestRecord id="1">
+   <Description>This test tries to capture the scenario when the data is
+    available in the DB
+    for the given set of input parameters. In this
+    case the expectedItems
+    should be 2.
+   </Description>
+   <InputData>
+    <Entry key="libraryId" value="91477" />
+    <Entry key="itemId" value="27" />
+    <Entry key="itemType" value="book" />
+    <Entry key="expectedItems" value="2" />
+   </InputData>
+  </TestRecord>
+  <TestRecord id="2">
+   <Description>This test tries to capture the scenario when the data is
+    available in the DB
+    for the given set of input parameters. In this
+    case the expectedItems
+    should be 1.
+   </Description>
+   <InputData>
+    <Entry key="libraryId" value="91475" />
+    <Entry key="itemId" value="36" />
+    <Entry key="itemType" value="journal" />
+    <Entry key="expectedItems" value="1" />
+   </InputData>
+  </TestRecord>
+  <TestRecord id="3">
+   <Description>This test tries to capture the scenario when the data is
+    available in the DB
+    for the given set of input parameters. In this
+    case the expectedItems
+    should be 0.
+   </Description>
+   <InputData>
+    <Entry key="libraryId" value="91475" />
+    <Entry key="itemId" value="40" />
+    <Entry key="itemType" value="ebook" />
+    <Entry key="expectedItems" value="0" />
+   </InputData>
+  </TestRecord>
+ </TestMethod>
+
+</easytest:InputTestData>

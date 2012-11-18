@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+ <!-- This is a version 4 POM file. -->
+ <modelVersion>4.0.0</modelVersion>
+ <parent>
+  <artifactId>oss-parent</artifactId>
+  <groupId>org.sonatype.oss</groupId>
+  <version>7</version>
+ </parent>
+ <!-- The project details. -->
+ <groupId>org.easetech</groupId>
+ <artifactId>easytest-core</artifactId>
+ <packaging>jar</packaging>
+ <name>EasyTest to ease Data Driven Testing</name>
+ <description>EasyTest is a JUnit extension perform Data Driven Testing with ease and simplicity. 
+    It supports method parameters with Test annotation and much more.</description>
+ <url>https://github.com/EaseTech/easytest</url>
+ <version>0.7.0-SNAPSHOT</version>
+
+ <developers>
+  <developer>
+   <id>anujgandharv</id>
+   <name>Anuj Kumar</name>
+   <email>anuj.gandharv@gmail.com</email>
+   <url>http://www.kumaranuj.com</url>
+  </developer>
+  <developer>
+   <id>ravi-polampelli</id>
+   <name>Ravi Polampelli</name>
+   <email>ravi.polampelli@gmail.com</email>
+  </developer>
+  <developer>
+   <id>gpcmol</id>
+   <name>Christiaan Mol</name>
+   <email>gpcmol@gmail.com</email>
+  </developer>
+ </developers>
+ <licenses>
+  <license>
+   <name>Apache 2</name>
+   <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+   <distribution>repo</distribution>
+   <comments>A business-friendly OSS license</comments>
+  </license>
+ </licenses>
+
+ <scm>
+  <connection>scm:git:https://anujgandharv@github.com/EaseTech/easytest.git</connection>
+  <developerConnection>scm:git:https://anujgandharv@github.com/EaseTech/easytest.git</developerConnection>
+  <url>scm:git:https://anujgandharv@github.com/EaseTech/easytest</url>
+ </scm>
+
+ <build>
+  <plugins>
+   <plugin>
+    <groupId>org.jvnet.jaxb2.maven2</groupId>
+    <artifactId>maven-jaxb2-plugin</artifactId>
+    <version>0.6.2</version>
+    <executions>
+     <execution>
+      <phase>generate-sources</phase>
+      <goals>
+       <goal>generate</goal>
+      </goals>
+      <configuration>
+       <specVersion>2.2</specVersion>
+       <extension>true</extension>
+       <verbose>false</verbose>
+       <args>
+        <arg>-XtoString</arg>
+        <arg>-XhashCode</arg>
+        <arg>-Xequals</arg>
+       </args>
+       <plugins>
+        <plugin>
+         <groupId>org.jvnet.jaxb2_commons</groupId>
+         <artifactId>jaxb2-basics-annotate</artifactId>
+         <version>0.6.2</version>
+        </plugin>
+        <plugin>
+         <groupId>org.jvnet.jaxb2_commons</groupId>
+         <artifactId>jaxb2-basics</artifactId>
+         <version>0.6.2</version>
+        </plugin>
+       </plugins>
+      </configuration>
+     </execution>
+    </executions>
+   </plugin>
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>2.3.2</version>
+    <configuration>
+     <showDeprecation>true</showDeprecation>
+    </configuration>
+   </plugin>
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-gpg-plugin</artifactId>
+    <version>1.1</version>
+    <configuration>
+     <useAgent>true</useAgent>
+    </configuration>
+   </plugin>
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-release-plugin</artifactId>
+    <version>2.2.2</version>
+    <configuration>
+     <username>anujgandharv</username>
+     <password>temp123</password>
+     <mavenExecutorId>forked-path</mavenExecutorId>
+    </configuration>
+   </plugin>
+
+  </plugins>
+ </build>
+
+ <profiles>
+  <profile>
+   <id>sourceAndjavadoc</id>
+   <build>
+    <plugins>
+     <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-source-plugin</artifactId>
+      <executions>
+       <execution>
+        <id>attach-source</id>
+        <goals>
+         <goal>jar</goal>
+        </goals>
+       </execution>
+      </executions>
+     </plugin>
+     <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-javadoc-plugin</artifactId>
+      <executions>
+       <execution>
+        <id>attach-javadocs</id>
+        <goals>
+         <goal>jar</goal>
+        </goals>
+       </execution>
+      </executions>
+     </plugin>
+    </plugins>
+   </build>
+  </profile>
+  <profile>
+   <id>release-sign-artifacts</id>
+   <activation>
+    <property>
+     <name>performRelease</name>
+     <value>true</value>
+    </property>
+   </activation>
+   <build>
+    <plugins>
+     <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-gpg-plugin</artifactId>
+      <version>1.1</version>
+      <executions>
+       <execution>
+        <id>sign-artifacts</id>
+        <phase>verify</phase>
+        <goals>
+         <goal>sign</goal>
+        </goals>
+       </execution>
+      </executions>
+     </plugin>
+    </plugins>
+   </build>
+  </profile>
+ </profiles>
+
+ <dependencies>
+  <dependency>
+   <groupId>junit</groupId>
+   <artifactId>junit</artifactId>
+   <version>4.10</version>
+  </dependency>
+
+  <dependency>
+   <groupId>org.slf4j</groupId>
+   <artifactId>slf4j-api</artifactId>
+   <version>1.6.1</version>
+   <scope>compile</scope>
+  </dependency>
+
+  <dependency>
+   <groupId>log4j</groupId>
+   <artifactId>log4j</artifactId>
+   <version>1.2.15</version>
+   <scope>runtime</scope>
+   <exclusions>
+    <exclusion>
+     <groupId>javax.mail</groupId>
+     <artifactId>mail</artifactId>
+    </exclusion>
+    <exclusion>
+     <groupId>javax.jms</groupId>
+     <artifactId>jms</artifactId>
+    </exclusion>
+    <exclusion>
+     <groupId>com.sun.jdmk</groupId>
+     <artifactId>jmxtools</artifactId>
+    </exclusion>
+    <exclusion>
+     <groupId>com.sun.jmx</groupId>
+     <artifactId>jmxri</artifactId>
+    </exclusion>
+   </exclusions>
+  </dependency>
+
+  <dependency>
+   <groupId>org.slf4j</groupId>
+   <artifactId>slf4j-log4j12</artifactId>
+   <version>1.6.1</version>
+   <scope>runtime</scope>
+  </dependency>
+
+  <dependency>
+   <groupId>org.slf4j</groupId>
+   <artifactId>jcl-over-slf4j</artifactId>
+   <version>1.6.1</version>
+   <scope>runtime</scope>
+  </dependency>
+
+  <dependency>
+   <groupId>net.sourceforge.javacsv</groupId>
+   <artifactId>javacsv</artifactId>
+   <scope>compile</scope>
+   <version>2.0</version>
+  </dependency>
+
+
+
+
+  <dependency>
+   <groupId>org.apache.poi</groupId>
+   <artifactId>poi</artifactId>
+   <version>3.8</version>
+  </dependency>
+
+  <dependency>
+   <groupId>org.apache.poi</groupId>
+   <artifactId>poi-examples</artifactId>
+   <version>3.8</version>
+  </dependency>
+
+  <dependency>
+   <groupId>org.jvnet.jaxb2_commons</groupId>
+   <artifactId>jaxb2-basics-runtime</artifactId>
+   <version>0.6.2</version>
+  </dependency>
+
+  <dependency>
+   <groupId>cglib</groupId>
+   <artifactId>cglib</artifactId>
+   <version>2.2.2</version>
+  </dependency>
+
+  <dependency>
+   <groupId>commons-lang</groupId>
+   <artifactId>commons-lang</artifactId>
+   <version>2.6</version>
+  </dependency>
+
+    <dependency>
+   <groupId>commons-io</groupId>
+   <artifactId>commons-io</artifactId>
+   <version>2.4</version>
+  </dependency>
+
+  <dependency>
+   <groupId>jfree</groupId>
+   <artifactId>jfreechart</artifactId>
+   <version>1.0.13</version>
+  </dependency>
+
+  <dependency>
+   <groupId>net.sf.jasperreports</groupId>
+   <artifactId>jasperreports</artifactId>
+   <version>4.7.0</version>
+   <exclusions>
+    <exclusion>
+     <artifactId>commons-logging</artifactId>
+     <groupId>commons-logging</groupId>
+    </exclusion>
+   </exclusions>
+  </dependency>
+ </dependencies>
+</project>
