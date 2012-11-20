@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.loader;
 
+import java.lang.reflect.Array;
+
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
 import java.io.FileNotFoundException;
@@ -38,6 +40,10 @@ import org.slf4j.LoggerFactory;
  * A CSV cannot have a blank line in between test data whether it is for a single test or for multiple tests.
  * The framework is capable of handling multiple test datas for multiple test methods in a single CSV file. 
  * Although a user can choose to define the test data in multiple files as well.
+ * <br>
+ * If you want to pass a Collection to the test method, just separate each instance with a ":". For eg. to pass
+ * a list of Itemids , pass them as a colon separated list like this -> 12:34:5777:9090 
+ *  
  * 
  * @author Anuj Kumar
  * 
@@ -179,7 +185,8 @@ public class CSVDataLoader implements Loader {
             String[] dataKeys = null;
             while (csvReader.readRecord()) {
                 String[] splitValues = csvReader.getValues();
-                String[] newSplitValues = Arrays.copyOf(splitValues, splitValues.length);
+                String[] newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), splitValues.length);
+                System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
                 if (splitValues.length > 0 && "".equals(splitValues[0])) {
                     isKeyRow = false;
 
@@ -199,7 +206,8 @@ public class CSVDataLoader implements Loader {
                     if (currentMethodData != null && !currentMethodData.isEmpty()) {
                         if (currentMethodData.get(0).keySet().contains(Loader.ACTUAL_RESULT)) {
                             int length = splitValues.length;
-                            newSplitValues = Arrays.copyOf(splitValues, length + 1);
+                            newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), length + 1);
+                            System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
                             newSplitValues[length] = Loader.ACTUAL_RESULT;
                         }
                     }

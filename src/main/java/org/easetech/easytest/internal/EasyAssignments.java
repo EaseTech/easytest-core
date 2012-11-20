@@ -14,6 +14,8 @@ import org.junit.runners.model.TestClass;
  * A internal util class for working with the parameters of a test method.
  * This class provides EasyTest the facility to identify the method arguments, identify the DataSupplier
  * associated with the Test Framework and more.
+ * 
+ * @author Anuj Kumar
  *
  */
 public class EasyAssignments {
@@ -94,9 +96,9 @@ public class EasyAssignments {
 
     /**
      * Get the instance of class that provides the functionality to provide Data.
-     * In our case, its always {@link Param.DataSupplier}
+     * In our case, its always {@link org.easetech.easytest.annotation.Param.DataSupplier}
      * @param unassigned
-     * @return {@link Param.DataSupplier}
+     * @return {@link org.easetech.easytest.annotation.Param.DataSupplier}
      * @throws InstantiationException
      * @throws IllegalAccessException
      */

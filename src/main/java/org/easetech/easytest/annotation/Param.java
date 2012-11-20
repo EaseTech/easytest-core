@@ -22,16 +22,17 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import org.easetech.easytest.converter.AbstractConverter;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.GeneralUtil;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.experimental.theories.ParameterSignature;
 import org.junit.experimental.theories.ParameterSupplier;
-import org.junit.experimental.theories.ParametersSuppliedBy;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,48 +45,91 @@ import sun.beans.editors.LongEditor;
 import sun.beans.editors.ShortEditor;
 
 /**
- * An extension of Junit's {@link ParametersSuppliedBy} annotation that converts the data for Junit to consume. This
- * Annotation gives the ability to get the data per method rather than per class. Also Junit will automatically call the
+ * A parameter level optional annotation that converts the data for EasyTest based test methods to consume. This
+ * Annotation gives the ability to pass input parameters to the test method. EasyTest will automatically call the test
  * method as many times as there are number of data sets to be run against that particular method. For example, if the
- * user has specified 5 data set for a single junit method, Junit will call the method five times, each time providing
+ * user has specified 5 data set for a single test method, EasyTest will call the method five times, each time providing
  * the test data that was provided by the user. <br>
- * The annotation is normally used in conjunction with {@link DataLoader} annotation although it can be used with it as
- * well.</br> <br>
- * The annotation contains a single optional field :
+ * The annotation is used in conjunction with {@link DataLoader} annotation. {@link DataLoader} annotation is 
+ * used to provide test data to the test cases.
+ * </br> <br>
+ * The annotation is optional. In case the name of the input parameter provided in the data file(XML, Excel, CSV or custom) 
+ * is same as the name of the input parameter type then this annotation can be omitted.
+ * For eg:<br>
+ * <code><B>
+ * public void testWithStrongParameters(LibraryId id ,
+ *@Param(name="itemid") ItemId
+ * itemId) { .... } </B>
+ * </code>
+ *  <br>
+ *  In the above example we have not provided @Param annotation to the input paramater LibraryId. In this case the test parameter name in the test file should be LibraryId.
+ *  You have to take care that in scenario where the input parameters are of the same type, the 
+ *  names should be different. Thus if you have two input parameters of type LibraryId then you should 
+ *  provide atleast @Param annotation on one of the input parameters.
+ *  
+ * The annotation contains a single mandatory field :
  * 
- * <li><B> name</B> : the name of the parameter(OPTIONAL) as is present in the input test data file. <li>In case the
- * param name value is not specified and the Parameter type is Map, {@link DataSupplier} simply provides the HashMap
+ * <li><B> name</B> : the name of the parameter(Mandatory) as is present in the input test data file. <li>In case the
+ * param annotation is not specified and the Parameter type is Map, {@link DataSupplier} simply provides the HashMap
  * instance that was created while loading the data. This {@link HashMap} represents a single set of test data for the
- * test method.</li> <li>In case the param name is not specified and the parameter type is a strongly typed Object of
- * the client using this annotation(for eg LibraryId), it will try to search for the parameter with the name which is
- * the class name of the Object parameter.</li> <li>In case the param name is specified the framework will look for the
+ * test method.</li> <li>In case the param name is specified along with the {link @Param} annotation, the framework will look for the
  * parameter with the specified name in the loaded test data.
+ * <br>
  * 
  * Moreover, the framework supports PropertyEditors support for strongly typed objects. If you have a custom object and
- * its property editor in the same package, the JUnit framework will convert the String value to your specified custom
+ * its property editor in the same package, the EasyTest framework will convert the String value to your specified custom
  * object by calling the right property editor and pass an instance of custom object to your test case. This provides
- * the users facility to write test cases such as this : <code>
+ * the users facility to write test cases such as this : <br><code>
  * 
  * @Test
- * @DataLoader(filePaths ={ "getItemsData.csv" }) public void testWithStrongParameters(@Param() LibraryId id ,
- * @Param(name="itemid") ItemId itemId) { ....
- * 
- *                       } </code> <br>
- *                       <li>Example of using Map to get the entire data:</li></br> <br>
+ * @DataLoader(filePaths ={ "getItemsData.csv" }) <br>public void testWithStrongParameters(LibraryId id ,@Param(name="itemid") ItemId itemId) { ....
+ * } </code> <br><br>
+ * <li>Example of using Map to get the entire data:</li></br> <br>
  *                       <code><br>
  * @Test
- * @DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType(<B>@Paramr()</B>
- *                        Map<String, String> inputData) {<br> ........
+ *(@)DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType(<B>@Paramr()</B>
+ *                        Map<String, Object> inputData) {<br> ........
  * 
  *                        }</code>
+ *                        
+ *                        
+ *<br><br>
+ *The EasyTest framework also supports custom {@link Converter}s. Converters are a mechanism for the user to translate a map of key/value pair into 
+ *custom objects that can be passed as input parameters to the test cases.
+ *For example, if you want to pass a complex object as input parameter to a test case then you will simply write a custom converter that extends {@link AbstractConverter}
+ *and will override the {@link AbstractConverter#convert(Map)} method. You can look at example of CustomConverter here : 
+ *https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/ItemConverter.java
+ *
+ *<br>
+ *If you want to pass a Collection type, then EasyTest framework provides the functionality to instantiate the Collection class for you and pass in the right generic parameter if possible.
+ *For eg. if you have a test method like this :<br>
+ *  <br><code>
+ *
+ *  (At)Test<br>
+ *   public void testArrayList(@Param(name="items") ArrayList&lt;ItemId> items){<br>
+ *       Assert.assertNotNull(items);<br>
+ *      for(ItemId item : items){<br>
+ *          System.out.println("testArrayList : "+item);<br>
+ *      &nbsp;&nbsp;}<br>
+ *  }<br>
+ *
+ * then all you have to do is :
+ * <li> pass the list of itemIds as <B>":"</B> separated list in the test data file(XML, CSV,Excel or custom), for eg: 23:56:908:666</li><br>
+ * <li> and register an editor or converter for converting the String data to object.<br>
+ * In case the generic type argument to the Collection is a standard Java type(Date, Character, Timestamp, Long, Interger, Float, Double etc) 
+ * then you don't have to do anything and the framework will take care of converting the String data to the requested type. 
+ *<br><br>
+ *Finally, even though the EasyTest framework is compiled with JDK 1.5, it does not stop you from using Java 6 Collection Types in case you are running your code on JRE 6.
+ *For using Java 6 Collection type(like Deque , LinkedBlockingDeque etc) in your test cases, all you have to do is register an empty implementation of {@link AbstractConverter} in the {@link BeforeClass} method.
+ *Note that you should pass only the Concrete type as parameter argument while extending the {@link AbstractConverter} and not the Abstract type or the interface type.
+ *You can always override the default implementation of creating a specific type instance for use in your test cases by overriding the {@link AbstractConverter#instanceOfType()} method.
+ * 
  * 
  * @author Anuj Kumar
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
+@Target({ElementType.PARAMETER })
 public @interface Param {
-    
-    
 
     /** The name of the parameter for which value needs to be fetched from the data set */
     String name();
@@ -97,8 +141,11 @@ public @interface Param {
      * 
      */
     static class DataSupplier {
-        
-        protected final Logger LOG = LoggerFactory.getLogger(DataSupplier.class);
+
+        /**
+         * Logger
+         */
+        protected final static Logger LOG = LoggerFactory.getLogger(DataSupplier.class);
 
         private static final String COLON = ":";
 
@@ -113,7 +160,6 @@ public @interface Param {
             PropertyEditorManager.registerEditor(Float.class, FloatEditor.class);
             PropertyEditorManager.registerEditor(Byte.class, ByteEditor.class);
             PropertyEditorManager.registerEditor(Short.class, ShortEditor.class);
-            //PropertyEditorManager.registerEditor(Character.class, CharacterEditor.class);
             PropertyEditorManager.registerEditor(Double.class, DoubleEditor.class);
             PropertyEditorManager.registerEditor(Boolean.class, BoolEditor.class);
 
@@ -181,12 +227,14 @@ public @interface Param {
                     try {
                         dataValues = (Map) mapType.newInstance();
                     } catch (InstantiationException e) {
-                        LOG.error("InstantiationException occured while trying to convert the data to Map(using newInstance() method). " +
-                        		"The type of Map passed as input parameter is :" + mapType , e);
+                        LOG.error(
+                            "InstantiationException occured while trying to convert the data to Map(using newInstance() method). "
+                                + "The type of Map passed as input parameter is :" + mapType, e);
                         throw new RuntimeException(e);
                     } catch (IllegalAccessException e) {
-                        LOG.error("IllegalAccessException occured while trying to convert the data to Map(using newInstance() method). " +
-                            "The type of Map passed as input parameter is :" + mapType , e);
+                        LOG.error(
+                            "IllegalAccessException occured while trying to convert the data to Map(using newInstance() method). "
+                                + "The type of Map passed as input parameter is :" + mapType, e);
                         throw new RuntimeException(e);
                     }
                     dataValues.putAll(map);
@@ -212,8 +260,8 @@ public @interface Param {
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
             PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
             if (editor != null) {
-                if(LOG.isDebugEnabled()){
-                    LOG.debug("Editor for class " + idClass +" found.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Editor for class " + idClass + " found.");
                 }
                 for (Map<String, Object> object : convertFrom) {
                     if (paramName != null && !EMPTY_STRING.equals(paramName)) {
@@ -231,21 +279,21 @@ public @interface Param {
                 }
 
             } else {
-                if(LOG.isDebugEnabled()){
-                    LOG.debug("Editor for class " + idClass +" not found. Trying to find converter.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Editor for class " + idClass + " not found. Trying to find converter.");
                 }
                 // Try to find the Converter
                 Converter<?> converter = ConverterManager.findConverter(idClass);
                 if (converter != null) {
-                    if(LOG.isDebugEnabled()){
-                        LOG.debug("Converter for class " + idClass +"  found. ");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Converter for class " + idClass + "  found. ");
                     }
                     for (Map<String, Object> object : convertFrom) {
                         finalData.add(PotentialAssignment.forValue(EMPTY_STRING, converter.convert(object)));
                     }
                 } else {
-                    if(LOG.isDebugEnabled()){
-                        LOG.debug("Converter for class " + idClass +"  not found. Final try to resolve the object.");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Converter for class " + idClass + "  not found. Final try to resolve the object.");
                     }
                     // if there is no coverter and editor, values will be converted using our GeneralUtil methods
                     // these methods cover multiple combinations of types from test data file
@@ -273,12 +321,18 @@ public @interface Param {
                             finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
                                 GeneralUtil.convertToUtilDate(object.get(paramName))));
                         }
-                    } else if (Object.class.isAssignableFrom(idClass)) {
+                    } else if (Character.class.isAssignableFrom(idClass)) {
+                        for (Map<String, Object> object : convertFrom) {
+                            finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
+                                GeneralUtil.convertToCharacter(object.get(paramName))));
+                        }
+                    }
+                    else if (Object.class.isAssignableFrom(idClass)) {
                         for (Map<String, Object> object : convertFrom) {
                             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, object.get(paramName)));
                         }
                     } else {
-                        if(LOG.isDebugEnabled()){
+                        if (LOG.isDebugEnabled()) {
                             LOG.debug("Could not find either Editor or Converter instance for class :" + idClass);
                         }
                         Assert.fail("Could not find either Editor or Converter instance for class :" + idClass);
@@ -297,7 +351,7 @@ public @interface Param {
          *            {@link PotentialAssignment}
          * @param paramName the optional name of the parameter with which to search for the data.
          * @param convertFrom the list of raw data read from the CSV file.
-         * @param parameterType The Class of the parameter type 
+         * @param parameterType The Class of the parameter type
          * @return list of {@link PotentialAssignment}
          */
 
@@ -307,11 +361,11 @@ public @interface Param {
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
             PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
             if (editor != null) {
-                if(LOG.isDebugEnabled()){
-                    LOG.debug("Editor for class " + idClass +" found.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Editor for class " + idClass + " found.");
                 }
                 for (Map<String, Object> object : convertFrom) {
-                    Collection objectValues = getCollectionInstance(parameterType , idClass);
+                    Collection objectValues = getCollectionInstance(parameterType, idClass);
                     String strValue = null;
                     if (paramName != null && !EMPTY_STRING.equals(paramName)) {
                         strValue = getStringValue(paramName, object);
@@ -331,29 +385,29 @@ public @interface Param {
                 }
 
             } else {
-                if(LOG.isDebugEnabled()){
-                    LOG.debug("Editor for class " + idClass +" not found. Trying to find converter.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Editor for class " + idClass + " not found. Trying to find converter.");
                 }
-                Collection objectValues = getCollectionInstance(parameterType , idClass);
-                
+                Collection objectValues = getCollectionInstance(parameterType, idClass);
+
                 Converter<?> converter = ConverterManager.findConverter(idClass);
                 if (converter != null) {
-                    if(LOG.isDebugEnabled()){
-                        LOG.debug("Converter for class " + idClass +"  found. ");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Converter for class " + idClass + "  found. ");
                     }
                     for (Map<String, Object> object : convertFrom) {
-                        Map<String , Object> tempMap = new HashMap<String, Object>();
-                        String values = (String)object.get(paramName);
+                        Map<String, Object> tempMap = new HashMap<String, Object>();
+                        String values = (String) object.get(paramName);
                         String[] splitValues = values.split(COLON);
-                        for(int i = 0 ; i < splitValues.length ; i++){
+                        for (int i = 0; i < splitValues.length; i++) {
                             tempMap.put(paramName, splitValues[i]);
                             objectValues.add(converter.convert(tempMap));
                         }
                         finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                     }
                 } else {
-                    if(LOG.isDebugEnabled()){
-                        LOG.debug("Converter for class " + idClass +"  not found. Final try to resolve the object.");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Converter for class " + idClass + "  not found. Final try to resolve the object.");
                     }
 
                     // if there is no editor, values will be converted using our GeneralUtil methods
@@ -362,7 +416,7 @@ public @interface Param {
                     // There are scenarios where param name will be null(in cases where user has not specified @Param
                     // annotation).
                     // That scenario needs to be handled as well
-                    
+
                     if (objectValues == null) {
                         Assert.fail("Unable to identify the Collection with Class :" + parameterType);
                     }
@@ -411,7 +465,7 @@ public @interface Param {
 
                         }
                     } else {
-                        if(LOG.isDebugEnabled()){
+                        if (LOG.isDebugEnabled()) {
                             LOG.debug("Could not find either Editor or Converter instance for class :" + idClass);
                         }
                         Assert.fail("Could not find either Editor or Converter instance for class :" + idClass);
@@ -421,44 +475,79 @@ public @interface Param {
             }
 
             return finalData;
-            
+
         }
 
         /**
-         * Method that is responsible for returning the right instance of the Collection based on user's input.
-         * If the collection type is abstract or if the collection type is an interface a default collection type is returned.
+         * Method that is responsible for returning the right instance of the Collection based on user's input. If the
+         * collection type is abstract or if the collection type is an interface a default collection type is returned.
+         * 
          * @param parameterType the Class object representing the Collection Type
          * @param genericType the optional generic type for the Collection
          * @return an instance of {@link Collection}
          */
         @SuppressWarnings("unchecked")
-        private static Collection getCollectionInstance(Class parameterType , Class genericType) {
+        private static Collection getCollectionInstance(Class parameterType, Class genericType) {
             try {
                 if (Set.class.isAssignableFrom(parameterType)) {
-                    if(EnumSet.class.isAssignableFrom(parameterType)){
-                       return EnumSet.noneOf(genericType == null ? Object.class : genericType);
+                    if (EnumSet.class.isAssignableFrom(parameterType)) {
+                        if(LOG.isDebugEnabled()){
+                            LOG.debug("Returning an instance of " + EnumSet.class.getSimpleName() + " for the input parameter of Type :" + parameterType);    
+                        }
+                        return EnumSet.noneOf(genericType == null ? Object.class : genericType);
                     }
-                    return (Collection) (parameterType.isInterface() || Modifier.isAbstract(parameterType.getModifiers()) ? new TreeSet() : parameterType.newInstance());
+
+                    return (Collection) (parameterType.isInterface()
+                        || Modifier.isAbstract(parameterType.getModifiers()) ? new TreeSet() : parameterType
+                        .newInstance());
+                } else if (List.class.isAssignableFrom(parameterType)) {
+                    return (Collection) (parameterType.isInterface()
+                        || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedList() : parameterType
+                        .newInstance());
+                } else if ("Deque".equals(parameterType.getSimpleName()) || "LinkedBlockingDeque".equals(parameterType.getSimpleName()) || "BlockingDeque".equals(parameterType.getSimpleName())) {
+                    // Try to find an instance of the Class from the ConverterManager
+                    Converter converter = ConverterManager.findConverter(parameterType);
+                    if (converter == null) {
+                        Assert
+                            .fail("EasyTest does not natively support the Collection of type "
+                                + parameterType
+                                + " . In order to use this Collection type as parameter, provide an empty implementation of AbstractConveter " +
+                                "class or provide an implementation of instance() method of the Converter interface ");
+                    }else{
+                        return (Collection)converter.instanceOfType();
+                    }
                 } else if (Queue.class.isAssignableFrom(parameterType)) {
-                    if(ArrayBlockingQueue.class.isAssignableFrom(parameterType)){
+                    if (ArrayBlockingQueue.class.isAssignableFrom(parameterType)) {
                         return new ArrayBlockingQueue(100);
                     }
-                    return (Collection) (parameterType.isInterface() || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedBlockingDeque() : parameterType.newInstance());
-                } else if (List.class.isAssignableFrom(parameterType)) {
-                    
-                    return (Collection) (parameterType.isInterface() || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedList() : parameterType.newInstance());
-                }else if(Collection.class.isAssignableFrom(parameterType)){
+                    return (Collection) (parameterType.isInterface()
+                        || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedBlockingQueue()
+                        : parameterType.newInstance());
+                } else if (Collection.class.isAssignableFrom(parameterType)) {
                     return new ArrayList();
                 }
             } catch (InstantiationException e) {
-                throw new RuntimeException(e);
+                if(LOG.isDebugEnabled()){
+                    LOG.error("InstantiationException occured while trying to instantiate a Collection of Type : " + parameterType , e);                  
+                }
+                Assert.fail("InstantiationException occured while trying to instantiate a Collection of Type : " + parameterType + " . The exception is :" + e.getMessage());
             } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+                
+                if(LOG.isDebugEnabled()){
+                    LOG.error("IllegalAccessException occured while trying to instantiate a Collection of Type : " + parameterType , e);                  
+                }
+                Assert.fail("IllegalAccessException occured while trying to instantiate a Collection of Type : " + parameterType + " . The exception is :" + e.getMessage());
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException(e);
+                if(LOG.isDebugEnabled()){
+                    LOG.error("IllegalArgumentException occured while trying to instantiate a Collection of Type : " + parameterType , e);                  
+                }
+                Assert.fail("IllegalArgumentException occured while trying to instantiate a Collection of Type : " + parameterType + " . The exception is :" + e.getMessage());
             } catch (SecurityException e) {
-                throw new RuntimeException(e);
-            } 
+                if(LOG.isDebugEnabled()){
+                    LOG.error("SecurityException occured while trying to instantiate a Collection of Type : " + parameterType , e);                  
+                }
+                Assert.fail("SecurityException occured while trying to instantiate a Collection of Type : " + parameterType + " . The exception is :" + e.getMessage());
+            }
             return null;
         }
 
