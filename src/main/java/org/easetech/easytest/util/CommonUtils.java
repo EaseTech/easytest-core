@@ -42,7 +42,7 @@ public class CommonUtils {
 	 * Create directory
 	 * 
 	 * @param destinationFolder
-	 * @return
+	 * @return a string representing the path to the output folder.
 	 */
 	public static String createDefaultOutputFolder(String destinationFolder) {
 		if (destinationFolder == null || destinationFolder.equals("")) {

@@ -26,7 +26,7 @@ public class EmptyLoader implements Loader {
 
     @Override
     public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
-        // TODO Auto-generated method stub
+       //do nothing
 
     }
 }

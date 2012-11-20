@@ -83,7 +83,7 @@ public class DurationBean implements Serializable {
 	/**
 	 * Time difference in nano seconds
 	 * 
-	 * @return
+	 * @return Time difference in nano seconds
 	 */
 	public long getNanoDifference() {
 		return (this.endInNano - this.startInNano);

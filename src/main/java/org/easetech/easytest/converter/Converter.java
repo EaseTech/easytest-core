@@ -11,7 +11,7 @@ import java.util.Map;
 public interface Converter<Type> {
     
     /**
-     * The class of the object to convert to
+     * The class of the generic type argument to which the data should be converted to.
      * @return the class of the object to convert to
      */
     Class<Type> convertTo();
@@ -22,5 +22,12 @@ public interface Converter<Type> {
      * @return the object to convert to identified by {@link #convertTo()} class.
      */
     Type convert(Map<String , Object> convertFrom);
+    
+    /**
+     * Method responsible for returning an instance of the provided Generic Type argument.
+     * Look at {@link AbstractConverter#instanceOfType()} methods Javadoc for details on the default implementation.  
+     * @return an instance of the provided Generic Type argument. 
+     */
+    Type instanceOfType();
 
 }

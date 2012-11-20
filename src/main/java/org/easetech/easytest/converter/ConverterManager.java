@@ -1,7 +1,6 @@
 
 package org.easetech.easytest.converter;
 
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -21,30 +20,32 @@ public class ConverterManager {
 
     /**
      * Find the registered Converter for the given class type
+     * 
      * @param targetType the class type to find teh converter for.
      * @return an instance of registered converter or Null if not found.
      */
     public static Converter<?> findConverter(Class<?> targetType) {
 
-		Set<Converter> cnvrtrs = converters.get();
-		Converter result = null;
-		if(cnvrtrs!=null){
-			Iterator<Converter> itr = cnvrtrs.iterator();
-	        
-	        while (itr.hasNext()) {
-	            Converter converter = itr.next();
-	            if (converter.convertTo().equals(targetType)) {
-	                result = converter;
-	                break;
-	            }
-	        }
-		}
-        
+        Set<Converter> cnvrtrs = converters.get();
+        Converter result = null;
+        if (cnvrtrs != null) {
+            Iterator<Converter> itr = cnvrtrs.iterator();
+
+            while (itr.hasNext()) {
+                Converter converter = itr.next();
+                if (converter.convertTo().equals(targetType)) {
+                    result = converter;
+                    break;
+                }
+            }
+        }
+
         return result;
     }
 
     /**
      * Register the converter with the ConverterManager
+     * 
      * @param converterClass the class object identifying the concrete {@link Converter} class.
      */
     public static void registerConverter(Class converterClass) {
@@ -69,7 +70,10 @@ public class ConverterManager {
             }
 
         } else {
-            System.out.println("Converter with class :" + converterClass + " not registered");
+            throw new RuntimeException("Could not register the converter for  " + converterClass
+                + " . Either the passed argument is NULL or the passed class does not extend the "
+                + AbstractConverter.class.getSimpleName() + " abstract class or implement the "
+                + Converter.class.getSimpleName() + " interface.");
         }
 
     }
