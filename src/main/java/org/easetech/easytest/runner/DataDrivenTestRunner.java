@@ -124,14 +124,16 @@ public class DataDrivenTestRunner extends Suite {
      * contains all the available test data key / value pairs for easy consumption by the user. It also supports user
      * defined custom Objects as parameters.<br>
      * <br>
-     * Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept calls to
-     * the test subject that is currently being tested. For eg. if you want to capture how much time a particular method
-     * of the actual service class is taking, then you can mark the field representing the testSubject with
-     * {@link Intercept} annotation. The framework also provides convenient way to write your own custom method
-     * interceptors.
+     * 
      * 
      * @author Anuj Kumar
      */
+    
+//    Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept calls to
+//    * the test subject that is currently being tested. For eg. if you want to capture how much time a particular method
+//    * of the actual service class is taking, then you can mark the field representing the testSubject with
+//    * {@link Intercept} annotation. The framework also provides convenient way to write your own custom method
+//    * interceptors.
     private class EasyTestRunner extends BlockJUnit4ClassRunner {
 
         /**
@@ -436,7 +438,7 @@ public class DataDrivenTestRunner extends Suite {
              * This method encapsulates the actual change in behavior from the traditional JUnit Theories way of
              * populating and supplying the test data to the test method. This method creates a list of
              * {@link Assignments} identified by {@link #listOfAssignments} and then calls
-             * {@link #runWithCompleteAssignment(Assignments)} for each {@link Assignments} element in the
+             * {@link #runWithCompleteAssignment(EasyAssignments)} for each {@link Assignments} element in the
              * {@link #listOfAssignments}
              * 
              * @param parameterAssignment an instance of {@link Assignments} identifying the parameters that needs to be

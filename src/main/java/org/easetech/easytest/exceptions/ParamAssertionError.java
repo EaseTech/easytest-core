@@ -4,6 +4,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+/**
+ * 
+ * An extension of {@link RuntimeException} class that handles {@link ParamAssertionError}
+ * 
+ *  @author Anuj Kumar
+ *
+ */
 public class ParamAssertionError extends RuntimeException {
     
     private static final long serialVersionUID = 1L;

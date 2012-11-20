@@ -12,6 +12,8 @@ import java.util.List;
  * 
  * A single instance of {@link EasyParamSignature} 
  * identifies a single test method parameter associated with the test method
+ * 
+ * @author Anuj Kumar
  *
  */
 public class EasyParamSignature {
