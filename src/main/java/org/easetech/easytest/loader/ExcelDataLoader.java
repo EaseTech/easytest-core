@@ -48,6 +48,10 @@ import org.slf4j.LoggerFactory;
  * The framework is capable of handling multiple test data for multiple test methods in a single Excel file. 
  * Although a user can choose to define the test data in multiple files as well.
  * 
+ * <br>
+ * If you want to pass a Collection to the test method, just separate each instance with a ":". For eg. to pass
+ * a list of Itemids , pass them as a colon separated list like this -> 12:34:5777:9090 
+ * 
  * @author Anuj Kumar
  * 
  */
