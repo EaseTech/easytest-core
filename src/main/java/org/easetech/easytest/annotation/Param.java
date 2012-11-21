@@ -1,4 +1,3 @@
-
 package org.easetech.easytest.annotation;
 
 import java.beans.PropertyEditor;
@@ -272,9 +271,9 @@ public @interface Param {
                     } else {
                         editor.setAsText(getStringValue(idClass.getSimpleName(), object));
                     }
-                    if (editor.getValue() != null) {
-                        finalData.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
-                    }
+                    
+                    // add data to PotentialAssignment even if it is null
+                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
 
                 }
 
