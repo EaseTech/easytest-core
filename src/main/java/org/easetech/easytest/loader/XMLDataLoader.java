@@ -49,14 +49,14 @@ import org.xml.sax.SAXException;
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="urn:org:easetech:easytest:1.0 testDataSchema.xsd"&gt;<br>
  * <B>&lt;TestMethod name="getSimpleData"&gt;</B><br>
- * &nbsp;&nbsp;&lt;TestRecord&gt;<br>
+ * &nbsp;&nbsp;&lt;TestRecord id="1"&gt;<br>
  * &nbsp;&nbsp;&lt;InputData&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="libraryId" value="91475" /&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="itemId" value="12" /&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="itemType" value="book" /&gt;<br>
  * &nbsp;&nbsp;&lt;/InputData&gt;<br>
  * &nbsp;&nbsp;&lt;/TestRecord&gt;<br>
- * &nbsp;&nbsp;&lt;TestRecord&gt;<br>
+ * &nbsp;&nbsp;&lt;TestRecord id="2"&gt;<br>
  * &nbsp;&nbsp;&lt;InputData&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="libraryId" value="234" /&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="itemId" value="1452" /&gt;<br>
@@ -65,14 +65,14 @@ import org.xml.sax.SAXException;
  * &nbsp;&nbsp;&lt;/TestRecord&gt;<br>
  * <B>&lt;/TestMethod&gt;</B><br>
  * <B>&lt;TestMethod name="getAnotherData"&gt;</B><br>
- * &nbsp;&nbsp;&lt;TestRecord&gt;<br>
+ * &nbsp;&nbsp;&lt;TestRecord id="3"&gt;<br>
  * &nbsp;&nbsp;&lt;InputData&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="picId" value="1111" /&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="picNum" value="12" /&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="picFormat" value="jpeg" /&gt;<br>
  * &nbsp;&nbsp;&lt;/InputData&gt;<br>
  * &nbsp;&nbsp;&lt;/TestRecord&gt;<br>
- * &nbsp;&nbsp;&lt;TestRecord&gt;<br>
+ * &nbsp;&nbsp;&lt;TestRecord id="4"&gt;<br>
  * &nbsp;&nbsp;&lt;InputData&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="picId" value="1561" /&gt;<br>
  * &nbsp;&nbsp;&nbsp;&lt;Entry key="picNum" value="178" /&gt;<br>
@@ -85,6 +85,9 @@ import org.xml.sax.SAXException;
  * As you can guess, the root element is {@link InputTestData} that can have multiple {@link TestMethod} elements in it.<br> 
  * Each {@link TestMethod} element identifies a method to test with its name attribute.<br>
  * Each {@link TestMethod} can have many TestRecords. Each Record identifies data for a single test execution.<br>
+ * Each {@link TestRecord} element has an id attribute. This id attribute has to be unique in the entire XML file.
+ * So you should not have the id = 1 for more than one test record. If you do, then the behavior is undefined in such a scenario.
+ * <br>
  * {@link TestRecord} contains {@link InputData} element as well as {@link OutputData} element. A user never specifies an {@link OutputData} element.
  * If it is specified, it will be ignored by the {@link Loader}. {@link OutputData} is used internally by the {@link XMLDataLoader} to write output data back to the file. 
  * Each Entry element identifies a method parameter.

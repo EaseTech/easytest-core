@@ -29,16 +29,6 @@ public class RunAftersWithOutputData extends Statement {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(RunAftersWithOutputData.class);
 
-    /**
-     * An instance of {@link Loader} responsible for writing the data to the file.
-     */
-    // private final Loader loader;
-
-    /**
-     * An array of File paths containing the path to the file to which data needs to be written. Currently we take the
-     * first path in the array and try to write the output data to that file.
-     */
-    // private final String[] filePath;
 
     /**
      * The actual data structure that contains both the input as well as output data
@@ -80,6 +70,7 @@ public class RunAftersWithOutputData extends Statement {
      *            {@link AfterClass} are always declared as static.
      * @param testInfoList the list of {@link TestInfo} containing information required to write data back to the file.
      * @param writableData the writable data that needs to be written to the file.
+     * @param testReportContainer a container class representing everything required to generate reports
      */
     public RunAftersWithOutputData(Statement next, List<FrameworkMethod> afters, Object target,
         List<TestInfo> testInfoList, Map<String, List<Map<String, Object>>> writableData , ReportDataContainer testReportContainer) {
@@ -135,17 +126,17 @@ public class RunAftersWithOutputData extends Statement {
                 String outputLocation = CommonUtils.createFolder(absoluteLocation);
                 if (outputLocation != null) {
                     EXPORT_FORMAT[] outputFormats = annotation.outputFormats();
-                    LOG.info("Reporting phase started " + new Date());
-                    LOG.info("Writing reports to folder: " + outputLocation);
+                    LOG.debug("Reporting phase started " + new Date());
+                    LOG.debug("Writing reports to folder: " + outputLocation);
                     ReportRunner testReportHelper = new ReportRunner(testReportContainer);
                     testReportHelper.runReports(outputFormats, outputLocation);
-                    LOG.info("Reporting phase finished " + new Date());
+                    LOG.debug("Reporting phase finished " + new Date());
                 } else {
                     LOG.error("Can't write reports. Report output location " + outputLocationFromAnnotation + " can't be created.");
                 }
             }
         }
-        LOG.info("evaluate finished");
+        LOG.debug("evaluate finished");
     }
 
 }
