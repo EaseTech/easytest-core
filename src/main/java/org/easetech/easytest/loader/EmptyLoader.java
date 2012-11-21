@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.loader;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import java.util.List;
@@ -29,4 +31,18 @@ public class EmptyLoader implements Loader {
        //do nothing
 
     }
+
+    @Override
+	public void writeFullData(FileOutputStream fos,
+			Map<String, List<Map<String, Object>>> actualData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Map<String, List<Map<String, Object>>> loadFromInputStream(
+			InputStream file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
