@@ -105,7 +105,7 @@ public class ExcelDataLoader implements Loader {
      * @throws IOException if an exception occurs while loading the data
      */
     private Map<String, List<Map<String, Object>>> loadFromSpreadsheet(final InputStream excelFile) throws IOException {
-        HSSFWorkbook workbook = new HSSFWorkbook(excelFile);
+    	HSSFWorkbook workbook = new HSSFWorkbook(excelFile);
 
         data = new HashMap<String, List<Map<String, Object>>>();
         Sheet sheet = workbook.getSheetAt(0);
@@ -297,7 +297,7 @@ public class ExcelDataLoader implements Loader {
     /**
      * Load the Data from Excel spreadsheet.It uses Apache POI classes to load the data.
      * 
-     * @param excelFile the excel file input stream to load the data from
+     * @param file the excel file input stream to load the data from
      * @return the loaded data.
      * @throws IOException if an exception occurs while loading the data
      */
@@ -482,7 +482,15 @@ public class ExcelDataLoader implements Loader {
         	cell.setCellValue(stringValue);        	
         } 
     }
-
+    
+    /**
+     * Method responsible for writing full data 
+     * i.e. the complete map (all the methods, list of parameters and list of values) to a file
+     * 
+     * @param fos the file output stream of the file to which data needs to be written
+     * @param actualData a Map consisting of the methodName as key and a List of Key/value pairs as the value of the Map. 
+     * This Map contains all the methods, list of parameters and list of values 
+     */
     @Override
 	public void writeFullData(FileOutputStream fos,
 			Map<String, List<Map<String, Object>>> map) {
