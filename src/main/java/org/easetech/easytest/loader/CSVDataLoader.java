@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -241,5 +242,19 @@ public class CSVDataLoader implements Loader {
         }
 
     }
+
+    @Override
+	public void writeFullData(FileOutputStream fos,
+			Map<String, List<Map<String, Object>>> actualData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Map<String, List<Map<String, Object>>> loadFromInputStream(
+			InputStream file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
