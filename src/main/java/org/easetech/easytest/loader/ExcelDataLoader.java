@@ -2,12 +2,14 @@
 package org.easetech.easytest.loader;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import junit.framework.Assert;
@@ -107,22 +109,24 @@ public class ExcelDataLoader implements Loader {
 
         data = new HashMap<String, List<Map<String, Object>>>();
         Sheet sheet = workbook.getSheetAt(0);
-        int numberOfColumns = countNonEmptyColumns(sheet);
 
         Map<String, List<Map<String, Object>>> finalData = new HashMap<String, List<Map<String, Object>>>();
 
         Map<Integer, Object> tempData = new HashMap<Integer, Object>();
         List<Map<String, Object>> dataValues = null;
+
         for (Row row : sheet) {
-            boolean isFirstColumn = true;
+
             boolean keyRow = false;
 
-            Map<String, Object> actualData = new HashMap<String, Object>();
-            for (int column = 0; column < numberOfColumns; column++) {
+            Map<String, Object> actualData = new LinkedHashMap<String, Object>();
 
-                Cell cell = row.getCell(column);
+            LOG.debug("No.of cells last cell no:"+row.getLastCellNum());
+            for (Cell cell:row) {
                 Object cellData = objectFrom(workbook, cell);
-                if (isFirstColumn && cellData != null) {
+                //LOG.debug("column"+column);
+                //LOG.debug("cellData "+cellData);
+                if ((cell.getColumnIndex()==0) && cellData != null && !"".equals(cellData)) {
                     // Indicates that this is a new set of test data.
                     dataValues = new ArrayList<Map<String, Object>>();
                     // Indicates that this row consists of Keys
@@ -132,14 +136,11 @@ public class ExcelDataLoader implements Loader {
                     // dont do anything. May be can be used in future.
                 } else {
                     if (keyRow) {
-                        tempData.put(column, objectFrom(workbook, cell));
+                        tempData.put(cell.getColumnIndex(), objectFrom(workbook, cell));
                     } else {
-                        actualData.put(tempData.get(column).toString(), objectFrom(workbook, cell));
+                        actualData.put(tempData.get(cell.getColumnIndex()).toString(), objectFrom(workbook, cell));
                     }
-
                 }
-                isFirstColumn = false;
-
             }
             if (!keyRow) {
                 dataValues.add(actualData);
@@ -292,6 +293,24 @@ public class ExcelDataLoader implements Loader {
         LOG.info("loadData finished");
         return result;
     }
+    
+    /**
+     * Load the Data from Excel spreadsheet.It uses Apache POI classes to load the data.
+     * 
+     * @param excelFile the excel file input stream to load the data from
+     * @return the loaded data.
+     * @throws IOException if an exception occurs while loading the data
+     */
+    @Override
+    public Map<String, List<Map<String, Object>>> loadFromInputStream(final InputStream file){
+    	Map<String, List<Map<String, Object>>> data = null; 
+    	try {             
+             data = loadFromSpreadsheet(file);
+         } catch (IOException e) {
+             LOG.error("IO Exception occured while trying to read the data from the file : {}", file);
+         }
+    	return data;
+    }
 
     /**
      * Write the data back to the Excel file. The data is written to the same Excel File as it was read from.
@@ -337,6 +356,8 @@ public class ExcelDataLoader implements Loader {
 
     private void writeDataToSpreadsheet(ResourceLoader resource, String methodNameForDataLoad, Map<String, List<Map<String, Object>>> data)
         throws IOException {
+        
+        
         LOG.debug("writeDataToSpreadsheet started" + resource.toString() + data);
         Workbook workbook;
         try {
@@ -347,50 +368,52 @@ public class ExcelDataLoader implements Loader {
             throw new IOException(e.getMessage());
         }
 
-        Sheet sheet = workbook.getSheetAt(0);
-        // Sheet sheet = workbook.createSheet();
+        Sheet sheet = workbook.getSheetAt(0);        
 
-        for (String methodName : data.keySet()) {
-            int rowNum = 0;
-            if(!methodName.equals(methodNameForDataLoad)){
-                continue;
-            }
+    	Integer recordNum = getMethodRowNumFromExcel(sheet, methodNameForDataLoad);
+    	//if record doesn't exist then return without writing any thing
+    	if(recordNum == null) {
+    		LOG.error("Method doesn't exist in the excel:"+methodNameForDataLoad);        		
+    		return;
+    	}
+        int columnNum = sheet.getRow(recordNum).getLastCellNum();
+    	int rowNum = 0;
+        boolean isActualResultHeaderWritten = false;
+        
+        for (Map<String, Object> methodData : data.get(methodNameForDataLoad)) {
+            // rowNum increment by one to proceed with next record of the method.
+            rowNum++;
 
-            boolean isActualResultHeaderWritten = false;
-            for (Map<String, Object> methodData : data.get(methodName)) {
-                // rowNum increment by one to proceed with next record of the method.
-                rowNum++;
+            Object actualResult = methodData.get(ACTUAL_RESULT);
+            if (actualResult != null) {
 
-                Object actualResult = methodData.get(ACTUAL_RESULT);
-                if (actualResult != null) {
-                    // getting no.of columns in the record
-                    int columnNum = methodData.size();
-                    if (!isActualResultHeaderWritten) {
-                        Integer recordNum = getMethodRowNumFromExcel(sheet, methodName);
-                        if (recordNum != null) {
-                            // Write the actual result and test status headers.
-                            writeDataToCell(sheet, recordNum, columnNum, ACTUAL_RESULT);
-                            //writeDataToCell(sheet, recordNum, columnNum + 1, TEST_STATUS);
-                            rowNum = rowNum + recordNum;
-                            isActualResultHeaderWritten = true;
-                        }
+                                 
+                Object testStatus = methodData.get(TEST_STATUS);
+                if (!isActualResultHeaderWritten) {
+                    if (recordNum != null) {
+                    	// Write the actual result and test status headers.
+                        writeDataToCell(sheet, recordNum, columnNum, ACTUAL_RESULT);
+                        if(testStatus != null) writeDataToCell(sheet,recordNum,columnNum+1,TEST_STATUS);
+                        rowNum = rowNum + recordNum;
+                        isActualResultHeaderWritten = true;
                     }
-                    LOG.info("rowNum:" + rowNum);
-
-                    // Write the actual result and test status values.
-                    if (isActualResultHeaderWritten) {
-                        LOG.debug("actualResult:" + actualResult.toString());
-                        writeDataToCell(sheet, rowNum, columnNum, actualResult.toString());
-                        Object testStatus = methodData.get(TEST_STATUS);
-                        if (testStatus != null) {
-                            LOG.debug("testStatus:" + testStatus.toString());
-                            writeDataToCell(sheet, rowNum, columnNum + 1, testStatus.toString());
-                        }
-                    }
-
                 }
+                LOG.debug("rowNum:" + rowNum);
+                
+                // Write the actual result and test status values.
+                if(isActualResultHeaderWritten){
+                	LOG.debug("actualResult:" + actualResult.toString());
+                    writeDataToCell(sheet, rowNum, columnNum, actualResult.toString());
+                                           
+        			if(testStatus != null){ 
+        				LOG.debug("testStatus:" + testStatus.toString());
+        				writeDataToCell(sheet,rowNum,columnNum+1,testStatus.toString());
+        			}
+                }
+                
             }
         }
+
         // Write the output to a file
         workbook.write(resource.getFileOutputStream());
         LOG.debug("writeDataToSpreadsheet finished");
@@ -414,13 +437,145 @@ public class ExcelDataLoader implements Loader {
         return rowNum;
     }
 
-    private void writeDataToCell(Sheet sheet, int rowNum, int columnNum, String value) {
+    private void writeDataToCell(Sheet sheet, int rowNum, int columnNum, Object value) {
+    	LOG.debug("writeDataToCell started:"+sheet.getSheetName()+",rowNum:"+rowNum+",columnNum:"+columnNum+",value:"+value);
         Row row = sheet.getRow(rowNum);
+        if(row==null){
+        	row = sheet.createRow(rowNum);
+        }
         Cell cell = row.getCell(columnNum);
         if (cell == null) {
-            cell = row.createCell(columnNum);
+        	int lastColumn = row.getLastCellNum();
+        	if(lastColumn < 0)
+        		lastColumn = 0;
+        	for(int i=lastColumn;i<=columnNum;i++) {
+        		cell = row.createCell(i);
+        	}
         }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
-        cell.setCellValue(value);
+
+        if(value instanceof String) {
+        	cell.setCellType(Cell.CELL_TYPE_STRING);
+        	String stringValue = value.toString();
+        	//Excel cell content limit is 32KB, hence we trim the remaining part of the value.
+        	if(stringValue.length() > 30000){
+        		stringValue = stringValue.substring(0, 30000);
+        	}
+        	cell.setCellValue(stringValue);
+        }  else if( value instanceof Double){
+        	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        	cell.setCellValue((Double) value);
+        } else if( value instanceof Integer){
+        	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        	cell.setCellValue((Integer) value);
+        } else if( value instanceof Long){
+        	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        	cell.setCellValue((Long) value);
+        } else if( value instanceof Float){
+        	cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        	cell.setCellValue((Float) value);
+        } else if(value != null) {
+        	cell.setCellType(Cell.CELL_TYPE_STRING);
+        	String stringValue = value.toString();
+        	if(stringValue.length() > 30000){
+        		stringValue = stringValue.substring(0, 30000);
+        	}
+        	cell.setCellValue(stringValue);        	
+        } 
     }
+
+    @Override
+	public void writeFullData(FileOutputStream fos,
+			Map<String, List<Map<String, Object>>> map) {
+		LOG.debug("writeFullData started, filePath:" + fos + ", data map size:" + map.size() + ", data map:" + map);
+        try {
+
+            writeFullExcelData(fos, map);
+        } catch (IOException e) {
+            Assert.fail("An I/O exception occured while writing the files :" + fos);
+        }
+        LOG.info("writeFullData finished");
+    }
+
+    /**
+     * writes map data to excel file. it gets FileWriter from ResourceLoader and writeDataToSpreadsheet
+     * 
+     * @param filePath The path to the file to which the data will be written
+     * @param data a Map of method name and the list of associated test input and output data with that method name
+     * @throws IOException if an IO Exception occurs
+     */
+    private void writeFullExcelData(FileOutputStream fos, Map<String, List<Map<String, Object>>> data) throws IOException {
+        LOG.debug("writeFullExcelData started" + fos + data.size());
+        try {
+        	//File file = new File(filePath);
+            //ResourceLoader resource = new ResourceLoader(filePath);
+            writeFullDataToSpreadsheet(fos, data);
+        } catch (FileNotFoundException e) {
+            LOG.error("The specified file was not found. The path is : {}", fos);
+            LOG.error("Continuing with the loading of next file.");
+        } catch (IOException e) {
+            LOG.error("IO Exception occured while trying to write : {}", fos);
+            LOG.error("Continuing with the loading of next file.");
+        }
+
+        LOG.debug("writeFullExcelData finished" +  data.size());
+    }
+
+    private void writeFullDataToSpreadsheet(FileOutputStream fos, Map<String, List<Map<String, Object>>> data)
+        throws IOException {
+        LOG.debug("writeFullDataToSpreadsheet started" +  data);
+
+        Workbook workbook = new HSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        //Sheet sheet = workbook.getSheetAt(0);
+        
+        //LOG.debug("workbook.getActiveSheetIndex()" + workbook.getActiveSheetIndex());
+        sheet = workbook.getSheetAt(workbook.getActiveSheetIndex());
+        int rowNum = sheet.getLastRowNum();
+        LOG.debug("sheet.getLastRowNum()" + sheet.getLastRowNum());
+        
+        for (String methodName : data.keySet()) {            
+        	
+            boolean isHeaderWritten = false;
+        	Map<String,Integer> parameterIndexMap = new LinkedHashMap<String,Integer>();
+            for (Map<String, Object> methodData : data.get(methodName)) {
+                // rowNum increment by one to proceed with next record of the method.                           
+            	LOG.debug("methodData.keySet().size"+methodData.keySet().size());
+            	LOG.debug("methodData"+methodData);
+            	
+                if (!isHeaderWritten) {
+                	int columnIndex = 0;
+                	// Write the method name and parameter names in header.
+                	writeDataToCell(sheet, rowNum, columnIndex++, methodName);
+                	for(String parameterName:methodData.keySet()) {
+                		writeDataToCell(sheet, rowNum, columnIndex, parameterName);
+                		//capturing column index so that corresponding values will be placed at same column
+                		parameterIndexMap.put(parameterName, columnIndex);
+                		columnIndex++;
+                	}
+                	//incrementing row after writing header
+                    rowNum++;
+                    isHeaderWritten = true;
+                }
+                
+                // Write the actual result and test status values.
+                if(isHeaderWritten){
+                	
+                	int columnIndex = 0;
+                	//we need to put empty cell in first column as per easytest xls structure.
+                	writeDataToCell(sheet, rowNum, columnIndex++, null);
+                	for(String parameter:methodData.keySet()) {
+                		writeDataToCell(sheet, rowNum, parameterIndexMap.get(parameter), methodData.get(parameter)); 
+                		
+                	}
+                	rowNum++;
+                }
+                
+            }
+        }
+        // Write the output to a file
+        workbook.write(fos);
+        LOG.debug("writeFullDataToSpreadsheet finished");
+
+    }
+
 }
