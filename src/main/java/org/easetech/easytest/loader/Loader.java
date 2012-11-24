@@ -1,5 +1,8 @@
 package org.easetech.easytest.loader;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -56,5 +59,23 @@ public interface Loader {
      * This is currently not a user friendly way of exposing the test data. 
      */
     void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData);
+    
+    /**
+     * Method responsible for writing the test data and actual result back to the file
+     * @param filePath the path to the file to which data needs to be written
+     * @param actualData a Map consisting of the methodName as key and a List of Key/value pairs as the value of the Map. 
+     * This Map contains the input as well as output data 
+     * This is currently not a user friendly way of exposing the test data. 
+     */
+    void writeFullData(FileOutputStream fos, Map<String, List<Map<String, Object>>> actualData);
+    
+    /**
+     * Load the Data from Excel spreadsheet.It uses Apache POI classes to load the data.
+     * 
+     * @param excelFile the excel file input stream to load the data from
+     * @return the loaded data.
+     * @throws IOException if an exception occurs while loading the data
+     */
+    public Map<String, List<Map<String, Object>>> loadFromInputStream(final InputStream file);
 
 }
