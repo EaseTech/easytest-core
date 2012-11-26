@@ -4,6 +4,7 @@ package org.easetech.easytest.loader;
 import org.easetech.easytest._1.InputData;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -330,5 +331,19 @@ public class XMLDataLoader implements Loader {
         }
 
     }
+
+ @Override
+	public void writeFullData(FileOutputStream fos,
+			Map<String, List<Map<String, Object>>> actualData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Map<String, List<Map<String, Object>>> loadFromInputStream(
+			InputStream file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

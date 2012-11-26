@@ -3,6 +3,7 @@ package org.easetech.easytest.example;
 
 import com.csvreader.CsvReader;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -177,5 +178,19 @@ public class CustomCSVDataLoader implements Loader {
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+	public void writeFullData(FileOutputStream fos,
+			Map<String, List<Map<String, Object>>> actualData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Map<String, List<Map<String, Object>>> loadFromInputStream(
+			InputStream file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
