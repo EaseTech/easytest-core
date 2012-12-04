@@ -143,13 +143,14 @@ public class GeneralUtil {
     public static Timestamp convertToSQLTimestamp(Object object){
         Timestamp timestamp = null;
         if(object != null){
-            if(object instanceof java.util.Date){
+            timestamp = new java.sql.Timestamp(convertToUtilDate(object).getTime());
+            /*if(object instanceof java.util.Date){
                 timestamp = new Timestamp(((java.util.Date) object).getTime());
             } else if(object instanceof Double){
                 timestamp = new Timestamp(((Double) object).longValue());
             } else if(object instanceof String){
                 timestamp = new Timestamp(Long.valueOf((String) object));
-            }
+            }*/
         }
         
         return timestamp;
@@ -173,7 +174,8 @@ public class GeneralUtil {
                 date = new Date(((Double) object).longValue());
             } else if(object instanceof String){
                 try {
-                    date = DateUtils.parseDate((String)object, new String[]{"dd/MM/yy" , "dd/MM/yyyy" , "MM/dd/yy" , "MM/dd/yyyy" , "dd-MM-yy" , "dd-MM-YYYY" , "MM-dd-yy" , "MM-dd-yyyy"});
+                    date = DateUtils.parseDate((String)object, new String[]{"dd/MM/yy" , "dd/MM/yyyy" , "MM/dd/yy" , "MM/dd/yyyy" , "dd-MM-yy" , "dd-MM-YYYY" , "MM-dd-yy" , "MM-dd-yyyy",
+                    		"dd/MM/yy HH:MM:SS" , "dd/MM/yyyy HH:MM:SS" , "MM/dd/yy HH:MM:SS" , "MM/dd/yyyy HH:MM:SS" , "dd-MM-yy HH:MM:SS" , "dd-MM-YYYY HH:MM:SS" , "MM-dd-yy HH:MM:SS" , "MM-dd-yyyy HH:MM:SS","HH:MM:SS"});
                 } catch (ParseException e) {
                     date = new Date(Long.valueOf((String) object));
                 }
@@ -193,24 +195,13 @@ public class GeneralUtil {
      * @return java.sql.Date converted value.
      */
     
-    public static java.sql.Date convertToSQLDate(Object object){
-        java.sql.Date date = null;
-        if(object != null){
-            if(object instanceof java.util.Date){
-                date = new java.sql.Date(((java.util.Date) object).getTime());
-            } else if(object instanceof Double){
-                date = new java.sql.Date(((Double) object).longValue());
-            } else if(object instanceof String){
-                try {
-                    date = new java.sql.Date(GeneralUtil.convertToUtilDate((String)object).getTime());
-                } catch (IllegalArgumentException e) {
-                    date = new java.sql.Date(Long.valueOf((String) object));
-                }
-                
-            }
-        }
-        
-        return date;
+    public static java.sql.Date convertToSQLDate(Object object){        
+    	java.sql.Date sqlDate = null;
+    	if(object != null){
+    		sqlDate = new java.sql.Date(convertToUtilDate(object).getTime());;
+    	}
+    			
+        return sqlDate;
     }
     
     /**
@@ -225,12 +216,19 @@ public class GeneralUtil {
     public static java.sql.Time convertToSQLTime(Object object){
         java.sql.Time time = null;
         if(object != null){
+        	
             if(object instanceof java.util.Date){
-                time = new java.sql.Time(((java.util.Date) object).getTime());
+                time =  new java.sql.Time(((Date)object).getTime());
             } else if(object instanceof Double){
                 time = new java.sql.Time(((Double) object).longValue());
             } else if(object instanceof String){
-                time = new java.sql.Time(Long.valueOf((String) object));
+            	Date date;
+                try {
+                	date =DateUtils.parseDate((String)object, new String[]{"HH:MM:SS"});                	
+                } catch (ParseException e) {
+                    date = new Date(Long.valueOf((String) object));
+                }
+            	time = new java.sql.Time(date.getTime());;
             }
         }
         
@@ -452,7 +450,7 @@ public class GeneralUtil {
      * @return Character converted value.
      */
     public static Enum convertToEnum(Class idClass, Object object){
-        Enum enumValue = null;     
+    	Enum enumValue = null;     
         if(object != null && idClass.isEnum()){
         	enumValue = Enum.valueOf(idClass, (String)convertToString(object));            
         }       
