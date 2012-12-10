@@ -19,7 +19,6 @@ import org.easetech.easytest.loader.Loader;
  */
 public class CustomObjectDataLoader implements Loader {
 
-    @Override
     public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -30,20 +29,17 @@ public class CustomObjectDataLoader implements Loader {
         return result;
     }
 
-    @Override
     public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
 	public void writeFullData(FileOutputStream fos,
 			Map<String, List<Map<String, Object>>> actualData) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public Map<String, List<Map<String, Object>>> loadFromInputStream(
 			InputStream file) {
 		// TODO Auto-generated method stub

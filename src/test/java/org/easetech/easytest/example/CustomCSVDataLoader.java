@@ -155,7 +155,6 @@ public class CustomCSVDataLoader implements Loader {
      * @param filePaths the list of File paths
      * @return the data
      */
-    @Override
     public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
         System.out.println("Using my custom Loader");
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
@@ -173,20 +172,17 @@ public class CustomCSVDataLoader implements Loader {
      * @param filePath
      * @param actualData
      */
-    @Override
     public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
 	public void writeFullData(FileOutputStream fos,
 			Map<String, List<Map<String, Object>>> actualData) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public Map<String, List<Map<String, Object>>> loadFromInputStream(
 			InputStream file) {
 		// TODO Auto-generated method stub

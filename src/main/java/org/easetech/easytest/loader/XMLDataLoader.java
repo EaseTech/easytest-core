@@ -117,7 +117,6 @@ public class XMLDataLoader implements Loader {
      * @param filePaths the list of File paths
      * @return the data
      */
-    @Override
     public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
         try {
@@ -256,7 +255,6 @@ public class XMLDataLoader implements Loader {
      * @param methodName the name of the method to write data for
      * @param actualData the actual data that needs to be written to the file.
      */
-    @Override
     public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -332,14 +330,12 @@ public class XMLDataLoader implements Loader {
 
     }
 
- @Override
 	public void writeFullData(FileOutputStream fos,
 			Map<String, List<Map<String, Object>>> actualData) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public Map<String, List<Map<String, Object>>> loadFromInputStream(
 			InputStream file) {
 		// TODO Auto-generated method stub
