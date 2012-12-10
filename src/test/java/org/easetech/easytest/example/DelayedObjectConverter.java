@@ -10,7 +10,6 @@ public class DelayedObjectConverter extends AbstractConverter<DelayedObject>{
      * @param convertFrom
      * @return
      */
-    @Override
     public DelayedObject convert(Map<String, Object> convertFrom) {
         
         return new DelayedObject(Long.valueOf((String)convertFrom.get("items")));

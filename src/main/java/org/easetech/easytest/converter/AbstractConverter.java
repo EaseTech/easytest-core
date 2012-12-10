@@ -21,7 +21,6 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
      * 
      * @return the Class variable representing the Type object
      */
-    @Override
     public Class<Type> convertTo() {
         @SuppressWarnings("unchecked")
         Class<Type> type = (Class<Type>) ((ParameterizedType) getClass().getGenericSuperclass())
@@ -41,7 +40,6 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
      * It is recommended to extend the Abstract Converter instead of implementing the Converter interface directly.
      * @return an instance of the generic type argument passed to the {@link AbstractConverter}
      */
-    @Override
     public Type instanceOfType() {
         Type type = null;
         Class<Type> classType = convertTo();
