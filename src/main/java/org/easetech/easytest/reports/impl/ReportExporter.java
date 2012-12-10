@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
-
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
@@ -14,6 +13,8 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.export.JRHtmlExporter;
+import net.sf.jasperreports.engine.export.JRHtmlExporterParameter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
@@ -78,8 +79,15 @@ public class ReportExporter {
 	}
 
 	private void exportHTML(String destinationFolder, String reportName, JasperPrint jasperPrint) throws JRException {
-		JasperExportManager.exportReportToHtmlFile(jasperPrint, destinationFolder + File.separatorChar + reportName
+		JRHtmlExporter exporter = new JRHtmlExporter();
+		
+		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
+		exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, destinationFolder + File.separatorChar + reportName
 				+ "." + EXPORT_FORMAT.HTML.toString().toLowerCase());
+		exporter.setParameter(JRHtmlExporterParameter.IGNORE_PAGE_MARGINS, true);
+		exporter.setParameter(JRHtmlExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, true);
+		exporter.setParameter(JRHtmlExporterParameter.IS_WHITE_PAGE_BACKGROUND, false);
+		exporter.exportReport();
 	}
 
 	private void exportXLS(String destinationFolder, String reportName, JasperPrint jasperPrint) throws JRException {
