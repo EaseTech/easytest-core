@@ -26,7 +26,7 @@ import org.jfree.data.general.DefaultPieDataset;
 public class ReportBuilder {
 
 	public enum REPORT_TYPES {
-		ALL, DEFAULT, PERFORMANCE
+		DEFAULT //ALL, PERFORMANCE
 	}
 
 	/**
