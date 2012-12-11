@@ -280,7 +280,6 @@ public class ExcelDataLoader implements Loader {
     /**
      * Main entry point for the Loader
      */
-    @Override
     public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
         LOG.info("loadData started" + filePaths);
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
@@ -301,7 +300,6 @@ public class ExcelDataLoader implements Loader {
      * @return the loaded data.
      * @throws IOException if an exception occurs while loading the data
      */
-    @Override
     public Map<String, List<Map<String, Object>>> loadFromInputStream(final InputStream file){
     	Map<String, List<Map<String, Object>>> data = null; 
     	try {             
@@ -318,7 +316,6 @@ public class ExcelDataLoader implements Loader {
      * @param filePaths the paths of the file specifying the the file to which data needs to be written.
      * @param map an instance of {@link Map} containing the data that needs to be written to the file.
      */
-    @Override
     public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> map) {
         LOG.debug("writeData started, filePath:" + filePaths + ", data map size:" + map.size() + ", data map:" + map);
         try {
@@ -483,7 +480,6 @@ public class ExcelDataLoader implements Loader {
         } 
     }
 
-    @Override
 	public void writeFullData(FileOutputStream fos,
 			Map<String, List<Map<String, Object>>> map) {
 		LOG.debug("writeFullData started, filePath:" + fos + ", data map size:" + map.size() + ", data map:" + map);
