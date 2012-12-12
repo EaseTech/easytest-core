@@ -1,22 +1,18 @@
 
 package org.easetech.easytest.loader;
 
-import java.lang.reflect.Array;
-
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.easetech.easytest.util.ResourceLoader;
-import org.junit.Assert;
+import org.easetech.easytest.io.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,34 +79,7 @@ public class CSVDataLoader implements Loader {
 
     }
 
-    /**
-     * Construct a new CSVDataLoader and also load the data.
-     * 
-     * @param dataFiles the list of input stream string files to load the data from
-     * @return a Map of method name and the list of associated test data with that method name
-     * @throws IOException if an IO Exception occurs
-     */
-    private Map<String, List<Map<String, Object>>> loadCSVData(final List<String> dataFiles) throws IOException {
-        Map<String, List<Map<String, Object>>> data = null;
-        Map<String, List<Map<String, Object>>> finalData = new HashMap<String, List<Map<String, Object>>>();
-        for (String filePath : dataFiles) {
-            try {
-                ResourceLoader resource = new ResourceLoader(filePath);
-                data = loadFromSpreadsheet(resource.getInputStream());
-            } catch (FileNotFoundException e) {
-                LOG.error("The specified file was not found. The path is : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            } catch (IOException e) {
-                LOG.error("IO Exception occured while trying to read the data from the file : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            }
-            finalData.putAll(data);
-        }
-        return finalData;
-
-    }
+    
 
     /**
      * Load data from SpreadSheet
@@ -155,29 +124,11 @@ public class CSVDataLoader implements Loader {
 
     }
 
-    /**
-     * Load the data from the specified list of filePaths
-     * 
-     * @param filePaths the list of File paths
-     * @return the data
-     */
-    @Override
-    public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
-        try {
-            result = loadCSVData(Arrays.asList(filePaths));
-        } catch (IOException e) {
-            Assert.fail("An I/O exception occured while reading the files from the path :" + filePaths.toString());
-        }
-        return result;
-    }
 
-    @Override
-    public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
+    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
         Boolean isKeyRow = true;
         List<String[]> writableData = new ArrayList<String[]>();
         try {
-            ResourceLoader resource = new ResourceLoader(filePaths[0]);
             CsvReader csvReader = new CsvReader(new InputStreamReader(resource.getInputStream()), COMMA_SEPARATOR);
             // use FileWriter constructor that specifies open for overriding
 
@@ -185,6 +136,7 @@ public class CSVDataLoader implements Loader {
             int dataRowIndex = 0;
             String[] dataKeys = null;
             while (csvReader.readRecord()) {
+                
                 String[] splitValues = csvReader.getValues();
                 String[] newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), splitValues.length);
                 System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
@@ -195,7 +147,7 @@ public class CSVDataLoader implements Loader {
                     dataKeys = splitValues;
                     isKeyRow = true;
                     currentMethodName = splitValues[0];
-                    if (!currentMethodName.equals(methodName)) {
+                    if (!writeDataForMethod(currentMethodName, methodNames)) {
                         writableData.add(splitValues);
                         continue;
                     }
@@ -210,11 +162,12 @@ public class CSVDataLoader implements Loader {
                             newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), length + 1);
                             System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
                             newSplitValues[length] = Loader.ACTUAL_RESULT;
+                            dataKeys = newSplitValues;
                         }
                     }
                     writableData.add(newSplitValues);
                 } else {
-                    if (!currentMethodName.equals(methodName)) {
+                    if (!writeDataForMethod(currentMethodName, methodNames)) {
                         writableData.add(splitValues);
                         continue;
                     }
@@ -229,7 +182,8 @@ public class CSVDataLoader implements Loader {
                 }
 
             }
-            CsvWriter csvWriter = new CsvWriter(resource.getFileWriter(false), COMMA_SEPARATOR);
+            FileWriter fileWriter = new FileWriter(resource.getFile(), false);
+            CsvWriter csvWriter = new CsvWriter(fileWriter, COMMA_SEPARATOR);
             // finally we have the values in order to be written to the CSV file.
             for (String[] data : writableData) {
                 csvWriter.writeRecord(data);
@@ -239,22 +193,35 @@ public class CSVDataLoader implements Loader {
 
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }catch(Exception ex){
+            throw new RuntimeException(ex);
         }
 
     }
+    
+    Boolean writeDataForMethod(String currentMethod , String... methodNames){
+        //If the methodNames is null or empty it means the data needs to be written for each
+        //of the methods
+        if(methodNames == null || methodNames.length == 0){
+            return true;
+        }
+        for(String methodName : methodNames){
+            if(methodName.equals(currentMethod)){
+                return true;
+            }
+        }
+        //We want to write data for specific methods but the not for the currentMethod
+        return false;
+    }
 
-    @Override
-	public void writeFullData(FileOutputStream fos,
-			Map<String, List<Map<String, Object>>> actualData) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Map<String, List<Map<String, Object>>> loadFromInputStream(
-			InputStream file) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
+        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
+        try {
+            result = loadFromSpreadsheet(resource.getInputStream());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

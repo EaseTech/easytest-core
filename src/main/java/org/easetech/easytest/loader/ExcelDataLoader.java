@@ -1,12 +1,10 @@
 
 package org.easetech.easytest.loader;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -23,8 +21,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.easetech.easytest.loader.Loader;
-import org.easetech.easytest.util.ResourceLoader;
+import org.easetech.easytest.io.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,34 +147,6 @@ public class ExcelDataLoader implements Loader {
     }
 
     /**
-     * Count the number of columns, using the number of non-empty cells in the first row.
-     * 
-     * @param sheet the excel sheet that contains the data
-     * @return number of non empty columns.
-     */
-    private int countNonEmptyColumns(final Sheet sheet) {
-        Row firstRow = sheet.getRow(0);
-        return firstEmptyCellPosition(firstRow);
-    }
-
-    /**
-     * Get the first empty cell position in the sheet
-     * 
-     * @param cells the row in the sheet
-     * @return the first empty cell position in the sheet
-     */
-    private int firstEmptyCellPosition(final Row cells) {
-        int columnCount = 0;
-        for (Cell cell : cells) {
-            if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
-                break;
-            }
-            columnCount++;
-        }
-        return columnCount;
-    }
-
-    /**
      * Get the cell value from the workbook and the specified cell within the workbook.
      * 
      * @param workbook the workbook containing the cells
@@ -247,114 +216,24 @@ public class ExcelDataLoader implements Loader {
     }
 
     /**
-     * Construct a new CSVDataLoader and also load the data.
-     * 
-     * @param dataFiles the list of input stream string files to load the data from
-     * @return a Map of method name and the list of associated test data with that method name
-     * @throws IOException if an IO Exception occurs
-     */
-    private Map<String, List<Map<String, Object>>> loadExcelData(final List<String> dataFiles) throws IOException {
-        LOG.debug("loadExcelData started", dataFiles);
-        Map<String, List<Map<String, Object>>> data = null;
-        Map<String, List<Map<String, Object>>> finalData = new HashMap<String, List<Map<String, Object>>>();
-        for (String filePath : dataFiles) {
-            try {
-                ResourceLoader resource = new ResourceLoader(filePath);
-                data = loadFromSpreadsheet(resource.getInputStream());
-            } catch (FileNotFoundException e) {
-                LOG.error("The specified file was not found. The path is : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            } catch (IOException e) {
-                LOG.error("IO Exception occured while trying to read the data from the file : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            }
-            finalData.putAll(data);
-        }
-        LOG.debug("loadExcelData finisihed", finalData);
-        return finalData;
-
-    }
-
-    /**
      * Main entry point for the Loader
      */
     @Override
-    public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
-        LOG.info("loadData started" + filePaths);
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
+        LOG.debug("Trying to load the data for resource :" + resource.getResourceName());
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
         try {
-            result = loadExcelData(Arrays.asList(filePaths));
+            result = loadFromSpreadsheet(resource.getInputStream());
+            
         } catch (IOException e) {
-            Assert.fail("An I/O exception occured while reading the files from the path :" + filePaths.toString());
+            Assert.fail("An I/O exception occured while trying to read the file :" + resource.getResourceName());
         }
-        LOG.debug("loadData finished" + result);
-        LOG.info("loadData finished");
+        LOG.debug("Loading data from resource {} succedded and the data loaded is {}", resource.getResourceName(), result);
         return result;
     }
-    
-    /**
-     * Load the Data from Excel spreadsheet.It uses Apache POI classes to load the data.
-     * 
-     * @param excelFile the excel file input stream to load the data from
-     * @return the loaded data.
-     * @throws IOException if an exception occurs while loading the data
-     */
-    @Override
-    public Map<String, List<Map<String, Object>>> loadFromInputStream(final InputStream file){
-    	Map<String, List<Map<String, Object>>> data = null; 
-    	try {             
-             data = loadFromSpreadsheet(file);
-         } catch (IOException e) {
-             LOG.error("IO Exception occured while trying to read the data from the file : {}", file);
-         }
-    	return data;
-    }
 
-    /**
-     * Write the data back to the Excel file. The data is written to the same Excel File as it was read from.
-     * 
-     * @param filePaths the paths of the file specifying the the file to which data needs to be written.
-     * @param map an instance of {@link Map} containing the data that needs to be written to the file.
-     */
-    @Override
-    public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> map) {
-        LOG.debug("writeData started, filePath:" + filePaths + ", data map size:" + map.size() + ", data map:" + map);
-        try {
 
-            writeExcelData(filePaths[0], methodName, map);
-        } catch (IOException e) {
-            Assert.fail("An I/O exception occured while reading the files from the path :" + filePaths[0]);
-        }
-        LOG.info("writeData finished");
-    }
-
-    /**
-     * writes map data to excel file. it gets FileWriter from ResourceLoader and writeDataToSpreadsheet
-     * 
-     * @param filePath The path to the file to which the data will be written
-     * @param methodName the name of the method to write the data for
-     * @param data a Map of method name and the list of associated test input and output data with that method name
-     * @throws IOException if an IO Exception occurs
-     */
-    private void writeExcelData(String filePath, String methodName, Map<String, List<Map<String, Object>>> data) throws IOException {
-        LOG.debug("writeExcelData started" + filePath + data.size());
-        try {
-            ResourceLoader resource = new ResourceLoader(filePath);
-            writeDataToSpreadsheet(resource, methodName, data);
-        } catch (FileNotFoundException e) {
-            LOG.error("The specified file was not found. The path is : {}", filePath);
-            LOG.error("Continuing with the loading of next file.");
-        } catch (IOException e) {
-            LOG.error("IO Exception occured while trying to read the data from the file : {}", filePath);
-            LOG.error("Continuing with the loading of next file.");
-        }
-
-        LOG.debug("writeExcelData finished" + filePath + data.size());
-    }
-
-    private void writeDataToSpreadsheet(ResourceLoader resource, String methodNameForDataLoad, Map<String, List<Map<String, Object>>> data)
+    private void writeDataToSpreadsheet(Resource resource, String methodNameForDataLoad, Map<String, List<Map<String, Object>>> data)
         throws IOException {
         
         
@@ -415,7 +294,7 @@ public class ExcelDataLoader implements Loader {
         }
 
         // Write the output to a file
-        workbook.write(resource.getFileOutputStream());
+        workbook.write(resource.getOutputStream());
         LOG.debug("writeDataToSpreadsheet finished");
 
     }
@@ -483,44 +362,8 @@ public class ExcelDataLoader implements Loader {
         } 
     }
 
-    @Override
-	public void writeFullData(FileOutputStream fos,
-			Map<String, List<Map<String, Object>>> map) {
-		LOG.debug("writeFullData started, filePath:" + fos + ", data map size:" + map.size() + ", data map:" + map);
-        try {
 
-            writeFullExcelData(fos, map);
-        } catch (IOException e) {
-            Assert.fail("An I/O exception occured while writing the files :" + fos);
-        }
-        LOG.info("writeFullData finished");
-    }
-
-    /**
-     * writes map data to excel file. it gets FileWriter from ResourceLoader and writeDataToSpreadsheet
-     * 
-     * @param filePath The path to the file to which the data will be written
-     * @param data a Map of method name and the list of associated test input and output data with that method name
-     * @throws IOException if an IO Exception occurs
-     */
-    private void writeFullExcelData(FileOutputStream fos, Map<String, List<Map<String, Object>>> data) throws IOException {
-        LOG.debug("writeFullExcelData started" + fos + data.size());
-        try {
-        	//File file = new File(filePath);
-            //ResourceLoader resource = new ResourceLoader(filePath);
-            writeFullDataToSpreadsheet(fos, data);
-        } catch (FileNotFoundException e) {
-            LOG.error("The specified file was not found. The path is : {}", fos);
-            LOG.error("Continuing with the loading of next file.");
-        } catch (IOException e) {
-            LOG.error("IO Exception occured while trying to write : {}", fos);
-            LOG.error("Continuing with the loading of next file.");
-        }
-
-        LOG.debug("writeFullExcelData finished" +  data.size());
-    }
-
-    private void writeFullDataToSpreadsheet(FileOutputStream fos, Map<String, List<Map<String, Object>>> data)
+    private void writeFullDataToSpreadsheet(OutputStream fos, Map<String, List<Map<String, Object>>> data)
         throws IOException {
         LOG.debug("writeFullDataToSpreadsheet started" +  data);
 
@@ -577,5 +420,23 @@ public class ExcelDataLoader implements Loader {
         LOG.debug("writeFullDataToSpreadsheet finished");
 
     }
+
+    @Override
+    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {      
+            try {
+                if(methodNames == null || methodNames.length == 0){                 
+                    writeFullDataToSpreadsheet(resource.getOutputStream(), actualData);
+                }else{
+                    for(String methodName : methodNames){
+                        writeDataToSpreadsheet(resource, methodName, actualData);
+                    }
+                    
+                }
+            } catch (IOException e) {
+                LOG.warn("Unable to write data to file {} . An I/O Exception occured.", resource.getResourceName(),e);
+            }
+        
+    }
+
 
 }

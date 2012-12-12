@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "org/easetech/data/testExcelData.xls" }, loaderType = LoaderType.EXCEL)
+@DataLoader(filePaths = { "C:\\Anuj\\easetech\\easytest-core\\src\\test\\resources\\org\\easetech\\data\\testExcelData.xls" }, loaderType = LoaderType.EXCEL)
 @Report
 public class TestExcelDataLoader {
     
@@ -41,7 +41,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths={"overrideExcelData.csv"} , loaderType=LoaderType.CSV)
+    @DataLoader(filePaths={"classpath:overrideExcelData.csv"} , loaderType=LoaderType.CSV)
     public Item getExcelTestDataWithDouble(@Param(name = "libraryId")
     Double libraryId, @Param(name = "itemId")
     Double itemId) {
@@ -72,7 +72,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths = { "org/easetech/data/test-update.xls" }, loaderType = LoaderType.EXCEL)
+    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" }, loaderType = LoaderType.EXCEL)
     public Item getExcelTestDataWithReturnType(@Param(name = "libraryId")
     Float libraryId, @Param(name = "itemId")
     Float itemId) {

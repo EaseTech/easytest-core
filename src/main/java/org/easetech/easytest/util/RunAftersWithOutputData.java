@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.io.ResourceLoader;
+import org.easetech.easytest.io.ResourceLoaderStrategy;
 import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.impl.ReportRunner;
 import org.junit.AfterClass;
@@ -108,7 +110,11 @@ public class RunAftersWithOutputData extends Statement {
         for (TestInfo testInfo : testInfoList) {
             if (testInfo.getFilePaths() != null && testInfo.getDataLoader() != null) {
                 try {
-                    testInfo.getDataLoader().writeData(testInfo.getFilePaths(), testInfo.getMethodName(), writableData);
+                    ResourceLoader resourceLoader = new ResourceLoaderStrategy(testInfo.getTestClass().getJavaClass());
+                    for(String filePath : testInfo.getFilePaths()){
+                        testInfo.getDataLoader().writeData(resourceLoader.getResource(filePath), writableData, testInfo.getMethodName());
+                    }
+                    
                 } catch (Exception e) {
                     
                     throw new ParameterizedAssertionError(e, testInfo.getMethodName(), testInfo);

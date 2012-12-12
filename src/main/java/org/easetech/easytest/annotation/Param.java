@@ -58,7 +58,7 @@ import sun.beans.editors.ShortEditor;
  * For eg:<br>
  * <code><B>
  * public void testWithStrongParameters(LibraryId id ,
- *@Param(name="itemid") ItemId
+ * (@)Param(name="itemid") ItemId
  * itemId) { .... } </B>
  * </code>
  *  <br>

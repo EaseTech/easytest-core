@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.converter.Converter;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +15,9 @@ import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
+import org.easetech.easytest.io.Resource;
+import org.easetech.easytest.io.ResourceLoader;
+import org.easetech.easytest.io.ResourceLoaderStrategy;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.loader.LoaderFactory;
@@ -107,7 +112,7 @@ public class DataDrivenTestRunner extends Suite {
      * <br>
      * 
      * <br>
-     * <B> A user can specify the test data at the class level, using the {@link DataLoader} annotation and override it
+     * <B> A user can specify the test data at the class level(and/or method level), using the {@link DataLoader} annotation and(if wants) override it
      * at the method level. The Runner will take care of executing the test method with the right test data.</B><br>
      * This is extremely beneficial in cases, where the user just wants to load the data once and then reuse it for all
      * the test methods. If the user wants, then he can always override the test data at the method level by specifying
@@ -122,7 +127,7 @@ public class DataDrivenTestRunner extends Suite {
      * additional functionality that eases the life of the user. For eg. it supports Java PropertyEditors to
      * automatically convert a String to the specified Object. It also supports passing a Map to the test method that
      * contains all the available test data key / value pairs for easy consumption by the user. It also supports user
-     * defined custom Objects as parameters.<br>
+     * defined custom Objects as parameters.Look at {@link Converter} for details.<br>
      * <br>
      * 
      * 
@@ -326,10 +331,11 @@ public class DataDrivenTestRunner extends Suite {
             List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterClass.class);
             List<FrameworkMethod> testMethods = getTestClass().getAnnotatedMethods(Test.class);
             List<TestInfo> testInfoList = new ArrayList<TestInfo>();
-            TestInfo testInfo = null;
+            
             // populateTestInfo(testInfo);
             // THere would always be atleast one method associated with the Runner, else validation would fail.
             for (FrameworkMethod method : testMethods) {
+                TestInfo testInfo = null;
 
                 // Only if the return type of the Method is not VOID, we try to determine the right loader and data
                 // files.
@@ -812,11 +818,23 @@ public class DataDrivenTestRunner extends Suite {
                     + "You can provide the custom Loader by choosing LoaderType.CUSTOM in TestData "
                     + "annotation and providing your custom loader using DataLoader annotation.");
             } else {
-                Map<String, List<Map<String, Object>>> data = dataLoader.loadData(testInfo.getFilePaths());
-                // We also maintain the copy of the actual data for our write functionality.
-                writableData.putAll(data);
-                DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
-                DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
+                ResourceLoader resourceLoader = new ResourceLoaderStrategy(getTestClass().getJavaClass());
+                for(String filePath : testInfo.getFilePaths()){
+                    Resource resource = resourceLoader.getResource(filePath);
+                    try {
+                        if(resource.exists()){
+                            Map<String, List<Map<String, Object>>> data = dataLoader.loadData(resource);
+                            // We also maintain the copy of the actual data for our write functionality.
+                            writableData.putAll(data);
+                            DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
+                            DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Exception occured");
+                    }
+                }
+                
+                
 
             }
         }
