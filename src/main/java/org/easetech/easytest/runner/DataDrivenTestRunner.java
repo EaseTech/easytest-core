@@ -22,6 +22,7 @@ import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.loader.LoaderFactory;
 import org.easetech.easytest.loader.LoaderType;
+import org.easetech.easytest.reports.data.DurationBean;
 import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.util.DataContext;
@@ -166,7 +167,6 @@ public class DataDrivenTestRunner extends Suite {
             try {
                 testInstance = getTestClass().getOnlyConstructor().newInstance();
                 //instrumentClass(getTestClass().getJavaClass());
-
                 // initialize report container class
                 // TODO add condition whether reports must be switched on or off
                 testReportContainer = new ReportDataContainer(getTestClass().getJavaClass());
@@ -355,7 +355,8 @@ public class DataDrivenTestRunner extends Suite {
                 }
 
             }
-            return new RunAftersWithOutputData(statement, afters, null, testInfoList, writableData, testReportContainer);
+            RunAftersWithOutputData runAftersWithOutputData = new RunAftersWithOutputData(statement, afters, null, testInfoList, writableData, testReportContainer);
+            return runAftersWithOutputData;
         }
 
         /**
@@ -508,7 +509,7 @@ public class DataDrivenTestRunner extends Suite {
                         notifier.addListener(new EasyTestRunListener());
                         final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, null);
                         eachNotifier.fireTestStarted();
-
+                        
                         return new Statement() {
                             @Override
                             public void evaluate() throws Throwable {
@@ -526,16 +527,14 @@ public class DataDrivenTestRunner extends Suite {
                                         testResult.setException(Boolean.TRUE);
                                         testResult.setExceptionResult(e.toString());
                                     }
-                                    testReportContainer.addTestResult(testResult);
-
                                     reportParameterizedError(e, complete.getArgumentStrings(true));
                                 } finally {
                                     eachNotifier.fireTestFinished();
                                 }
                             }
-
+                            
+                            
                         };
-
                     }
 
                     @Override
@@ -573,6 +572,11 @@ public class DataDrivenTestRunner extends Suite {
             private Statement methodCompletesWithParameters(final FrameworkMethod method, final EasyAssignments complete,
                 final Object freshInstance) {
 
+                final RunNotifier testRunNotifier = new RunNotifier();
+                final TestRunDurationListener testRunDurationListener = new TestRunDurationListener();
+				testRunNotifier.addListener(testRunDurationListener);
+                final EachTestNotifier eachRunNotifier = new EachTestNotifier(testRunNotifier, null);
+            	
                 return new Statement() {
                     @Override
                     public void evaluate() throws Throwable {
@@ -587,8 +591,14 @@ public class DataDrivenTestRunner extends Suite {
                             boolean testContainsInputParams = (values.length != 0);
                             Map<String, Object> inputData = null;
                             
-
+                            // invoke test method
+                            eachRunNotifier.fireTestStarted();
                             returnObj = method.invokeExplosively(freshInstance, values);
+                            eachRunNotifier.fireTestFinished();
+                            
+                            DurationBean testItemDurationBean = new DurationBean(currentMethodName, testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
+							testResult.addTestItemDurationBean(testItemDurationBean);
+							
                             testResult.setOutput((returnObj == null) ? "void" : returnObj);
                             testResult.setPassed(Boolean.TRUE);
                             if (!mapMethodName.equals(method.getMethod().getName())) {
@@ -601,7 +611,7 @@ public class DataDrivenTestRunner extends Suite {
                             if (writableData.get(mapMethodName) != null) {
                                 inputData = writableData.get(mapMethodName).get(rowNum);
                                 testResult.setInput(inputData);
-                            }else{
+                            } else{
                                 testResult.setInput(null);
                             }
                             
@@ -620,7 +630,6 @@ public class DataDrivenTestRunner extends Suite {
                                     LOG.debug("writableData.get(mapMethodName)" + writableData.get(mapMethodName)
                                         + " ,rowNum:" + rowNum);
                                     inputData.put(Loader.ACTUAL_RESULT, returnObj);
-                                    
                                 }
 
                                     Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);

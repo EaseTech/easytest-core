@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Report;
@@ -15,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "C:\\Anuj\\easetech\\easytest-core\\src\\test\\resources\\org\\easetech\\data\\testExcelData.xls" }, loaderType = LoaderType.EXCEL)
-@Report
+@Report(outputFormats=EXPORT_FORMAT.PDF)
 public class TestExcelDataLoader {
     
     public static RealItemService itemService = new RealItemService();
