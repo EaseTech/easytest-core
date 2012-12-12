@@ -1,8 +1,6 @@
 
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.converter.Converter;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
 import org.easetech.easytest.io.Resource;
