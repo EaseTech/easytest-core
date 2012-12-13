@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.loader;
 
+import org.junit.Assert;
+
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
 import java.io.FileWriter;
@@ -17,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An implementation of {@link Loader} for the CSV based files. This Loader is responsible for reading a list of CSV
+ * An implementation of {@link Loader} for the CSV based files. This Loader is responsible for reading and writing to a list of CSV
  * based files and converting them into a data structure which is understandable by the EasyTest framework. It expects
  * the format of the CSV file to be like this :<br>
  * <code>
@@ -39,7 +41,10 @@ import org.slf4j.LoggerFactory;
  * Although a user can choose to define the test data in multiple files as well.
  * <br>
  * If you want to pass a Collection to the test method, just separate each instance with a ":". For eg. to pass
- * a list of Itemids , pass them as a colon separated list like this -> 12:34:5777:9090 
+ * a list of Itemids , pass them as a colon separated list like this -> 12:34:5777:9090 <br>
+ * 
+ * This {@link Loader} can also write the data back to the file, either for the given method names or for all
+ * the methods in the file. This is handy when we want to write the output data back to the file. 
  *  
  * 
  * @author Anuj Kumar
@@ -78,9 +83,7 @@ public class CSVDataLoader implements Loader {
         }
 
     }
-
     
-
     /**
      * Load data from SpreadSheet
      * 
@@ -124,7 +127,13 @@ public class CSVDataLoader implements Loader {
 
     }
 
-
+    /**
+     * Write the Data to the given Resource
+     * @param resource the resource representing the CSV file to which teh data should be written
+     * @param actualData the actual data to write back
+     * @param methodNames the optional names of methods for which the data shouuld be written. If this varargs is empty,
+     * then the data will be written back for all the methods.
+     */
     public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
         Boolean isKeyRow = true;
         List<String[]> writableData = new ArrayList<String[]>();
@@ -199,7 +208,13 @@ public class CSVDataLoader implements Loader {
 
     }
     
-    Boolean writeDataForMethod(String currentMethod , String... methodNames){
+    /**
+     * Method determining whether the data for a given method should be written or not
+     * @param currentMethod
+     * @param methodNames
+     * @return
+     */
+    private Boolean writeDataForMethod(String currentMethod , String... methodNames){
         //If the methodNames is null or empty it means the data needs to be written for each
         //of the methods
         if(methodNames == null || methodNames.length == 0){
@@ -214,13 +229,17 @@ public class CSVDataLoader implements Loader {
         return false;
     }
 
+    /**
+     * Load the data for the given Resource
+     * @param resource
+     * @return
+     */
     public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
         try {
             result = loadFromSpreadsheet(resource.getInputStream());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Assert.fail("Cannot load data for the resource with path : " + resource.getResourceName());
         }
         return result;
     }

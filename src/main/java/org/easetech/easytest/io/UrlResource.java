@@ -13,13 +13,28 @@ import java.net.URLConnection;
 import org.easetech.easytest.util.CommonUtils;
 import org.junit.Assert;
 
+/**
+ * A {@link Resource} implementation for the URL based resources.
+ *
+ */
 public class UrlResource implements Resource {
 
+    /**
+     * The path of the resource
+     */
     private String path;
     
+    /**
+     * The URL of the resource
+     */
     private URL URL;
 
-
+    /**
+     * 
+     * Construct a new UrlResource
+     * @param path
+     * @throws MalformedURLException
+     */
     public UrlResource(String path) throws MalformedURLException{
         if(path == null || path.isEmpty()){
             Assert.fail("The supplied path must be a non empty and Not Null value");
@@ -28,6 +43,11 @@ public class UrlResource implements Resource {
         this.URL = new URL(path);
     }
     
+    /**
+     * 
+     * Construct a new UrlResource
+     * @param url
+     */
     public UrlResource(URL url) {
         if(path == null || path.isEmpty()){
             Assert.fail("The supplied path must be a non empty and Not Null value");
@@ -46,6 +66,10 @@ public class UrlResource implements Resource {
     }
 
 
+    /**
+     * Checks whether the URL resource exists or not.
+     * @return
+     */
     public boolean exists(){
        try {
         return getFile().exists();
@@ -55,7 +79,11 @@ public class UrlResource implements Resource {
     }
     }
 
-
+    /**
+     * Get the input stream associated with the resource
+     * @return input stream associated with the resource
+     * @throws IOException
+     */
     public InputStream getInputStream() throws IOException{
         URLConnection con = this.URL.openConnection();
         con.setUseCaches(false);
@@ -63,12 +91,19 @@ public class UrlResource implements Resource {
         
     }
 
-
+    /**
+     * Get the URL associated with the resource
+     * @return the URL associated with the resource
+     */
     public URL getURL() {
         return URL;
     }
 
-
+    /**
+     * Get the File associated with the resource
+     * @return the File associated with the resource
+     * @throws Exception
+     */
     public File getFile() throws Exception {
         URI uri = CommonUtils.toURI(getURL());
         File file;
@@ -98,7 +133,10 @@ public class UrlResource implements Resource {
         }
     }
 
-
+    /**
+     * Get the resource name
+     * @return
+     */
     public String getResourceName(){
         try {
             return getFile().getName();
@@ -108,7 +146,9 @@ public class UrlResource implements Resource {
         }
     }
 
-
+    /**
+     * Get the {@link OutputStream} associated with the resource
+     */
     public OutputStream getOutputStream() throws IOException{
         URLConnection con = this.URL.openConnection();
         con.setUseCaches(false);

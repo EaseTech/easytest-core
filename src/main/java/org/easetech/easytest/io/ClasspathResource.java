@@ -1,23 +1,26 @@
 
 package org.easetech.easytest.io;
 
-import com.sun.org.apache.bcel.internal.classfile.ClassParser;
-
-import java.io.FileNotFoundException;
-
-import java.io.FileOutputStream;
-
-import java.io.OutputStream;
-
-import java.net.URISyntaxException;
+import org.easetech.easytest.annotation.DataLoader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import org.junit.Assert;
 
 /**
- * An instance of {@link Resource} interface for handling Classpath resources
+ * An instance of {@link Resource} interface for handling Classpath resources.
+ * The classpath resources should be prefixed with {@link ResourceLoader#CLASSPATH_PREFIX}
+ * in order for the {@link ResourceLoaderStrategy} to pick them up. For eg.
+ * This class is automatically instantiated by the EasyTest's {@link ResourceLoaderStrategy}
+ * when it sees the {@link DataLoader} annotation with the filePath attribute being specified as:
+ * <br>@DataLoader(filePaths={<b>classpath</b>:org/example/myDataFile.xls})
+ * 
+ * @author Anuj Kumar
  *
  */
 public class ClasspathResource implements Resource {
@@ -40,7 +43,7 @@ public class ClasspathResource implements Resource {
     /**
      * 
      * Construct a new ClasspathResource and defaults the {@link #classLoader} with current Threads ContextClassLoader
-     * @see (Thread#currentThread())'s getContextClassLoader
+     * @see {@link Thread#currentThread()}'s getContextClassLoader method.
      * @param path The path of the classpath resource
      */
     public ClasspathResource(String path) {
@@ -112,12 +115,20 @@ public class ClasspathResource implements Resource {
         return classObj;
     }
 
+    /**
+     * Identifies whether the resource exists or not.
+     * @return boolean indicating whether the resouorce exists or not
+     */
     public boolean exists() {
         return getClassObj() != null ? (getClassObj().getResource(getPath()) != null ? true : getClassLoader().getResource(
             getPath()) != null) : getClassLoader().getResource(
                 getPath()) != null;
     }
 
+    /**
+     * Get the input stream associated with the given file path. 
+     * @return the input stream associated with the given file path. 
+     */
     public InputStream getInputStream() {
         InputStream is = null;
         if (getClassObj() != null) {
@@ -135,6 +146,10 @@ public class ClasspathResource implements Resource {
 
     }
 
+    /**
+     * Get the url associated with the given file path. 
+     * @return the url associated with the given file path. 
+     */
     public URL getURL() {
         URL url = null;
         if (getClassObj() != null) {
@@ -151,6 +166,10 @@ public class ClasspathResource implements Resource {
         return url;
     }
 
+    /**
+     * Get the File associated with the given file path. 
+     * @return the File associated with the given file path. 
+     */
     public File getFile() {
         File file = null;
         URL url = getURL();
@@ -169,6 +188,10 @@ public class ClasspathResource implements Resource {
         return file;
     }
 
+    /**
+     * Get the resource Name associated with the given resource. 
+     * @return the resource name associated with the given resource. 
+     */
     public String getResourceName() {
         if(getURL() != null){
             return getURL().getPath();
@@ -176,7 +199,10 @@ public class ClasspathResource implements Resource {
         return getPath();
     }
 
-    
+    /**
+     * Get the output Stream associated with the given resource. 
+     * @return the output stream name associated with the given resource. 
+     */
     public OutputStream getOutputStream() {
         OutputStream outputStream = null;
         if(getFile() != null){
@@ -193,5 +219,6 @@ public class ClasspathResource implements Resource {
         }
         return outputStream;
     }
+    
 
 }
