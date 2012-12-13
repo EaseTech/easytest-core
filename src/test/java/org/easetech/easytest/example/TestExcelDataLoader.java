@@ -1,13 +1,12 @@
 
 package org.easetech.easytest.example;
 
-import org.junit.AfterClass;
-
-import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.annotation.Intercept;
 
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Report;
+import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
 import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.BeforeClass;
@@ -22,7 +21,8 @@ import org.slf4j.LoggerFactory;
 @Report(outputFormats=EXPORT_FORMAT.PDF)
 public class TestExcelDataLoader {
     
-    public static RealItemService itemService = new RealItemService();
+    @Intercept
+    public RealItemService itemService = new RealItemService();
 
     @BeforeClass
     public static void setUpGone() {

@@ -1,6 +1,7 @@
 
 package org.easetech.easytest.runner;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +10,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.exceptions.ParamAssertionError;
@@ -47,6 +50,8 @@ import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.AopConfigException;
+import org.springframework.aop.framework.ProxyFactory;
 
 /**
  * An implementation of {@link Suite} that encapsulates the {@link EasyTestRunner} in order to provide users with clear
@@ -132,13 +137,14 @@ public class DataDrivenTestRunner extends Suite {
      * 
      * 
      * @author Anuj Kumar
-     */
+     *
     
-//    Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept calls to
-//    * the test subject that is currently being tested. For eg. if you want to capture how much time a particular method
-//    * of the actual service class is taking, then you can mark the field representing the testSubject with
-//    * {@link Intercept} annotation. The framework also provides convenient way to write your own custom method
-//    * interceptors.
+     * Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept calls to
+     * the test subject that is currently being tested. For eg. if you want to capture how much time a particular method
+     * of the actual service class is taking, then you can mark the field representing the testSubject with
+     * {@link Intercept} annotation. The framework also provides convenient way to write your own custom method
+     * interceptors.
+     */
     private class EasyTestRunner extends BlockJUnit4ClassRunner {
 
         /**
@@ -165,14 +171,13 @@ public class DataDrivenTestRunner extends Suite {
             super(klass);
             try {
                 testInstance = getTestClass().getOnlyConstructor().newInstance();
-                //instrumentClass(getTestClass().getJavaClass());
+                instrumentClass(getTestClass().getJavaClass());
                 // initialize report container class
                 // TODO add condition whether reports must be switched on or off
                 testReportContainer = new ReportDataContainer(getTestClass().getJavaClass());
 
             } catch (Exception e) {
-                Assert.fail("Test failed while trying to instrument fileds in the class : "
-                    + getTestClass().getJavaClass());
+                throw new RuntimeException(e);
             }
         }
 
@@ -185,29 +190,29 @@ public class DataDrivenTestRunner extends Suite {
          * @throws AopConfigException if an exception occurred
          * @throws InstantiationException if an exception occurred
          */
-//        protected void instrumentClass(Class<?> testClass) throws IllegalArgumentException, IllegalAccessException,
-//            AopConfigException, InstantiationException {
-//            Field[] fields = testClass.getFields();
-//            for (Field field : fields) {
-//                Intercept interceptor = field.getAnnotation(Intercept.class);
-//                if (interceptor != null) {
-//                    Class<? extends MethodInterceptor> interceptorClass = interceptor.interceptor();
-//                    // This is the field we want to enhance
-//                    Object fieldInstance = field.get(testInstance);
-//                    ProxyFactory factory = new ProxyFactory();
-//                    factory.setTarget(fieldInstance);
-//                    factory.addAdvice(interceptorClass.newInstance());
-//                    Object proxy = factory.getProxy();
-//                    try {
-//                        field.set(testInstance, proxy);
-//                    } catch (Exception e) {
-//                        Assert
-//                            .fail("Failed while trying to instrument the class for Intercept annotation with exception : "
-//                                + e.getStackTrace());
-//                    }
-//                }
-//            }
-//        }
+        protected void instrumentClass(Class<?> testClass) throws IllegalArgumentException, IllegalAccessException,
+            AopConfigException, InstantiationException {
+            Field[] fields = testClass.getDeclaredFields();
+            for (Field field : fields) {
+                Intercept interceptor = field.getAnnotation(Intercept.class);
+                if (interceptor != null) {
+                    Class<? extends MethodInterceptor> interceptorClass = interceptor.interceptor();
+                    // This is the field we want to enhance
+                    Object fieldInstance = field.get(testInstance);
+                    ProxyFactory factory = new ProxyFactory();
+                    factory.setTarget(fieldInstance);
+                    factory.addAdvice(interceptorClass.newInstance());
+                    Object proxy = factory.getProxy();
+                    try {
+                        field.set(testInstance, proxy);
+                    } catch (Exception e) {
+                        Assert
+                            .fail("Failed while trying to instrument the class for Intercept annotation with exception : "
+                                + e.getStackTrace());
+                    }
+                }
+            }
+        }
 
         /**
          * Try to collect any initialization errors, if any.
