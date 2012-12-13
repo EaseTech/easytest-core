@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import org.junit.AfterClass;
+
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
 
 import org.easetech.easytest.annotation.DataLoader;
@@ -89,7 +91,4 @@ public class TestExcelDataLoader {
 //        Assert.assertTrue( "test TRUE expected" ,test);
         return item;
     }
-    
-   
-
 }

@@ -15,6 +15,8 @@ import org.junit.Assert;
 
 /**
  * A {@link Resource} implementation for the URL based resources.
+ * 
+ * @author Anuj Kumar
  *
  */
 public class UrlResource implements Resource {
@@ -31,7 +33,7 @@ public class UrlResource implements Resource {
 
     /**
      * 
-     * Construct a new UrlResource
+     * Construct a new UrlResource from the given path
      * @param path
      * @throws MalformedURLException
      */
@@ -45,7 +47,7 @@ public class UrlResource implements Resource {
     
     /**
      * 
-     * Construct a new UrlResource
+     * Construct a new UrlResource from the given URL
      * @param url
      */
     public UrlResource(URL url) {

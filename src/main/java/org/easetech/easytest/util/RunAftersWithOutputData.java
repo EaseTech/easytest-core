@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
 import org.easetech.easytest.io.ResourceLoader;
@@ -25,6 +24,8 @@ import org.slf4j.LoggerFactory;
 /**
  * An extension of {@link RunAfters} method to write the test data to the file at the end of executing all the test
  * methods in the test cases.
+ * This class also encapsulates the logic of running the reports after the test execution.
+ * The reports are run asynchronously so that the Test cases do not get halted for the expensive run of the reports.
  * 
  */
 public class RunAftersWithOutputData extends Statement {
@@ -89,18 +90,47 @@ public class RunAftersWithOutputData extends Statement {
     }
 
     /**
+     * Evaluate all the test methods and then finally run all the afterClass methods.
+     * Before afterClass annotated methods are executed, we start the asynchronous processing of the reports.
+     * This will save us some time in case the afterClass annotation on the client 
+     * does some process intensive tasks.
      * @see {@link RunAfters#evaluate()}
      * @throws Throwable
      */
-    @Override
     public void evaluate() throws Throwable {
         LOG.info("evaluate started");
+        
+        Future<Boolean> submit = null;
+     
         List<Throwable> errors = new ArrayList<Throwable>();
         try {
             fNext.evaluate();
         } catch (Throwable e) {
             errors.add(e);
         } finally {
+         // REPORTING first since we now have all the data to start the generation of reports
+            if (testReportContainer != null) {
+                Report annotation = testReportContainer.getTestClass().getAnnotation(Report.class);
+                if (annotation != null) {
+                    String outputLocationFromAnnotation = annotation.outputLocation();
+                    String absoluteLocation = CommonUtils.getAbsoluteLocation(outputLocationFromAnnotation);
+                    String outputLocation = CommonUtils.createFolder(absoluteLocation);
+                    if (outputLocation != null) {
+                        ExecutorService executor = Executors.newCachedThreadPool();
+                        
+                        LOG.info("Writing reports to folder: " + outputLocation);
+                        EXPORT_FORMAT[] outputFormats = annotation.outputFormats();
+                        ReportRunner reportExecuter = new ReportRunner(testReportContainer, outputFormats,
+                                outputLocation);
+                        //Executor executor = new ThreadPerTaskExecutor();
+                        submit = executor.submit(reportExecuter);
+                        //executor.execute(reportExecuter);
+                    } else {
+                        LOG.error("Can't write reports. Report output location " + outputLocationFromAnnotation
+                                + " can't be created.");
+                    }
+                }
+            }
             for (FrameworkMethod each : fAfters)
                 try {
                     each.invokeExplosively(fTarget);
@@ -126,38 +156,12 @@ public class RunAftersWithOutputData extends Statement {
 
         }
         
-        Future<Boolean> submit = null;
-        
-     // REPORTING
-        if (testReportContainer != null) {
-            Report annotation = testReportContainer.getTestClass().getAnnotation(Report.class);
-            if (annotation != null) {
-                String outputLocationFromAnnotation = annotation.outputLocation();
-                String absoluteLocation = CommonUtils.getAbsoluteLocation(outputLocationFromAnnotation);
-                String outputLocation = CommonUtils.createFolder(absoluteLocation);
-				if (outputLocation != null) {
-					ExecutorService executor = Executors.newFixedThreadPool(1);
-					
-					LOG.info("Writing reports to folder: " + outputLocation);
-					EXPORT_FORMAT[] outputFormats = annotation.outputFormats();
-					ReportRunner reportExecuter = new ReportRunner(testReportContainer, outputFormats,
-							outputLocation);
-					submit = executor.submit(reportExecuter);
-				} else {
-					LOG.error("Can't write reports. Report output location " + outputLocationFromAnnotation
-							+ " can't be created.");
-				}
-            }
-        }
-        
         if (submit != null) {
         	long start = System.nanoTime();
-        	submit.get();
+        	while(!submit.isDone());
         	long end = (System.nanoTime() - start) / 1000000;
-        	LOG.debug("Writing reports took: " + end + " ms.");
+        	LOG.debug("Writing reports took: {} ms.", end);
         }
-        
-        LOG.debug("evaluate finished");
     }
 
 }

@@ -16,7 +16,11 @@ import org.easetech.easytest.util.DataContext;
  * @author Anuj Kumar
  * 
  */
-public class DataConverter {
+public final class DataConverter {
+    
+    private DataConverter(){
+        //private constructor
+    }
 
     /**
      * Converts/normalize the input test data such that the name of the method is: <li>prepended with the name of the

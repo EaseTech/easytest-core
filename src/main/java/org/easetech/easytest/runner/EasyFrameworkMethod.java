@@ -30,7 +30,7 @@ public class EasyFrameworkMethod extends FrameworkMethod {
     /**
      * Returns the method's name
      */
-    @Override
+    
     public String getName() {
         return this.methodName;
     }

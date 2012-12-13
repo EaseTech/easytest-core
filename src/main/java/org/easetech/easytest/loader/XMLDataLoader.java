@@ -105,6 +105,20 @@ public class XMLDataLoader implements Loader {
      */
     private static final String RECORD_POSITION = "recordPosition";
 
+    /**
+     * Load the data from the given resource
+     * @param resource the instance of the resource from which to load the data 
+     * @return the loaded data
+     */
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
+        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
+        try {
+            result = load(resource.getInputStream());
+        } catch (IOException e) {
+            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName());
+        }
+        return result;
+    }
 
     /**
      * Load the XML data.
@@ -285,15 +299,7 @@ public class XMLDataLoader implements Loader {
 
     }
 
-    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
-        try {
-            result = load(resource.getInputStream());
-        } catch (IOException e) {
-            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName());
-        }
-        return result;
-    }
+    
 
 
 }

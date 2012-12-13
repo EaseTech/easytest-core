@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * <li> {@link FileSystemResource} - Resource based on FileSystem (for eg. in your C: drive)</li>
  * <li> {@link UrlResource} - Resource based on URL (http for eg)
  * 
- * @author Anuj kumar
+ * @author Anuj Kumar
  *
  */
 public class ResourceLoaderStrategy implements ResourceLoader {

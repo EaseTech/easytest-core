@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.annotation;
 
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,15 +20,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.easetech.easytest.converter.AbstractConverter;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.GeneralUtil;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.experimental.theories.ParameterSignature;
 import org.junit.experimental.theories.ParameterSupplier;
 import org.junit.experimental.theories.PotentialAssignment;
@@ -355,7 +354,7 @@ public @interface Param {
         private List<PotentialAssignment> convertCollection(Class<?> idClass, String paramName,
             List<Map<String, Object>> convertFrom, Class parameterType) {
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
-            /*PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
+            PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
             if (editor != null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Editor for class " + idClass + " found.");
@@ -383,7 +382,7 @@ public @interface Param {
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Editor for class " + idClass + " not found. Trying to find converter.");
-                }*/
+                }
                 Collection objectValues = getCollectionInstance(parameterType, idClass);
 
                 Converter<?> converter = ConverterManager.findConverter(idClass);
@@ -478,7 +477,7 @@ public @interface Param {
                     }*/
                 }
 
-            //}
+            }
 
             return finalData;
 

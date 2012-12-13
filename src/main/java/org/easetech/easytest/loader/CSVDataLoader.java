@@ -84,6 +84,22 @@ public class CSVDataLoader implements Loader {
 
     }
     
+
+    /**
+     * Load the data for the given Resource
+     * @param resource
+     * @return
+     */
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
+        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
+        try {
+            result = loadFromSpreadsheet(resource.getInputStream());
+        } catch (IOException e) {
+            Assert.fail("Cannot load data for the resource with path : " + resource.getResourceName());
+        }
+        return result;
+    }
+    
     /**
      * Load data from SpreadSheet
      * 
@@ -229,18 +245,4 @@ public class CSVDataLoader implements Loader {
         return false;
     }
 
-    /**
-     * Load the data for the given Resource
-     * @param resource
-     * @return
-     */
-    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
-        try {
-            result = loadFromSpreadsheet(resource.getInputStream());
-        } catch (IOException e) {
-            Assert.fail("Cannot load data for the resource with path : " + resource.getResourceName());
-        }
-        return result;
-    }
 }

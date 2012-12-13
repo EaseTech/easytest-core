@@ -5,6 +5,8 @@ package org.easetech.easytest.io;
  * ResourceLoader interface consisting of methods to get hold of a {@link Resource} object.
  * @see ResourceLoaderStrategy
  * 
+ * @author Anuj Kumar
+ * 
  */
 public interface ResourceLoader {
     
