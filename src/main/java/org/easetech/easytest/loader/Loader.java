@@ -60,11 +60,11 @@ public interface Loader {
     /**
      * Method responsible for writing the test data and actual result back to the file
      * @param resource the resource to which data needs to be written
-     * @param methodName the name of the method to write the data for
+     * @param methodNames the names of the method to write the data for
      * @param actualData a Map consisting of the methodName as key and a List of Key/value pairs as the value of the Map. 
      * This Map contains the input as well as output data 
      * This is currently not a user friendly way of exposing the test data. 
      */
-    void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodName);
+    void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames);
 
 }
