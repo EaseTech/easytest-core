@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.io.EmptyResource;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -831,24 +833,30 @@ public class DataDrivenTestRunner extends Suite {
                     + "You can provide the custom Loader by choosing LoaderType.CUSTOM in TestData "
                     + "annotation and providing your custom loader using DataLoader annotation.");
             } else {
-                ResourceLoader resourceLoader = new ResourceLoaderStrategy(getTestClass().getJavaClass());
-                for(String filePath : testInfo.getFilePaths()){
-                    Resource resource = resourceLoader.getResource(filePath);
-                    try {
-                        if(resource.exists()){
-                            Map<String, List<Map<String, Object>>> data = dataLoader.loadData(resource);
-                            // We also maintain the copy of the actual data for our write functionality.
-                            writableData.putAll(data);
-                            DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
-                            DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
+                if(testInfo.getFilePaths() == null || testInfo.getFilePaths().length == 0){
+                    //implies that there exists a CUSTOM loader that loads the data using Java classes
+                    Map<String, List<Map<String, Object>>> data = dataLoader.loadData(new EmptyResource());
+                    // We also maintain the copy of the actual data for our write functionality.
+                    writableData.putAll(data);
+                    DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
+                    DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
+                }else{
+                    ResourceLoader resourceLoader = new ResourceLoaderStrategy(getTestClass().getJavaClass());
+                    for(String filePath : testInfo.getFilePaths()){
+                        Resource resource = resourceLoader.getResource(filePath);
+                        try {
+                            if(resource.exists()){
+                                Map<String, List<Map<String, Object>>> data = dataLoader.loadData(resource);
+                                // We also maintain the copy of the actual data for our write functionality.
+                                writableData.putAll(data);
+                                DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
+                                DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
                         }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
                     }
                 }
-                
-                
-
             }
         }
     }

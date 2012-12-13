@@ -248,8 +248,8 @@ public @interface Param {
         private List<PotentialAssignment> convert(Class<?> idClass, String paramName,
             List<Map<String, Object>> convertFrom) {
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
-            //PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
-            /*if (editor != null) {
+            PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
+            if (editor != null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Editor for class " + idClass + " found.");
                 }
@@ -268,7 +268,7 @@ public @interface Param {
 
                 }
 
-            } else {*/
+            } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Editor for class " + idClass + " not found. Trying to find converter.");
                 }
@@ -334,7 +334,7 @@ public @interface Param {
                     } */
 
                 }
-            //}
+            }
             return finalData;
         }
 
@@ -517,7 +517,7 @@ public @interface Param {
                             .fail("EasyTest does not natively support the Collection of type "
                                 + parameterType
                                 + " . In order to use this Collection type as parameter, provide an empty implementation of AbstractConveter " +
-                                "class or provide an implementation of instance() method of the Converter interface ");
+                                "class with the generic type as " + parameterType +"or provide an implementation of instance() method of the Converter interface ");
                     }else{
                         return (Collection)converter.instanceOfType();
                     }
