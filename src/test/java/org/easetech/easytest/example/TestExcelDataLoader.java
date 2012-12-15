@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "org/easetech/data/testExcelData.xls" }, loaderType = LoaderType.EXCEL)
-@Report(outputFormats= {EXPORT_FORMAT.PDF})
+@Report(outputFormats= {EXPORT_FORMAT.XLS})
 public class TestExcelDataLoader {
     
     public static RealItemService itemService = new RealItemService();
