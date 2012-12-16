@@ -1,14 +1,9 @@
 
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.annotation.Converters;
-
-import org.easetech.easytest.converter.ConverterManager;
-
-import org.easetech.easytest.io.EmptyResource;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -16,13 +11,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.aopalliance.intercept.MethodInterceptor;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.annotation.Provided;
+import org.easetech.easytest.annotation.TestBean;
+import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.converter.Converter;
+import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
+import org.easetech.easytest.io.EmptyResource;
 import org.easetech.easytest.io.Resource;
 import org.easetech.easytest.io.ResourceLoader;
 import org.easetech.easytest.io.ResourceLoaderStrategy;
@@ -33,6 +35,7 @@ import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.reports.data.DurationBean;
 import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.data.TestResultBean;
+import org.easetech.easytest.util.ConfigContext;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.RunAftersWithOutputData;
 import org.easetech.easytest.util.TestInfo;
@@ -56,8 +59,6 @@ import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.AopConfigException;
-import org.springframework.aop.framework.ProxyFactory;
 
 /**
  * An implementation of {@link Suite} that encapsulates the {@link EasyTestRunner} in order to provide users with clear
@@ -123,8 +124,9 @@ public class DataDrivenTestRunner extends Suite {
      * <br>
      * 
      * <br>
-     * <B> A user can specify the test data at the class level(and/or method level), using the {@link DataLoader} annotation and(if wants) override it
-     * at the method level. The Runner will take care of executing the test method with the right test data.</B><br>
+     * <B> A user can specify the test data at the class level(and/or method level), using the {@link DataLoader}
+     * annotation and(if wants) override it at the method level. The Runner will take care of executing the test method
+     * with the right test data.</B><br>
      * This is extremely beneficial in cases, where the user just wants to load the data once and then reuse it for all
      * the test methods. If the user wants, then he can always override the test data at the method level by specifying
      * the {@link DataLoader} annotation at the method level. <br>
@@ -143,13 +145,13 @@ public class DataDrivenTestRunner extends Suite {
      * 
      * 
      * @author Anuj Kumar
-     *
-    
-     * Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept calls to
-     * the test subject that is currently being tested. For eg. if you want to capture how much time a particular method
-     * of the actual service class is taking, then you can mark the field representing the testSubject with
-     * {@link Intercept} annotation. The framework also provides convenient way to write your own custom method
-     * interceptors.
+     * 
+     * 
+     *         Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept
+     *         calls to the test subject that is currently being tested. For eg. if you want to capture how much time a
+     *         particular method of the actual service class is taking, then you can mark the field representing the
+     *         testSubject with {@link Intercept} annotation. The framework also provides convenient way to write your
+     *         own custom method interceptors.
      */
     private class EasyTestRunner extends BlockJUnit4ClassRunner {
 
@@ -177,6 +179,7 @@ public class DataDrivenTestRunner extends Suite {
             super(klass);
             try {
                 testInstance = getTestClass().getOnlyConstructor().newInstance();
+                handleTestConfigProvider(getTestClass().getJavaClass());
                 instrumentClass(getTestClass().getJavaClass());
                 // initialize report container class
                 // TODO add condition whether reports must be switched on or off
@@ -193,24 +196,37 @@ public class DataDrivenTestRunner extends Suite {
          * @param testClass the class under test
          * @throws IllegalArgumentException if an exception occurred
          * @throws IllegalAccessException if an exception occurred
-         * @throws AopConfigException if an exception occurred
          * @throws InstantiationException if an exception occurred
          */
         protected void instrumentClass(Class<?> testClass) throws IllegalArgumentException, IllegalAccessException,
-            AopConfigException, InstantiationException {
+            InstantiationException {
             Field[] fields = testClass.getDeclaredFields();
             for (Field field : fields) {
                 Intercept interceptor = field.getAnnotation(Intercept.class);
                 if (interceptor != null) {
                     Class<? extends MethodInterceptor> interceptorClass = interceptor.interceptor();
                     // This is the field we want to enhance
-                    Object fieldInstance = field.get(testInstance);
-                    ProxyFactory factory = new ProxyFactory();
-                    factory.setTarget(fieldInstance);
-                    factory.addAdvice(interceptorClass.newInstance());
-                    Object proxy = factory.getProxy();
+                    Class<?> fieldType = field.getType();
+                    Object proxiedObject = null;
+                    if (fieldType.isInterface()) {
+                        // Use JDK dynamic proxy
+                        PARAM_LOG.debug("Proxying Interfaces is currently not handled in EasyTest Core module. The field of type :"
+                            + fieldType + " will not be proxied");
+                        // Class<?>[] interfaces = {fieldType};
+                        //
+                        // Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), interfaces, h)
+                    } else {
+                        Enhancer enhancer = new Enhancer();
+                        enhancer.setSuperclass(fieldType);
+                        enhancer.setCallback(interceptorClass.newInstance());
+                        proxiedObject = enhancer.create();
+                    }
+
                     try {
-                        field.set(testInstance, proxy);
+                        if (proxiedObject != null) {
+                            field.set(testInstance, proxiedObject);
+                        }
+
                     } catch (Exception e) {
                         Assert
                             .fail("Failed while trying to instrument the class for Intercept annotation with exception : "
@@ -220,12 +236,43 @@ public class DataDrivenTestRunner extends Suite {
             }
         }
 
+        protected void handleTestConfigProvider(Class<?> testClass) {
+            Field[] fields = testClass.getDeclaredFields();
+            for (Field field : fields) {
+                Provided providedAnnotation = field.getAnnotation(Provided.class);
+                if (providedAnnotation != null) {
+                    String providerBeanName = providedAnnotation.value();
+                    Object beanInstance = null;
+                    if (!providerBeanName.isEmpty()) {
+                        // Load the bean by name
+                        beanInstance = ConfigContext.getBeanByName(providerBeanName);
+                    } else {
+                        // provider bean name is NULL.
+                        // load bean by type
+                        Class beanClass = field.getType();
+                        beanInstance = ConfigContext.getBeanByType(beanClass);
+                        if (beanInstance == null) {
+                            beanInstance = ConfigContext.getBeanByName(field.getName());
+                        }
+
+                    }
+                    try {
+                        field.set(testInstance, beanInstance);
+                    } catch (Exception e) {
+                        Assert.fail("Failed while trying to handle Provider annotation for Field : "
+                            + field.getDeclaringClass() + e.getStackTrace());
+                    }
+
+                }
+            }
+        }
+
         /**
          * Try to collect any initialization errors, if any.
          * 
          * @param errors
          */
-        
+
         protected void collectInitializationErrors(List<Throwable> errors) {
             super.collectInitializationErrors(errors);
         }
@@ -237,7 +284,7 @@ public class DataDrivenTestRunner extends Suite {
          * @param method the {@link FrameworkMethod}
          * @return an overridden test method Name
          */
-        
+
         protected String testName(final FrameworkMethod method) {
             return String.format("%s", method.getName());
         }
@@ -252,7 +299,7 @@ public class DataDrivenTestRunner extends Suite {
          * 
          * @return list of {@link FrameworkMethod}
          */
-        
+
         protected List<FrameworkMethod> computeTestMethods() {
             if (frameworkMethods != null && !frameworkMethods.isEmpty()) {
                 return frameworkMethods;
@@ -301,7 +348,7 @@ public class DataDrivenTestRunner extends Suite {
          * 
          * @param errors list of any errors while validating the Constructor
          */
-        
+
         protected void validateConstructor(List<Throwable> errors) {
             validateOnlyOneConstructor(errors);
         }
@@ -311,7 +358,7 @@ public class DataDrivenTestRunner extends Suite {
          * 
          * @param errors list of any errors while validating test method
          */
-        
+
         protected void validateTestMethods(List<Throwable> errors) {
             // Do Nothing as we now support public non void arg test methods
         }
@@ -322,7 +369,7 @@ public class DataDrivenTestRunner extends Suite {
          * @param method the Framework Method
          * @return a compiled {@link Statement} object to be evaluated
          */
-        
+
         public Statement methodBlock(final FrameworkMethod method) {
             return new ParamAnchor(method, getTestClass());
         }
@@ -337,12 +384,12 @@ public class DataDrivenTestRunner extends Suite {
          * data from the test method. This method will make sure that the data is written to the output file once after
          * the Runner has completed and not for every instance of the test method.
          */
-        
+
         protected Statement withAfterClasses(Statement statement) {
             List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterClass.class);
             List<FrameworkMethod> testMethods = getTestClass().getAnnotatedMethods(Test.class);
             List<TestInfo> testInfoList = new ArrayList<TestInfo>();
-            
+
             // populateTestInfo(testInfo);
             // THere would always be atleast one method associated with the Runner, else validation would fail.
             for (FrameworkMethod method : testMethods) {
@@ -366,7 +413,8 @@ public class DataDrivenTestRunner extends Suite {
                 }
 
             }
-            RunAftersWithOutputData runAftersWithOutputData = new RunAftersWithOutputData(statement, afters, null, testInfoList, writableData, testReportContainer);
+            RunAftersWithOutputData runAftersWithOutputData = new RunAftersWithOutputData(statement, afters, null,
+                testInfoList, writableData, testReportContainer);
             return runAftersWithOutputData;
         }
 
@@ -443,7 +491,6 @@ public class DataDrivenTestRunner extends Suite {
                 return fTestClass;
             }
 
-            
             public void evaluate() throws Throwable {
                 runWithAssignment(EasyAssignments.allUnassigned(fTestMethod.getMethod(), getTestClass()));
                 LOG.debug("ParamAnchor evaluate");
@@ -469,8 +516,8 @@ public class DataDrivenTestRunner extends Suite {
                     boolean isFirstSetOfArguments = listOfAssignments.isEmpty();
                     for (int i = 0; i < potentialAssignments.size(); i++) {
                         if (isFirstSetOfArguments) {
-                            EasyAssignments assignments = EasyAssignments
-                                .allUnassigned(fTestMethod.getMethod(), getTestClass());
+                            EasyAssignments assignments = EasyAssignments.allUnassigned(fTestMethod.getMethod(),
+                                getTestClass());
                             listOfAssignments.add(assignments.assignNext(potentialAssignments.get(i)));
                         } else {
                             EasyAssignments assignments = listOfAssignments.get(i);
@@ -507,12 +554,11 @@ public class DataDrivenTestRunner extends Suite {
             protected void runWithCompleteAssignment(final EasyAssignments complete) throws InstantiationException,
                 IllegalAccessException, InvocationTargetException, NoSuchMethodException, Throwable {
                 new BlockJUnit4ClassRunner(getTestClass().getJavaClass()) {
-                    
+
                     protected void collectInitializationErrors(List<Throwable> errors) {
                         // do nothing
                     }
 
-                    
                     public Statement methodBlock(FrameworkMethod method) {
                         final Statement statement = super.methodBlock(method);
                         // Sample Run Notifier to catch any runnable events for a test and do something.
@@ -520,9 +566,9 @@ public class DataDrivenTestRunner extends Suite {
                         notifier.addListener(new EasyTestRunListener());
                         final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, null);
                         eachNotifier.fireTestStarted();
-                        
+
                         return new Statement() {
-                            
+
                             public void evaluate() throws Throwable {
                                 try {
                                     statement.evaluate();
@@ -543,17 +589,14 @@ public class DataDrivenTestRunner extends Suite {
                                     eachNotifier.fireTestFinished();
                                 }
                             }
-                            
-                            
+
                         };
                     }
 
-                    
                     protected Statement methodInvoker(FrameworkMethod method, Object test) {
                         return methodCompletesWithParameters(method, complete, test);
                     }
 
-                    
                     public Object createTest() throws Exception {
                         return testInstance;
                     }
@@ -580,18 +623,18 @@ public class DataDrivenTestRunner extends Suite {
              * @param freshInstance a fresh instance of the class for which the method needs to be invoked.
              * @return an instance of {@link Statement}
              */
-            private Statement methodCompletesWithParameters(final FrameworkMethod method, final EasyAssignments complete,
-                final Object freshInstance) {
+            private Statement methodCompletesWithParameters(final FrameworkMethod method,
+                final EasyAssignments complete, final Object freshInstance) {
 
                 final RunNotifier testRunNotifier = new RunNotifier();
                 final TestRunDurationListener testRunDurationListener = new TestRunDurationListener();
-				testRunNotifier.addListener(testRunDurationListener);
+                testRunNotifier.addListener(testRunDurationListener);
                 final EachTestNotifier eachRunNotifier = new EachTestNotifier(testRunNotifier, null);
-            	
+
                 return new Statement() {
-                    
+
                     public void evaluate() throws Throwable {
-                    	String currentMethodName = method.getMethod().getName();
+                        String currentMethodName = method.getMethod().getName();
                         testResult = new TestResultBean();
                         testResult.setMethod(currentMethodName);
                         testResult.setDate(new Date());
@@ -601,15 +644,16 @@ public class DataDrivenTestRunner extends Suite {
                             // Log Statistics about the test method as well as the actual testSubject, if required.
                             boolean testContainsInputParams = (values.length != 0);
                             Map<String, Object> inputData = null;
-                            
+
                             // invoke test method
                             eachRunNotifier.fireTestStarted();
                             returnObj = method.invokeExplosively(freshInstance, values);
                             eachRunNotifier.fireTestFinished();
-                            
-                            DurationBean testItemDurationBean = new DurationBean(currentMethodName, testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
-							testResult.addTestItemDurationBean(testItemDurationBean);
-							
+
+                            DurationBean testItemDurationBean = new DurationBean(currentMethodName,
+                                testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
+                            testResult.addTestItemDurationBean(testItemDurationBean);
+
                             testResult.setOutput((returnObj == null) ? "void" : returnObj);
                             testResult.setPassed(Boolean.TRUE);
                             if (!mapMethodName.equals(method.getMethod().getName())) {
@@ -622,26 +666,26 @@ public class DataDrivenTestRunner extends Suite {
                             if (writableData.get(mapMethodName) != null) {
                                 inputData = writableData.get(mapMethodName).get(rowNum);
                                 testResult.setInput(inputData);
-                            } else{
+                            } else {
                                 testResult.setInput(null);
                             }
-                            
+
                             if (returnObj != null) {
                                 LOG.debug("returnObj:" + returnObj);
                                 // checking and assigning the map method name.
-                                
+
                                 LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
                                 if (writableData.get(mapMethodName) != null) {
                                     LOG.debug("writableData.get(mapMethodName)" + writableData.get(mapMethodName)
                                         + " ,rowNum:" + rowNum);
-                                    
+
                                     Map<String, Object> writableRow = writableData.get(mapMethodName).get(rowNum);
                                     writableRow.put(Loader.ACTUAL_RESULT, returnObj);
                                     if (testContainsInputParams) {
-                                    LOG.debug("writableData.get(mapMethodName)" + writableData.get(mapMethodName)
-                                        + " ,rowNum:" + rowNum);
-                                    inputData.put(Loader.ACTUAL_RESULT, returnObj);
-                                }
+                                        LOG.debug("writableData.get(mapMethodName)" + writableData.get(mapMethodName)
+                                            + " ,rowNum:" + rowNum);
+                                        inputData.put(Loader.ACTUAL_RESULT, returnObj);
+                                    }
 
                                     Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);
                                     // if expected result exist in user input test data,
@@ -704,7 +748,7 @@ public class DataDrivenTestRunner extends Suite {
      * 
      * @return a list of {@link DataDrivenTestRunner}
      */
-    
+
     protected List<Runner> getChildren() {
         return runners;
     }
@@ -745,9 +789,11 @@ public class DataDrivenTestRunner extends Suite {
     public DataDrivenTestRunner(Class<?> klass) throws InitializationError {
         super(klass, Collections.EMPTY_LIST);
         Class<?> testClass = getTestClass().getJavaClass();
+        // Load TestBeanConfigurations if any
+        loadTestBeanConfig(testClass);
         // Load the data at the class level, if any.
         loadData(klass, null, testClass);
-        //Converter loading strategy
+        // Registering Converters based on @Converters annotation
         registerConverter(testClass.getAnnotation(org.easetech.easytest.annotation.Converters.class));
         List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
         List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
@@ -780,21 +826,62 @@ public class DataDrivenTestRunner extends Suite {
         }
         runners.add(new EasyTestRunner(klass));
     }
-    
+
+    private void loadTestBeanConfig(Class testClass) {
+        TestConfigProvider configProvider = (TestConfigProvider) testClass.getAnnotation(TestConfigProvider.class);
+        if (configProvider != null) {
+            try {
+                loadConfigBeans(configProvider.value());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                Assert.fail();
+            } catch (InstantiationException e) {
+                Assert.fail();
+            }
+        }
+    }
+
+    private void loadConfigBeans(Class<?>... configClasses) throws IllegalArgumentException, IllegalAccessException,
+        InvocationTargetException, InstantiationException {
+
+        for (Class<?> configClass : configClasses) {
+            Object classInstance = configClass.newInstance();
+            Method[] methods = configClass.getDeclaredMethods();
+            for (Method method : methods) {
+                TestBean testBean = method.getAnnotation(TestBean.class);
+                if (testBean != null) {
+                    String beanName = testBean.value();
+                    Class<?> beanType = method.getReturnType();
+                    Object[] params = {};
+                    Object object = method.invoke(classInstance, params);
+                    if (!beanName.isEmpty()) {
+                        ConfigContext.setTestBeanByName(beanName, object);
+                    } else {
+                        ConfigContext.setTestBeanByType(beanType, object);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Method responsible for registering the converters with the EasyTest framework
+     * 
      * @param converter the annotation {@link Converters}
      */
-    private void registerConverter(org.easetech.easytest.annotation.Converters converter){
-        if(converter != null){
+    private void registerConverter(Converters converter) {
+        if (converter != null) {
             Class<? extends Converter>[] convertersToRegister = converter.value();
-            if(convertersToRegister != null && convertersToRegister.length != 0){
-                for(Class<? extends Converter> value : convertersToRegister){
+            if (convertersToRegister != null && convertersToRegister.length != 0) {
+                for (Class<? extends Converter> value : convertersToRegister) {
                     ConverterManager.registerConverter(value);
                 }
             }
         }
-        
+
     }
 
     /**
@@ -856,19 +943,19 @@ public class DataDrivenTestRunner extends Suite {
                     + "You can provide the custom Loader by choosing LoaderType.CUSTOM in TestData "
                     + "annotation and providing your custom loader using DataLoader annotation.");
             } else {
-                if(testInfo.getFilePaths() == null || testInfo.getFilePaths().length == 0){
-                    //implies that there exists a CUSTOM loader that loads the data using Java classes
+                if (testInfo.getFilePaths() == null || testInfo.getFilePaths().length == 0) {
+                    // implies that there exists a CUSTOM loader that loads the data using Java classes
                     Map<String, List<Map<String, Object>>> data = dataLoader.loadData(new EmptyResource());
                     // We also maintain the copy of the actual data for our write functionality.
                     writableData.putAll(data);
                     DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
                     DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
-                }else{
+                } else {
                     ResourceLoader resourceLoader = new ResourceLoaderStrategy(getTestClass().getJavaClass());
-                    for(String filePath : testInfo.getFilePaths()){
+                    for (String filePath : testInfo.getFilePaths()) {
                         Resource resource = resourceLoader.getResource(filePath);
                         try {
-                            if(resource.exists()){
+                            if (resource.exists()) {
                                 Map<String, List<Map<String, Object>>> data = dataLoader.loadData(resource);
                                 // We also maintain the copy of the actual data for our write functionality.
                                 writableData.putAll(data);
@@ -888,7 +975,7 @@ public class DataDrivenTestRunner extends Suite {
      * Returns a {@link Statement}: We override this method as it was being called twice for the same class. Looks like
      * a bug in JUnit.
      */
-    
+
     protected Statement withBeforeClasses(Statement statement) {
         return statement;
     }
@@ -897,7 +984,7 @@ public class DataDrivenTestRunner extends Suite {
      * Returns a {@link Statement}: We override this method as it was being called twice for the same class. Looks like
      * a bug in JUnit.
      */
-    
+
     protected Statement withAfterClasses(Statement statement) {
         return statement;
     }

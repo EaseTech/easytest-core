@@ -13,6 +13,8 @@ import java.lang.reflect.ParameterizedType;
  * implementation to get the converted object's class
  * 
  * @param <Type> the type of object to convert to.
+ * 
+ * @author Anuj Kumar
  */
 public abstract class AbstractConverter<Type> implements Converter<Type> {
 

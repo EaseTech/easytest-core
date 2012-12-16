@@ -11,6 +11,8 @@ import java.util.Map;
  * has implementation to methods {@link #convertTo()} and {@link #instanceOfType()}
  *  
  * @param <Type> the type of object to convert to from a map.
+ * 
+ * @author Anuj Kumar
  */
 public interface Converter<Type> {
     

@@ -1,9 +1,8 @@
 
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.Intercept;
-
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class TestExcelDataLoader {
     
     @Intercept
-    public RealItemService itemService = new RealItemService();
+    public ItemService itemService = new RealItemService();
 
     @BeforeClass
     public static void setUpGone() {

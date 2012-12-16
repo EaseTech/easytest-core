@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 /**
  * Annotation to be used for declaring the converters
  * to be used in the Test Class.
+ * 
+ * @author Anuj Kumar
  *
  */
 @Retention(RetentionPolicy.RUNTIME)

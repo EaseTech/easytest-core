@@ -10,6 +10,8 @@ import java.net.URL;
  * 
  * An empty implementation of the resource, useful in cases where the user loads the data from Java Class
  * and thus does not require to load a resource explicitly
+ * 
+ * @author Anuj Kumar
  *
  */
 public class EmptyResource implements Resource {

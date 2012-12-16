@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Currently just a placeholder class that will be used later to factor out some common logic from the Runner class.
+ * 
+ * @author Anuj Kumar
  *
  */
 public class EasyTestRunListener extends RunListener {

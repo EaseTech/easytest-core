@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 /**
  * A test class level annotation providing reporting parameters.
  * 
+ * @author Christiaan Mol
+ * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })

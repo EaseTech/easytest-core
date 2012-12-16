@@ -1,14 +1,17 @@
 
 package org.easetech.easytest.interceptor;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+import java.lang.reflect.Method;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * 
  * A default interceptor that simply Logs the time taken by a method in nano seconds to the attached logger.
+ * 
+ * @author Anuj Kumar
  *
  */
 public class EasyTestDefaultInterceptor implements MethodInterceptor {
@@ -18,22 +21,24 @@ public class EasyTestDefaultInterceptor implements MethodInterceptor {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(EasyTestDefaultInterceptor.class);
 
-
-
     /**
-     * Invoke the method with the advice
-     * @param invocation
-     * @return result of invoking the method
+     * Intercept the method with the advice
+     * @param object the object on which to invoke the method
+     * @param method the method to invoke
+     * @param args arguments to the method
+     * @param methodProxy the method proxy
+     * @return returned value
      * @throws Throwable
      */
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         long startTime = System.nanoTime();
-        Object result = invocation.getMethod().invoke(invocation.getThis(), invocation.getArguments());
+        Object result =  methodProxy.invokeSuper(object, args);
         long duration = System.nanoTime() - startTime;
-        LOG.debug("Method {} took {} nanoseconds", invocation.getMethod().getName(), duration);
+        LOG.debug("Method {} took {} nanoseconds", method.getName(), duration);
         return result;
-
     }
+
+
 
     
 

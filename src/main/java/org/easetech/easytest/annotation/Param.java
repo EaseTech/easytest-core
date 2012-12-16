@@ -1,6 +1,10 @@
 
 package org.easetech.easytest.annotation;
 
+import org.junit.BeforeClass;
+
+import org.easetech.easytest.converter.AbstractConverter;
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
