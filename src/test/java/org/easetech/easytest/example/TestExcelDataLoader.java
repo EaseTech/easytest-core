@@ -1,8 +1,9 @@
 
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
+
+import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
@@ -16,12 +17,12 @@ import org.slf4j.LoggerFactory;
 
 
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "C:\\Anuj\\easetech\\easytest-core\\src\\test\\resources\\org\\easetech\\data\\testExcelData.xls" }, loaderType = LoaderType.EXCEL)
-@Report(outputFormats=EXPORT_FORMAT.PDF)
+@DataLoader(filePaths = { "org/easetech/data/testExcelData.xls" }, loaderType = LoaderType.EXCEL)
+@Report(outputFormats= {EXPORT_FORMAT.XLS})
 public class TestExcelDataLoader {
     
     @Intercept
-    public ItemService itemService = new RealItemService();
+    public RealItemService itemService = new RealItemService();
 
     @BeforeClass
     public static void setUpGone() {
@@ -44,7 +45,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths={"classpath:overrideExcelData.csv"} , loaderType=LoaderType.CSV)
+    @DataLoader(filePaths={"overrideExcelData.csv"} , loaderType=LoaderType.CSV)
     public Item getExcelTestDataWithDouble(@Param(name = "libraryId")
     Double libraryId, @Param(name = "itemId")
     Double itemId) {
@@ -75,7 +76,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" }, loaderType = LoaderType.EXCEL)
+    @DataLoader(filePaths = { "org/easetech/data/test-update.xls" }, loaderType = LoaderType.EXCEL)
     public Item getExcelTestDataWithReturnType(@Param(name = "libraryId")
     Float libraryId, @Param(name = "itemId")
     Float itemId) {
@@ -90,4 +91,7 @@ public class TestExcelDataLoader {
 //        Assert.assertTrue( "test TRUE expected" ,test);
         return item;
     }
+    
+   
+
 }
