@@ -30,27 +30,27 @@ import javax.management.AttributeList;
 import javax.management.relation.RoleList;
 import javax.management.relation.RoleUnresolvedList;
 import junit.framework.Assert;
+import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
-import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.example.EnumObject.Workingday;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths={"classpath:paramTestConditions.csv"})
+@Converters({ComparableObjectConverter.class, EnumConverter.class,DelayedObjectConverter.class,DequeConverter.class})
 public class TestDifferentConditionsSupportedByParam {
     
-    @BeforeClass
-    public static void before(){
-        ConverterManager.registerConverter(ComparableObjectConverter.class);
-        ConverterManager.registerConverter(EnumConverter.class);
-        ConverterManager.registerConverter(DelayedObjectConverter.class);
-        ConverterManager.registerConverter(DequeConverter.class);
-    }
+//    @BeforeClass
+//    public static void before(){
+//        ConverterManager.registerConverter(ComparableObjectConverter.class);
+//        ConverterManager.registerConverter(EnumConverter.class);
+//        ConverterManager.registerConverter(DelayedObjectConverter.class);
+//        ConverterManager.registerConverter(DequeConverter.class);
+//    }
     
     @Test
     public void testNonGenericListInterface(@Param(name="items") List items){

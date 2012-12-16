@@ -50,12 +50,12 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
                 Assert
                     .fail(classType.getCanonicalName()
                         + " is not of Concrete type. EasyTest cannot instantiate an interface. Please provide a Concrete type as Generic Parameter Type while extending "
-                        + AbstractConverter.class.getSimpleName());
+                        + AbstractConverter.class.getSimpleName() + " or provide your oewn custoim implementation of the instanceOfType method in the Converter Interface");
             } else if (Modifier.isAbstract(convertTo().getModifiers())) {
                 Assert
                     .fail(classType.getCanonicalName()
                         + " is not of Concrete type. EasyTest cannot instantiate an abstract class. Please provide a Concrete type as Generic Parameter Type while extending "
-                        + AbstractConverter.class.getSimpleName());
+                        + AbstractConverter.class.getSimpleName() + " or provide your oewn custoim implementation of the instanceOfType method in the Converter Interface");
             }
             else{
                 Assert

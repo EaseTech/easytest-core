@@ -1,6 +1,10 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.annotation.Converters;
+
+import org.easetech.easytest.converter.ConverterManager;
+
 import org.easetech.easytest.io.EmptyResource;
 
 import java.lang.reflect.Field;
@@ -263,6 +267,7 @@ public class DataDrivenTestRunner extends Suite {
                     if (superMethodName.equals(DataConverter.getFullyQualifiedTestName(method.getName(), testClass))) {
                         // Load the data,if any, at the method level
                         loadData(null, method, getTestClass().getJavaClass());
+                        registerConverter(method.getAnnotation(org.easetech.easytest.annotation.Converters.class));
                         List<Map<String, Object>> methodData = DataContext.getData().get(superMethodName);
                         if (methodData == null) {
                             Assert.fail("Method with name : " + superMethodName
@@ -742,6 +747,8 @@ public class DataDrivenTestRunner extends Suite {
         Class<?> testClass = getTestClass().getJavaClass();
         // Load the data at the class level, if any.
         loadData(klass, null, testClass);
+        //Converter loading strategy
+        registerConverter(testClass.getAnnotation(org.easetech.easytest.annotation.Converters.class));
         List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
         List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
@@ -772,6 +779,22 @@ public class DataDrivenTestRunner extends Suite {
             this.methodsWithData = methodsWithData;
         }
         runners.add(new EasyTestRunner(klass));
+    }
+    
+    /**
+     * Method responsible for registering the converters with the EasyTest framework
+     * @param converter the annotation {@link Converters}
+     */
+    private void registerConverter(org.easetech.easytest.annotation.Converters converter){
+        if(converter != null){
+            Class<? extends Converter>[] convertersToRegister = converter.value();
+            if(convertersToRegister != null && convertersToRegister.length != 0){
+                for(Class<? extends Converter> value : convertersToRegister){
+                    ConverterManager.registerConverter(value);
+                }
+            }
+        }
+        
     }
 
     /**
