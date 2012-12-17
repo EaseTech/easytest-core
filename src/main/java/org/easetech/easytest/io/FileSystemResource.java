@@ -136,4 +136,13 @@ public class FileSystemResource implements Resource {
         }
     }
 
+    /**
+     * @return
+     */
+    public String toString() {
+        return "FileSystemResource [path=" + path + ", file=" + file + "]";
+    }
+    
+    
+
 }

@@ -1,6 +1,10 @@
 
 package org.easetech.easytest.runner;
 
+import org.jfree.util.Log;
+
+import org.easetech.easytest.config.ConfigLoader;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -179,7 +183,8 @@ public class DataDrivenTestRunner extends Suite {
             super(klass);
             try {
                 testInstance = getTestClass().getOnlyConstructor().newInstance();
-                handleTestConfigProvider(getTestClass().getJavaClass());
+                ConfigLoader.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
+                // handleTestConfigProvider(getTestClass().getJavaClass());
                 instrumentClass(getTestClass().getJavaClass());
                 // initialize report container class
                 // TODO add condition whether reports must be switched on or off
@@ -209,12 +214,9 @@ public class DataDrivenTestRunner extends Suite {
                     Class<?> fieldType = field.getType();
                     Object proxiedObject = null;
                     if (fieldType.isInterface()) {
-                        // Use JDK dynamic proxy
-                        PARAM_LOG.debug("Proxying Interfaces is currently not handled in EasyTest Core module. The field of type :"
-                            + fieldType + " will not be proxied");
-                        // Class<?>[] interfaces = {fieldType};
-                        //
-                        // Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), interfaces, h)
+                        PARAM_LOG
+                            .debug("Proxying Interfaces is currently not handled in EasyTest Core module. The field of type :"
+                                + fieldType + " will not be proxied");
                     } else {
                         Enhancer enhancer = new Enhancer();
                         enhancer.setSuperclass(fieldType);
@@ -315,12 +317,17 @@ public class DataDrivenTestRunner extends Suite {
                         // Load the data,if any, at the method level
                         loadData(null, method, getTestClass().getJavaClass());
                         registerConverter(method.getAnnotation(org.easetech.easytest.annotation.Converters.class));
-                        List<Map<String, Object>> methodData = DataContext.getData().get(superMethodName);
+                        List<Map<String, Object>> methodData = null;
+                        if (DataContext.getData() != null) {
+                            methodData = DataContext.getData().get(superMethodName);
+                        }
+
                         if (methodData == null) {
                             Assert.fail("Method with name : " + superMethodName
                                 + " expects some input test data. But there doesnt seem to be any test "
                                 + "data for the given method. Please check the Test Data file for the method data. "
-                                + "Possible cause could be a spelling mismatch.");
+                                + "Possible cause could be that the data did not get loaded at all from the file "
+                                + "or a spelling mismatch in the method name. Check logs for more details.");
                         }
                         for (Map<String, Object> testData : methodData) {
                             // Create a new FrameworkMethod for each set of test data
@@ -647,6 +654,7 @@ public class DataDrivenTestRunner extends Suite {
 
                             // invoke test method
                             eachRunNotifier.fireTestStarted();
+                            LOG.debug("Calling method {} with values {}" , method.getName(), values);
                             returnObj = method.invokeExplosively(freshInstance, values);
                             eachRunNotifier.fireTestFinished();
 
@@ -671,19 +679,17 @@ public class DataDrivenTestRunner extends Suite {
                             }
 
                             if (returnObj != null) {
-                                LOG.debug("returnObj:" + returnObj);
+                                LOG.debug("Data returned by method {} is {} :", method.getName() , returnObj);
                                 // checking and assigning the map method name.
 
                                 LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
                                 if (writableData.get(mapMethodName) != null) {
-                                    LOG.debug("writableData.get(mapMethodName)" + writableData.get(mapMethodName)
-                                        + " ,rowNum:" + rowNum);
+                                    LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
 
                                     Map<String, Object> writableRow = writableData.get(mapMethodName).get(rowNum);
                                     writableRow.put(Loader.ACTUAL_RESULT, returnObj);
                                     if (testContainsInputParams) {
-                                        LOG.debug("writableData.get(mapMethodName)" + writableData.get(mapMethodName)
-                                            + " ,rowNum:" + rowNum);
+                                        LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
                                         inputData.put(Loader.ACTUAL_RESULT, returnObj);
                                     }
 
@@ -961,8 +967,12 @@ public class DataDrivenTestRunner extends Suite {
                                 writableData.putAll(data);
                                 DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
                                 DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
+                            } else {
+                                PARAM_LOG.warn("Resource {} does not exists in the specified path. If it is a classpath resource, use 'classpath:' " +
+                                		"before the path name, else check the path.", resource);
                             }
                         } catch (Exception e) {
+                            PARAM_LOG.error("Exception occured while trying to load the data for resource {}", resource , e);
                             throw new RuntimeException(e);
                         }
                     }

@@ -91,12 +91,17 @@ public class CSVDataLoader implements Loader {
      * @return
      */
     public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
+        Map<String, List<Map<String, Object>>> result = null;
         try {
             result = loadFromSpreadsheet(resource.getInputStream());
         } catch (IOException e) {
-            Assert.fail("Cannot load data for the resource with path : " + resource.getResourceName());
+            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName(), e);
         }
+        if(result != null){
+            LOG.debug("Loading data from resource {} succedded and the data loaded is {}", resource.getResourceName(),
+                result);
+        }
+        
         return result;
     }
     
@@ -115,7 +120,9 @@ public class CSVDataLoader implements Loader {
         List<Map<String, Object>> dataValues = null;
         Map<Integer, String> tempData = new HashMap<Integer, String>();
         data = new HashMap<String, List<Map<String, Object>>>();
+        
         while (csvReader.readRecord()) {
+            StringBuffer logBuffer = new StringBuffer("Record being read is :");
             Map<String, Object> actualData = new HashMap<String, Object>();   
             String[] splitValues = csvReader.getValues();
             if (splitValues.length > 0 && "".equals(splitValues[0])) {
@@ -127,17 +134,20 @@ public class CSVDataLoader implements Loader {
                 dataValues = new ArrayList<Map<String, Object>>();
                 for (int i = 0; i < splitValues.length; i++) {
                     tempData.put(i, splitValues[i]);
+                    logBuffer.append(":" + splitValues[i]);
                 }
 
                 data.put(tempData.get(0), dataValues);
             } else {
                 for (int i = 1; i < splitValues.length; i++) {
                     actualData.put(tempData.get(i), splitValues[i]);
+                    logBuffer.append(":" + splitValues[i]);
                 }
             }
             if (!isKeyRow) {
                 dataValues.add(actualData);
             }
+            LOG.debug(logBuffer.toString());
         }
         return data;
 

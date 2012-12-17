@@ -111,12 +111,17 @@ public class XMLDataLoader implements Loader {
      * @return the loaded data
      */
     public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String,Object>>>();
+        Map<String, List<Map<String, Object>>> result = null;
         try {
             result = load(resource.getInputStream());
         } catch (IOException e) {
-            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName());
+            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName(), e);
         }
+        if(result != null){
+            LOG.debug("Loading data from resource {} succedded and the data loaded is {}", resource.getResourceName(),
+                result);
+        }
+        
         return result;
     }
 
@@ -155,6 +160,7 @@ public class XMLDataLoader implements Loader {
         List<TestMethod> testMethods = source.getTestMethod();
         for (TestMethod method : testMethods) {
             List<Map<String, Object>> testMethodData = convertFromLIstOfTestRecords(method.getTestRecord());
+            LOG.debug("Read record for method {} and the data read is {}", method.getName(),testMethodData);
             destination.put(method.getName(), testMethodData);
 
         }
@@ -169,8 +175,7 @@ public class XMLDataLoader implements Loader {
     private List<Map<String, Object>> convertFromLIstOfTestRecords(List<TestRecord> dataRecords) {
         List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
         if (dataRecords != null) {
-            for (TestRecord record : dataRecords) {
-                
+            for (TestRecord record : dataRecords) {              
                 Map<String, Object> singleTestData = convertFromListOfEntry(record.getInputData().getEntry());
                 singleTestData.put(RECORD_POSITION, record.getId());
                 result.add(singleTestData);

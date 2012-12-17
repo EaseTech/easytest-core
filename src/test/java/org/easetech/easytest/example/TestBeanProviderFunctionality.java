@@ -1,5 +1,7 @@
 package org.easetech.easytest.example;
 
+import org.easetech.easytest.annotation.Intercept;
+
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Provided;

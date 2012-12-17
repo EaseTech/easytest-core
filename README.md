@@ -2,9 +2,23 @@ EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
 
 EasyTest Framework is an extension of JUnit to perform Data Driven Testing using annotations.
+But it does not just provide you the ability to write Data Driven Tests. Instead it provides you with the facility to write sleak tests that are maintainable, easy to write and can be generated automatically using easytest-codegen library.
+
 
 <br>For a more detailed and up to date introduction, look at the wiki page: https://github.com/EaseTech/easytest/wiki/EasyTest-:-An-Introduction<br>
 For using EasyTest in your project, look at the WIKI page : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Getting-Started-%7C-Maven-Dependency
+Here are some quick links:
+
+#### EasyTest Introduction : https://github.com/EaseTech/easytest/wiki/EasyTest-:-An-Introduction
+#### Load data using CSV : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Loading-Data-using-CSV-file
+#### Load data using XML : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Loading-Data-using-XML
+#### Load data using Excel : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Loading-Data-using-Excel
+#### EasyTest Spring Support : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Spring-Integration
+#### Intercepting method calls : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-@Intercept-and-@SpringIntercept-annotation
+#### @Param annotation and passing parameters to test method : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-@Param-annotation
+#### Complex objects as parameters and Converters support : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-Converters-Support
+#### Property Editors Support : https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-Property-Editor-Support
+
 
 Introduction:
 -------------

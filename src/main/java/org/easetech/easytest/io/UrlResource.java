@@ -157,4 +157,13 @@ public class UrlResource implements Resource {
         return con.getOutputStream();
     }
 
+    /**
+     * @return
+     */
+    public String toString() {
+        return "UrlResource [path=" + path + ", URL=" + URL + "]";
+    }
+    
+    
+
 }

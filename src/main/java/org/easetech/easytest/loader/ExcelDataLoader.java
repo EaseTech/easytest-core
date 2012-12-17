@@ -102,15 +102,18 @@ public class ExcelDataLoader implements Loader {
      */
     public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
         LOG.debug("Trying to load the data for resource :" + resource.getResourceName());
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
+        Map<String, List<Map<String, Object>>> result = null;
         try {
             result = loadFromSpreadsheet(resource.getInputStream());
 
         } catch (IOException e) {
-            Assert.fail("An I/O exception occured while trying to read the file :" + resource.getResourceName());
+            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName() , e);
         }
-        LOG.debug("Loading data from resource {} succedded and the data loaded is {}", resource.getResourceName(),
-            result);
+        if(result != null){
+            LOG.debug("Loading data from resource {} succedded and the data loaded is {}", resource.getResourceName(),
+                result);
+        }
+        
         return result;
     }
 
@@ -126,6 +129,7 @@ public class ExcelDataLoader implements Loader {
 
         data = new HashMap<String, List<Map<String, Object>>>();
         Sheet sheet = workbook.getSheetAt(0);
+        LOG.debug("Sheet {} is being read" , sheet);
 
         Map<String, List<Map<String, Object>>> finalData = new HashMap<String, List<Map<String, Object>>>();
 
@@ -133,16 +137,12 @@ public class ExcelDataLoader implements Loader {
         List<Map<String, Object>> dataValues = null;
 
         for (Row row : sheet) {
-
             boolean keyRow = false;
-
             Map<String, Object> actualData = new LinkedHashMap<String, Object>();
-
-            LOG.debug("No.of cells last cell no:" + row.getLastCellNum());
+            StringBuffer debugInfo = new StringBuffer("Row data being read is ");
             for (Cell cell : row) {
                 Object cellData = objectFrom(workbook, cell);
-                // LOG.debug("column"+column);
-                // LOG.debug("cellData "+cellData);
+                debugInfo.append(":" + cellData);
                 if ((cell.getColumnIndex() == 0) && cellData != null && !"".equals(cellData)) {
                     // Indicates that this is a new set of test data.
                     dataValues = new ArrayList<Map<String, Object>>();
@@ -159,6 +159,7 @@ public class ExcelDataLoader implements Loader {
                     }
                 }
             }
+            LOG.debug(debugInfo.toString());
             if (!keyRow) {
                 dataValues.add(actualData);
             }

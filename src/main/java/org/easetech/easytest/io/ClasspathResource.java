@@ -219,6 +219,15 @@ public class ClasspathResource implements Resource {
         }
         return outputStream;
     }
+
+    /**
+     * @return
+     */
+    
+    public String toString() {
+        return "ClasspathResource [path=" + path + "]";
+    }
+    
     
 
 }
