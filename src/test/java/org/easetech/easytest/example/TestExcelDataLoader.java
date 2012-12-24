@@ -1,17 +1,16 @@
 
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.TestConfigProvider;
-
-import org.easetech.easytest.annotation.Provided;
-
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -26,12 +25,17 @@ public class TestExcelDataLoader {
     
     @Intercept
     @Provided
-    public RealItemService itemService;
+    private RealItemService itemService;
     
     /**
      * An instance of logger associated with the test framework.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(TestExcelDataLoader.class);
+    
+    @Before
+    public void before(){
+        System.out.println("IS THIS GETTING CALLEDDDDDDDDDDDDDDDDD");
+    }
     
    
 

@@ -3,8 +3,6 @@ package org.easetech.easytest.runner;
 
 import org.jfree.util.Log;
 
-import org.easetech.easytest.config.ConfigLoader;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,17 +14,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Provided;
+import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.TestBean;
 import org.easetech.easytest.annotation.TestConfigProvider;
+import org.easetech.easytest.config.ConfigLoader;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.exceptions.ParamAssertionError;
+import org.easetech.easytest.interceptor.InternalInterceptor;
+import org.easetech.easytest.interceptor.MethodIntercepter;
 import org.easetech.easytest.internal.EasyAssignments;
 import org.easetech.easytest.io.EmptyResource;
 import org.easetech.easytest.io.Resource;
@@ -146,16 +147,13 @@ public class DataDrivenTestRunner extends Suite {
      * contains all the available test data key / value pairs for easy consumption by the user. It also supports user
      * defined custom Objects as parameters.Look at {@link Converter} for details.<br>
      * <br>
-     * 
-     * 
-     * @author Anuj Kumar
-     * 
-     * 
-     *         Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept
+     *  Finally, EasyTest also supports {@link Intercept} annotation. This annotation can be used to intercept
      *         calls to the test subject that is currently being tested. For eg. if you want to capture how much time a
      *         particular method of the actual service class is taking, then you can mark the field representing the
      *         testSubject with {@link Intercept} annotation. The framework also provides convenient way to write your
      *         own custom method interceptors.
+     *         
+     *         @author Anuj Kumar
      */
     private class EasyTestRunner extends BlockJUnit4ClassRunner {
 
@@ -174,8 +172,12 @@ public class DataDrivenTestRunner extends Suite {
 
         /**
          * 
-         * Construct a new DataDrivenTestRunner
-         * 
+         * Construct a new DataDrivenTestRunner.
+         * We first inject the TestBeans, if any is specified by the user using {@link Provided} annotation.
+         * Note that {@link Provided} annotation works, iff tha user has provided {@link TestConfigProvider} annotation 
+         * at the class level with a valid TestConfig class that has public methods marked with {@link TestBean} annotation.  
+         * Next, we try instrument the fields that are marked with {@link Intercept} annotation.
+         * Finally, we instantiate the container for report generation logic, if the user has provided {@link Report} annotation at the class level.
          * @param klass the test class whose test methods needs to be executed
          * @throws InitializationError if any error occurs
          */
@@ -191,6 +193,7 @@ public class DataDrivenTestRunner extends Suite {
                 testReportContainer = new ReportDataContainer(getTestClass().getJavaClass());
 
             } catch (Exception e) {
+                PARAM_LOG.error("Exception occured while instantiating the EasyTestRunner. Exception is : ", e);
                 throw new RuntimeException(e);
             }
         }
@@ -207,11 +210,13 @@ public class DataDrivenTestRunner extends Suite {
             InstantiationException {
             Field[] fields = testClass.getDeclaredFields();
             for (Field field : fields) {
+                field.setAccessible(true);
                 Intercept interceptor = field.getAnnotation(Intercept.class);
                 if (interceptor != null) {
-                    Class<? extends MethodInterceptor> interceptorClass = interceptor.interceptor();
+                    Class<? extends MethodIntercepter> interceptorClass = interceptor.interceptor();
                     // This is the field we want to enhance
                     Class<?> fieldType = field.getType();
+                    Object fieldInstance = field.get(testInstance);
                     Object proxiedObject = null;
                     if (fieldType.isInterface()) {
                         PARAM_LOG
@@ -220,7 +225,10 @@ public class DataDrivenTestRunner extends Suite {
                     } else {
                         Enhancer enhancer = new Enhancer();
                         enhancer.setSuperclass(fieldType);
-                        enhancer.setCallback(interceptorClass.newInstance());
+                        InternalInterceptor cglibInterceptor = new InternalInterceptor();
+                        cglibInterceptor.setTargetInstance(fieldInstance);
+                        cglibInterceptor.setUserIntercepter(interceptorClass.newInstance());
+                        enhancer.setCallback(cglibInterceptor);
                         proxiedObject = enhancer.create();
                     }
 
@@ -259,6 +267,7 @@ public class DataDrivenTestRunner extends Suite {
 
                     }
                     try {
+                        field.setAccessible(true);
                         field.set(testInstance, beanInstance);
                     } catch (Exception e) {
                         Assert.fail("Failed while trying to handle Provider annotation for Field : "
@@ -378,7 +387,8 @@ public class DataDrivenTestRunner extends Suite {
          */
 
         public Statement methodBlock(final FrameworkMethod method) {
-            return new ParamAnchor(method, getTestClass());
+            Statement statement = new ParamAnchor(method, getTestClass());
+            return statement;
         }
 
         /**
@@ -654,7 +664,7 @@ public class DataDrivenTestRunner extends Suite {
 
                             // invoke test method
                             eachRunNotifier.fireTestStarted();
-                            LOG.debug("Calling method {} with values {}" , method.getName(), values);
+                            LOG.debug("Calling method {} with values {}", method.getName(), values);
                             returnObj = method.invokeExplosively(freshInstance, values);
                             eachRunNotifier.fireTestFinished();
 
@@ -679,17 +689,19 @@ public class DataDrivenTestRunner extends Suite {
                             }
 
                             if (returnObj != null) {
-                                LOG.debug("Data returned by method {} is {} :", method.getName() , returnObj);
+                                LOG.debug("Data returned by method {} is {} :", method.getName(), returnObj);
                                 // checking and assigning the map method name.
 
                                 LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
                                 if (writableData.get(mapMethodName) != null) {
-                                    LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
+                                    LOG.debug("writableData.get({}) is {} ", mapMethodName,
+                                        writableData.get(mapMethodName));
 
                                     Map<String, Object> writableRow = writableData.get(mapMethodName).get(rowNum);
                                     writableRow.put(Loader.ACTUAL_RESULT, returnObj);
                                     if (testContainsInputParams) {
-                                        LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
+                                        LOG.debug("writableData.get({}) is {} ", mapMethodName,
+                                            writableData.get(mapMethodName));
                                         inputData.put(Loader.ACTUAL_RESULT, returnObj);
                                     }
 
@@ -968,11 +980,13 @@ public class DataDrivenTestRunner extends Suite {
                                 DataContext.setData(DataConverter.appendClassName(data, currentTestClass));
                                 DataContext.setConvertedData(DataConverter.convert(data, currentTestClass));
                             } else {
-                                PARAM_LOG.warn("Resource {} does not exists in the specified path. If it is a classpath resource, use 'classpath:' " +
-                                		"before the path name, else check the path.", resource);
+                                PARAM_LOG.warn(
+                                    "Resource {} does not exists in the specified path. If it is a classpath resource, use 'classpath:' "
+                                        + "before the path name, else check the path.", resource);
                             }
                         } catch (Exception e) {
-                            PARAM_LOG.error("Exception occured while trying to load the data for resource {}", resource , e);
+                            PARAM_LOG.error("Exception occured while trying to load the data for resource {}",
+                                resource, e);
                             throw new RuntimeException(e);
                         }
                     }

@@ -118,7 +118,7 @@ public class RunAftersWithOutputData extends Statement {
                     if (outputLocation != null) {
                         ExecutorService executor = Executors.newCachedThreadPool();
                         
-                        LOG.info("Writing reports to folder: " + outputLocation);
+                        LOG.info("Writing reports to folder: {} ", outputLocation);
                         EXPORT_FORMAT[] outputFormats = annotation.outputFormats();
                         ReportRunner reportExecuter = new ReportRunner(testReportContainer, outputFormats,
                                 outputLocation);
@@ -126,8 +126,8 @@ public class RunAftersWithOutputData extends Statement {
                         submit = executor.submit(reportExecuter);
                         //executor.execute(reportExecuter);
                     } else {
-                        LOG.error("Can't write reports. Report output location " + outputLocationFromAnnotation
-                                + " can't be created.");
+                        LOG.error("Can't write reports. Report output location {} "
+                                + " can't be created.",  outputLocationFromAnnotation);
                     }
                 }
             }

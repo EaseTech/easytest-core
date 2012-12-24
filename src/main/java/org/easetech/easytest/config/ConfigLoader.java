@@ -48,6 +48,7 @@ public class ConfigLoader {
                 }
                 try {
                     LOG.debug("Field {} is being set with the instance {}", field.getName(), beanInstance);
+                    field.setAccessible(true);
                     field.set(testInstance, beanInstance);
                 } catch (Exception e) {
                     Assert.fail("Failed while trying to handle Provider annotation for Field : "
