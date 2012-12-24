@@ -25,7 +25,7 @@ public class TestExcelDataLoader {
     
     @Intercept
     @Provided
-    private RealItemService itemService;
+    private ItemService itemService;
     
     /**
      * An instance of logger associated with the test framework.

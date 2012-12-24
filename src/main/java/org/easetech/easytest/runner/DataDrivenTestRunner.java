@@ -1,6 +1,12 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.interceptor.InternalInvocationhandler;
+
+import java.lang.reflect.InvocationHandler;
+
+import java.lang.reflect.Proxy;
+
 import org.jfree.util.Log;
 
 import java.lang.reflect.Field;
@@ -186,7 +192,6 @@ public class DataDrivenTestRunner extends Suite {
             try {
                 testInstance = getTestClass().getOnlyConstructor().newInstance();
                 ConfigLoader.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
-                // handleTestConfigProvider(getTestClass().getJavaClass());
                 instrumentClass(getTestClass().getJavaClass());
                 // initialize report container class
                 // TODO add condition whether reports must be switched on or off
@@ -216,13 +221,27 @@ public class DataDrivenTestRunner extends Suite {
                     Class<? extends MethodIntercepter> interceptorClass = interceptor.interceptor();
                     // This is the field we want to enhance
                     Class<?> fieldType = field.getType();
+                    
                     Object fieldInstance = field.get(testInstance);
                     Object proxiedObject = null;
                     if (fieldType.isInterface()) {
                         PARAM_LOG
-                            .debug("Proxying Interfaces is currently not handled in EasyTest Core module. The field of type :"
-                                + fieldType + " will not be proxied");
+                        .debug("The field of type :"
+                            + fieldType + " will be proxied using JDK dynamic proxies.");
+                        
+                        ClassLoader classLoader = determineClassLoader(fieldType , testClass);
+                        
+                        Class<?>[] interfaces = {fieldType};
+                        //use JDK dynamic proxy
+                        InternalInvocationhandler handler = new InternalInvocationhandler();
+                        handler.setUserIntercepter(interceptorClass.newInstance());
+                        handler.setTargetInstance(fieldInstance);
+                        proxiedObject = Proxy.newProxyInstance(classLoader, interfaces, handler);
+                        
                     } else {
+                        PARAM_LOG
+                        .debug("The field of type :"
+                            + fieldType + " will be proxied using CGLIB proxies.");
                         Enhancer enhancer = new Enhancer();
                         enhancer.setSuperclass(fieldType);
                         InternalInterceptor cglibInterceptor = new InternalInterceptor();
@@ -238,44 +257,37 @@ public class DataDrivenTestRunner extends Suite {
                         }
 
                     } catch (Exception e) {
+                        PARAM_LOG.error("Failed while trying to instrument the class for Intercept annotation with exception : ", e);
                         Assert
                             .fail("Failed while trying to instrument the class for Intercept annotation with exception : "
-                                + e.getStackTrace());
+                                + e);
                     }
                 }
             }
         }
-
-        protected void handleTestConfigProvider(Class<?> testClass) {
-            Field[] fields = testClass.getDeclaredFields();
-            for (Field field : fields) {
-                Provided providedAnnotation = field.getAnnotation(Provided.class);
-                if (providedAnnotation != null) {
-                    String providerBeanName = providedAnnotation.value();
-                    Object beanInstance = null;
-                    if (!providerBeanName.isEmpty()) {
-                        // Load the bean by name
-                        beanInstance = ConfigContext.getBeanByName(providerBeanName);
-                    } else {
-                        // provider bean name is NULL.
-                        // load bean by type
-                        Class beanClass = field.getType();
-                        beanInstance = ConfigContext.getBeanByType(beanClass);
-                        if (beanInstance == null) {
-                            beanInstance = ConfigContext.getBeanByName(field.getName());
-                        }
-
+        
+        /**
+         * Determine the right class loader to use to load the class
+         * @param fieldType
+         * @param testClass
+         * @return the classLoader or null if none found
+         */
+        protected ClassLoader determineClassLoader(Class<?> fieldType , Class<?> testClass){
+            ClassLoader cl = testClass.getClassLoader();
+            try {
+                if(Class.forName(fieldType.getName(), false, cl) == fieldType){
+                    return cl;
+                }else{
+                    cl = Thread.currentThread().getContextClassLoader();
+                    if(Class.forName(fieldType.getName(), false, cl) == fieldType){
+                        return cl;
                     }
-                    try {
-                        field.setAccessible(true);
-                        field.set(testInstance, beanInstance);
-                    } catch (Exception e) {
-                        Assert.fail("Failed while trying to handle Provider annotation for Field : "
-                            + field.getDeclaringClass() + e.getStackTrace());
-                    }
-
                 }
+            } catch (ClassNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
+            return null;
         }
 
         /**
