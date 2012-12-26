@@ -30,7 +30,7 @@ import org.easetech.easytest.util.CommonUtils;
 public class ReportExporter {
 
 	//private static final String TOTALS_REPORT_JRXML = "/reports/TotalsReport.jrxml";
-	private static final String DEFAULT_REPORT_JRXML = "/reports/MainReport.jrxml";
+	private static final String DEFAULT_REPORT_JRXML = "/reports/MainReport_new.jrxml";
 	private static final String DEFAULT_REPORT_JRXML_XLS = "/reports/MainReport_xls.jrxml";
 	
 	public void printDefaultReport(JRDataSource dataSource, Map<String, Object> jasperParameters,
