@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * A method or class level annotation providing users with the ability to specify a data Loader strategy for their test class.
+ * A method or class level annotation providing users with the ability to specify a data {@link Loader} strategy for their test class.
  * EasyTest supports CSV, EXCEL and XML based data loading. But it may not be sufficient in all the cases.
  * Also EasyTest's Data Loading Strategy may not suit every user. In such a case, a user can use the loader 
  * attribute along with the attribute <B>loaderType = {@link LoaderType#CUSTOM}</B> 
@@ -45,7 +45,8 @@ import java.lang.annotation.Target;
  *<br>
  * Note that the custom Loader must implement the {@link Loader} interface and should have a no arg constructor.
  * 
- *  @author Anuj Kumar
+ * 
+ * @author Anuj Kumar
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD , ElementType.TYPE})

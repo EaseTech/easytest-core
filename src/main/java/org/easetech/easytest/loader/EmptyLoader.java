@@ -1,12 +1,9 @@
 
 package org.easetech.easytest.loader;
 
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
+import org.easetech.easytest.io.Resource;
 
 /**
  * 
@@ -15,30 +12,13 @@ import java.util.Map;
  */
 public class EmptyLoader implements Loader {
 
-    /**
-     * Return an empty map
-     * 
-     * @param filePaths
-     * @return the data to be consumed by the framework
-     */
-    public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
-        return new HashMap<String, List<Map<String, Object>>>();
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
-       //do nothing
-
+    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
+        // TODO Auto-generated method stub
+        
     }
-
-	public void writeFullData(FileOutputStream fos,
-			Map<String, List<Map<String, Object>>> actualData) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public Map<String, List<Map<String, Object>>> loadFromInputStream(
-			InputStream file) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

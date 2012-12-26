@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Anuj Kumar
  *
  */
-public class DataContext {
+public final class DataContext {
     
     /**
      * Private constructor

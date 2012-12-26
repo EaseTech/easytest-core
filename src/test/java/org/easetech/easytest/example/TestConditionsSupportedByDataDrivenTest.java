@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
-import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.example.editors.LibraryIdEditor;
 import org.easetech.easytest.loader.LoaderType;
@@ -30,7 +29,7 @@ import org.junit.runner.RunWith;
  * 
  */
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "getDDTData.csv" }, loaderType = LoaderType.CSV)
+@DataLoader(filePaths = { "classpath:getDDTData.csv" }, loaderType = LoaderType.CSV)
 public class TestConditionsSupportedByDataDrivenTest {
     
     @Test
@@ -107,11 +106,12 @@ public class TestConditionsSupportedByDataDrivenTest {
      * @param item an instance of Item object that is automatically converted from a map to an Item instance.
      */
     @Test
-    public void testDDTConverter(@Param(name="items")LinkedList<ItemId> items) {
+    public String testDDTConverter(@Param(name="items")LinkedList<ItemId> items) {
         System.out.print("Executing testDDTConverter :");
         for(ItemId itemId : items){
             System.out.println("Item Id is:" + itemId);
         }
+        return "Sample";
 //        Assert.assertNotNull(item);
 //        System.out.println(item.getDescription() + item.getItemId() + item.getItemType());
 
