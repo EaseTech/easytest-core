@@ -2,18 +2,15 @@
 package org.easetech.easytest.example;
 
 import com.csvreader.CsvReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.easetech.easytest.io.Resource;
 import org.easetech.easytest.loader.Loader;
-import org.easetech.easytest.util.ResourceLoader;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,34 +74,7 @@ public class CustomCSVDataLoader implements Loader {
 
     }
 
-    /**
-     * Construct a new CSVDataLoader and also load the data.
-     * 
-     * @param dataFiles the list of input stream string files to load the data from
-     * @return a Map of method name and the list of associated test data with that method name
-     * @throws IOException if an IO Exception occurs
-     */
-    private Map<String, List<Map<String, Object>>> LoadCSVData(final List<String> dataFiles) throws IOException {
-        Map<String, List<Map<String, Object>>> data = null;
-        Map<String, List<Map<String, Object>>> finalData = new HashMap<String, List<Map<String, Object>>>();
-        for (String filePath : dataFiles) {
-            try {
-                ResourceLoader resource = new ResourceLoader(filePath);
-                data = loadFromSpreadsheet(resource.getInputStream());
-            } catch (FileNotFoundException e) {
-                // LOG.error("The specified file was not found. The path is : {}", filePath);
-                // LOG.error("Continuing with the loading of next file.");
-                continue;
-            } catch (IOException e) {
-                LOG.error("IO Exception occured while trying to read the data from the file : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            }
-            finalData.putAll(data);
-        }
-        return finalData;
 
-    }
 
     /**
      * Load data from SpreadSheet
@@ -149,44 +119,26 @@ public class CustomCSVDataLoader implements Loader {
 
     }
 
-    /**
-     * Load the data from the specified list of filePaths
-     * 
-     * @param filePaths the list of File paths
-     * @return the data
-     */
-    public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
+
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
         System.out.println("Using my custom Loader");
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
-        try {
-            result = LoadCSVData(Arrays.asList(filePaths));
-        } catch (IOException e) {
-            Assert.fail("An I/O exception occured while reading the files from the path :" + filePaths.toString());
-        }
+            try {
+                result = loadFromSpreadsheet(resource.getInputStream());
+            } catch (Exception e) {
+                try {
+                    Assert.fail("An I/O exception occured while reading the files from the path :" + resource.getResourceName());
+                } catch (Exception e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
         return result;
     }
 
-    /**
-     * Write the data to the specified File.
-     * 
-     * @param filePath
-     * @param actualData
-     */
-    public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
+    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodName) {
         // TODO Auto-generated method stub
-
+        
     }
-
-	public void writeFullData(FileOutputStream fos,
-			Map<String, List<Map<String, Object>>> actualData) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public Map<String, List<Map<String, Object>>> loadFromInputStream(
-			InputStream file) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

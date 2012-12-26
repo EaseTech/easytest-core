@@ -1,6 +1,10 @@
 
 package org.easetech.easytest.annotation;
 
+import org.junit.BeforeClass;
+
+import org.easetech.easytest.converter.AbstractConverter;
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
@@ -8,11 +12,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Modifier;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,26 +24,19 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.easetech.easytest.converter.AbstractConverter;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.GeneralUtil;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.experimental.theories.ParameterSignature;
 import org.junit.experimental.theories.ParameterSupplier;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.beans.editors.BoolEditor;
-import sun.beans.editors.ByteEditor;
-import sun.beans.editors.DoubleEditor;
-import sun.beans.editors.FloatEditor;
-import sun.beans.editors.IntEditor;
-import sun.beans.editors.LongEditor;
-import sun.beans.editors.ShortEditor;
+
+
 
 /**
  * A parameter level optional annotation that converts the data for EasyTest based test methods to consume. This
@@ -58,7 +52,7 @@ import sun.beans.editors.ShortEditor;
  * For eg:<br>
  * <code><B>
  * public void testWithStrongParameters(LibraryId id ,
- *@Param(name="itemid") ItemId
+ * (@)Param(name="itemid") ItemId
  * itemId) { .... } </B>
  * </code>
  *  <br>
@@ -154,7 +148,7 @@ public @interface Param {
         /**
          * Register Editors for Standard Java Classes
          */
-        static {
+        /*static {
             PropertyEditorManager.registerEditor(Integer.class, IntEditor.class);
             PropertyEditorManager.registerEditor(Long.class, LongEditor.class);
             PropertyEditorManager.registerEditor(Float.class, FloatEditor.class);
@@ -163,7 +157,7 @@ public @interface Param {
             PropertyEditorManager.registerEditor(Double.class, DoubleEditor.class);
             PropertyEditorManager.registerEditor(Boolean.class, BoolEditor.class);
 
-        }
+        }*/
 
         /**
          * Method to return the list of data for the given Test method
@@ -272,9 +266,9 @@ public @interface Param {
                     } else {
                         editor.setAsText(getStringValue(idClass.getSimpleName(), object));
                     }
-                    if (editor.getValue() != null) {
-                        finalData.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
-                    }
+                    // add data to PotentialAssignment even if it is null
+                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
+
 
                 }
 
@@ -295,12 +289,17 @@ public @interface Param {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Converter for class " + idClass + "  not found. Final try to resolve the object.");
                     }
-                    // if there is no coverter and editor, values will be converted using our GeneralUtil methods
+                    // if there is no converter and editor, values will be converted using our GeneralUtil methods
                     // these methods cover multiple combinations of types from test data file
                     // to the target data type
                     // There are scenarios where param name will be null(in cases where user has not specified @Param
                     // annotation).
                     // That scenario needs to be handled as well
+                    for (Map<String, Object> object : convertFrom) {
+                        finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
+                            GeneralUtil.convertToTargetType(idClass, object.get(paramName))));
+                    }
+                    /*
                     if (Timestamp.class.isAssignableFrom(idClass)) {
                         for (Map<String, Object> object : convertFrom) {
                             finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
@@ -336,7 +335,7 @@ public @interface Param {
                             LOG.debug("Could not find either Editor or Converter instance for class :" + idClass);
                         }
                         Assert.fail("Could not find either Editor or Converter instance for class :" + idClass);
-                    }
+                    } */
 
                 }
             }
@@ -420,6 +419,16 @@ public @interface Param {
                     if (objectValues == null) {
                         Assert.fail("Unable to identify the Collection with Class :" + parameterType);
                     }
+                    
+                    for (Map<String, Object> object : convertFrom) {
+                        String[] strValues = ((String) object.get(paramName)).split(COLON);
+                        for (int i = 0; i < strValues.length; i++) {
+                            objectValues.add(GeneralUtil.convertToTargetType(idClass, strValues[i]));
+                        }
+                        finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
+                    }
+                    
+                    /*
                     if (Timestamp.class.isAssignableFrom(idClass)) {
                         for (Map<String, Object> object : convertFrom) {
                             String[] strValues = ((String) object.get(paramName)).split(COLON);
@@ -469,7 +478,7 @@ public @interface Param {
                             LOG.debug("Could not find either Editor or Converter instance for class :" + idClass);
                         }
                         Assert.fail("Could not find either Editor or Converter instance for class :" + idClass);
-                    }
+                    }*/
                 }
 
             }
@@ -512,7 +521,7 @@ public @interface Param {
                             .fail("EasyTest does not natively support the Collection of type "
                                 + parameterType
                                 + " . In order to use this Collection type as parameter, provide an empty implementation of AbstractConveter " +
-                                "class or provide an implementation of instance() method of the Converter interface ");
+                                "class with the generic type as " + parameterType +"or provide an implementation of instance() method of the Converter interface ");
                     }else{
                         return (Collection)converter.instanceOfType();
                     }
