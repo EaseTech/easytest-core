@@ -3,6 +3,7 @@ package org.easetech.easytest.reports.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,11 @@ public class TestResultBean implements Serializable {
 	 * annotated with @Intercept)
 	 */
 	private List<DurationBean> testItemDurations;
+	
+	/**
+	 * Duration bean data structure: key = item name, value is the bean
+	 */
+	private Map<String, DurationBean> testItemDurationsMap;
 
 	/**
 	 * Date of run
@@ -67,6 +73,7 @@ public class TestResultBean implements Serializable {
 	public TestResultBean() {
 		this.input = new LinkedHashMap<String, Object>();
 		this.testItemDurations = new ArrayList<DurationBean>();
+		this.testItemDurationsMap = new HashMap<String, DurationBean>();
 	}
 
 	public TestResultBean(String method, Map<String, Object> input,
@@ -171,9 +178,20 @@ public class TestResultBean implements Serializable {
 	public void setTestItemDurations(List<DurationBean> testItemDurations) {
 		this.testItemDurations = testItemDurations;
 	}
+	
+	public Map<String, DurationBean> getTestItemDurationsMap() {
+		return testItemDurationsMap;
+	}
+
+	public void setTestItemDurationsMap(Map<String, DurationBean> testItemDurationsMap) {
+		this.testItemDurationsMap = testItemDurationsMap;
+	}
 
 	public void addTestItemDurationBean(DurationBean testItemDurationBean) {
 		this.testItemDurations.add(testItemDurationBean);
+		if (testItemDurationBean.getItem() != null && !testItemDurationBean.getItem().isEmpty()) {
+			this.testItemDurationsMap.put(testItemDurationBean.getItem(), testItemDurationBean);
+		}
 	}
 
 	@Override

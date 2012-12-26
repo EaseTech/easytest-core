@@ -12,7 +12,6 @@ public class EnumConverter extends AbstractConverter<Workingday> {
      * @param convertFrom
      * @return
      */
-    @Override
     public Workingday convert(Map<String, Object> convertFrom) {
         
         return Workingday.valueOf((String)convertFrom.get("items"));

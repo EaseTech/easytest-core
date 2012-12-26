@@ -5,8 +5,14 @@ import java.util.Map;
 /**
  * 
  * A generic interface responsible for converting a Map object into a user defined object.
- *
+ * The Map object is of type Map&lt;String,List&lt;Map&lt;String,Object&gt;&gt;&gt;
+ * It can be read as Map of MethodName as KEY and List of Map of MethodAttributes/MethodAttributeValues as Value.
+ * Users should normally extend {@link AbstractConverter} instead of implementing this interface as the abstract converter
+ * has implementation to methods {@link #convertTo()} and {@link #instanceOfType()}
+ *  
  * @param <Type> the type of object to convert to from a map.
+ * 
+ * @author Anuj Kumar
  */
 public interface Converter<Type> {
     
