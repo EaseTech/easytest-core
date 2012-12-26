@@ -135,7 +135,7 @@ public class ReportBuilder {
 		DefaultPieDataset pieChartDataset = ChartUtils.getPieChartDataset(totalsDatasetValuesMap);
 
 		JFreeChart pieChart = ChartUtils.getPieChart("", pieChartDataset);
-		BufferedImage percentageImage = ChartUtils.getBufferedImageChartImage(pieChart, 220, 220);
+		BufferedImage percentageImage = ChartUtils.getBufferedImageChartImage(pieChart, 150, 150);
 		return percentageImage;
 	}
 }
