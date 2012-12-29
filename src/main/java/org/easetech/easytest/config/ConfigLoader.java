@@ -33,7 +33,7 @@ public class ConfigLoader {
             if (providedAnnotation != null) {
                 String providerBeanName = providedAnnotation.value();
                 Object beanInstance = null;
-                if (!providerBeanName.isEmpty()) {
+                if (!(providerBeanName == null) && !(providerBeanName.length() <= 0)) {
                     // Load the bean by name
                     beanInstance = ConfigContext.getBeanByName(providerBeanName);
                 } else {

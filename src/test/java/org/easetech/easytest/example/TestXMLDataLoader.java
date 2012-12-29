@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(org.easetech.easytest.runner.DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "classpath:input-data.xml" }, loaderType = LoaderType.XML)
+@DataLoader(filePaths = { "input-data.xml" }, loaderType = LoaderType.XML)
 public class TestXMLDataLoader {
     
     

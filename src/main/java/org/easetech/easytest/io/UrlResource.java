@@ -38,7 +38,7 @@ public class UrlResource implements Resource {
      * @throws MalformedURLException
      */
     public UrlResource(String path) throws MalformedURLException{
-        if(path == null || path.isEmpty()){
+        if(path == null || path.length() <= 0){
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
@@ -51,7 +51,7 @@ public class UrlResource implements Resource {
      * @param url
      */
     public UrlResource(URL url) {
-        if(path == null || path.isEmpty()){
+        if(path == null || path.length() <= 0){
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = url.getPath();

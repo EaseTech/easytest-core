@@ -887,7 +887,7 @@ public class DataDrivenTestRunner extends Suite {
                     Class<?> beanType = method.getReturnType();
                     Object[] params = {};
                     Object object = method.invoke(classInstance, params);
-                    if (!beanName.isEmpty()) {
+                    if (!(beanName.length() <= 0)) {
                         ConfigContext.setTestBeanByName(beanName, object);
                     } else {
                         ConfigContext.setTestBeanByType(beanType, object);
