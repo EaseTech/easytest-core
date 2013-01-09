@@ -30,7 +30,7 @@ public class TestXMLDataLoader {
     }
     
     @Test
-    @DataLoader(filePaths = { "input-data-mod.xml" }, loaderType = LoaderType.XML)
+    @DataLoader(filePaths = { "classpath:input-data-mod.xml" }, loaderType = LoaderType.XML)
     public Item getItemsDataFromXMLLoaderModified(@Param(name = "libraryId")
     String libraryId, @Param(name = "itemId")
     String itemId, @Param(name = "itemType")

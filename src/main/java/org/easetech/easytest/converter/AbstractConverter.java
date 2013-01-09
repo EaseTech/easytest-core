@@ -13,6 +13,8 @@ import java.lang.reflect.ParameterizedType;
  * implementation to get the converted object's class
  * 
  * @param <Type> the type of object to convert to.
+ * 
+ * @author Anuj Kumar
  */
 public abstract class AbstractConverter<Type> implements Converter<Type> {
 
@@ -21,7 +23,6 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
      * 
      * @return the Class variable representing the Type object
      */
-    @Override
     public Class<Type> convertTo() {
         @SuppressWarnings("unchecked")
         Class<Type> type = (Class<Type>) ((ParameterizedType) getClass().getGenericSuperclass())
@@ -41,7 +42,6 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
      * It is recommended to extend the Abstract Converter instead of implementing the Converter interface directly.
      * @return an instance of the generic type argument passed to the {@link AbstractConverter}
      */
-    @Override
     public Type instanceOfType() {
         Type type = null;
         Class<Type> classType = convertTo();
@@ -52,12 +52,12 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
                 Assert
                     .fail(classType.getCanonicalName()
                         + " is not of Concrete type. EasyTest cannot instantiate an interface. Please provide a Concrete type as Generic Parameter Type while extending "
-                        + AbstractConverter.class.getSimpleName());
+                        + AbstractConverter.class.getSimpleName() + " or provide your oewn custoim implementation of the instanceOfType method in the Converter Interface");
             } else if (Modifier.isAbstract(convertTo().getModifiers())) {
                 Assert
                     .fail(classType.getCanonicalName()
                         + " is not of Concrete type. EasyTest cannot instantiate an abstract class. Please provide a Concrete type as Generic Parameter Type while extending "
-                        + AbstractConverter.class.getSimpleName());
+                        + AbstractConverter.class.getSimpleName() + " or provide your oewn custoim implementation of the instanceOfType method in the Converter Interface");
             }
             else{
                 Assert

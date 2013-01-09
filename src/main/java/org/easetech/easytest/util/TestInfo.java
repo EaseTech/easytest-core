@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.util;
 
+import java.util.Arrays;
+
 import org.easetech.easytest.loader.Loader;
 import org.junit.runners.model.TestClass;
 
@@ -98,5 +100,16 @@ public class TestInfo {
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
+
+    /**
+     * @return the overridden toString
+     */
+    @Override
+    public String toString() {
+        return "TestInfo [testClass=" + testClass + ", dataLoader=" + dataLoader + ", filePaths="
+            + Arrays.toString(filePaths) + ", methodName=" + methodName + "]";
+    }
+    
+    
 
 }

@@ -1,14 +1,9 @@
 
 package org.easetech.easytest.loader;
 
-import org.easetech.easytest._1.InputData;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +21,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.easetech.easytest._1.Entry;
+import org.easetech.easytest._1.InputData;
 import org.easetech.easytest._1.InputTestData;
 import org.easetech.easytest._1.ObjectFactory;
 import org.easetech.easytest._1.OutputData;
 import org.easetech.easytest._1.TestMethod;
 import org.easetech.easytest._1.TestRecord;
-import org.easetech.easytest.util.ResourceLoader;
-import org.junit.Assert;
+import org.easetech.easytest.io.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -110,51 +105,24 @@ public class XMLDataLoader implements Loader {
      */
     private static final String RECORD_POSITION = "recordPosition";
 
-
     /**
-     * Load the data from the specified list of filePaths
-     * 
-     * @param filePaths the list of File paths
-     * @return the data
+     * Load the data from the given resource
+     * @param resource the instance of the resource from which to load the data 
+     * @return the loaded data
      */
-    @Override
-    public Map<String, List<Map<String, Object>>> loadData(String[] filePaths) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
+    public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
+        Map<String, List<Map<String, Object>>> result = null;
         try {
-            result = loadXMLData(Arrays.asList(filePaths));
+            result = load(resource.getInputStream());
         } catch (IOException e) {
-            Assert.fail("An I/O exception occured while reading the files from the path :" + filePaths.toString());
+            LOG.error("IOException occured while trying to Load the resource {} . Moving to the next resource.", resource.getResourceName(), e);
         }
+        if(result != null){
+            LOG.debug("Loading data from resource {} succedded and the data loaded is {}", resource.getResourceName(),
+                result);
+        }
+        
         return result;
-    }
-
-    /**
-     * Load the XML data.
-     * 
-     * @param dataFiles the list of input stream string files to load the data from
-     * @return a Map of method name and the list of associated test data with that method name
-     * @throws IOException if an IO Exception occurs
-     */
-    private Map<String, List<Map<String, Object>>> loadXMLData(final List<String> dataFiles) throws IOException {
-        Map<String, List<Map<String, Object>>> data = null;
-        Map<String, List<Map<String, Object>>> finalData = new HashMap<String, List<Map<String, Object>>>();
-        for (String filePath : dataFiles) {
-            try {
-                ResourceLoader resource = new ResourceLoader(filePath);
-                data = load(resource.getInputStream());
-            } catch (FileNotFoundException e) {
-                LOG.error("The specified file was not found. The path is : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            } catch (IOException e) {
-                LOG.error("IO Exception occured while trying to read the data from the file : {}", filePath);
-                LOG.error("Continuing with the loading of next file.");
-                continue;
-            }
-            finalData.putAll(data);
-        }
-        return finalData;
-
     }
 
     /**
@@ -192,6 +160,7 @@ public class XMLDataLoader implements Loader {
         List<TestMethod> testMethods = source.getTestMethod();
         for (TestMethod method : testMethods) {
             List<Map<String, Object>> testMethodData = convertFromLIstOfTestRecords(method.getTestRecord());
+            LOG.debug("Read record for method {} and the data read is {}", method.getName(),testMethodData);
             destination.put(method.getName(), testMethodData);
 
         }
@@ -206,8 +175,7 @@ public class XMLDataLoader implements Loader {
     private List<Map<String, Object>> convertFromLIstOfTestRecords(List<TestRecord> dataRecords) {
         List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
         if (dataRecords != null) {
-            for (TestRecord record : dataRecords) {
-                
+            for (TestRecord record : dataRecords) {              
                 Map<String, Object> singleTestData = convertFromListOfEntry(record.getInputData().getEntry());
                 singleTestData.put(RECORD_POSITION, record.getId());
                 result.add(singleTestData);
@@ -251,38 +219,41 @@ public class XMLDataLoader implements Loader {
 
     /**
      * Write Data to the existing XML File.
-     * 
-     * @param filePaths the paths to the file to which the data needs to be written
-     * @param methodName the name of the method to write data for
+     * @param resource to which the data needs to be written
+     * @param methodNames the name of the methods to write data for
      * @param actualData the actual data that needs to be written to the file.
      */
-    @Override
-    public void writeData(String[] filePaths, String methodName, Map<String, List<Map<String, Object>>> actualData) {
+    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             DocumentBuilder db = dbf.newDocumentBuilder();
-            // File xml = new File(filePath);
-            ResourceLoader resource = new ResourceLoader(filePaths[0]);
             Document document = db.parse(resource.getInputStream());
-            Binder<Node> binder = getJAXBContext().createBinder();
+            Binder<Node> binder = getJAXBContext().createBinder(Node.class);
             binder.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             InputTestData testData = (InputTestData) binder.unmarshal(document);
-            updateTestMethods(testData, methodName, actualData);
+            if(methodNames == null || methodNames.length == 0){
+                updateTestMethods(testData, null, actualData);
+            }else{
+                for(String methodName : methodNames){
+                    updateTestMethods(testData, methodName, actualData);
+                }
+            }
+            
             binder.updateXML(testData);
             TransformerFactory tf = TransformerFactory.newInstance();
             Transformer t = tf.newTransformer();
-            t.transform(new DOMSource(document), new StreamResult(resource.getFileOutputStream()));
+            t.transform(new DOMSource(document), new StreamResult(resource.getOutputStream()));
         } catch (ParserConfigurationException e) {
-            LOG.error("Ignoring the write operation as ParserConfigurationException occured while parsing the file : " + filePaths[0], e);
+            LOG.error("Ignoring the write operation as ParserConfigurationException occured while parsing the file : " + resource.getResourceName(), e);
         } catch (SAXException e) {
-            LOG.error("Ignoring the write operation as SAXException occured while parsing the file : " + filePaths[0], e);
+            LOG.error("Ignoring the write operation as SAXException occured while parsing the file : " + resource.getResourceName(), e);
         } catch (IOException e) {
-            LOG.error("Ignoring the write operation as IOException occured while parsing the file : " + filePaths[0], e);
+            LOG.error("Ignoring the write operation as IOException occured while parsing the file : " + resource.getResourceName(), e);
         } catch (JAXBException e) {
-            LOG.error("Ignoring the write operation as JAXBException occured while parsing the file : " + filePaths[0], e);
+            LOG.error("Ignoring the write operation as JAXBException occured while parsing the file : " + resource.getResourceName(), e);
         } catch (TransformerException e) {
-            LOG.error("Ignoring the write operation as TransformerException occured while parsing the file : " + filePaths[0], e);
+            LOG.error("Ignoring the write operation as TransformerException occured while parsing the file : " + resource.getResourceName(), e);
         }
 
     }
@@ -298,8 +269,9 @@ public class XMLDataLoader implements Loader {
      * The output data is identified by the key {@link Loader#ACTUAL_RESULT}
      */
     private void updateTestMethods(InputTestData inputTestData, String methodToWriteDataFor , Map<String, List<Map<String, Object>>> actualData) {
+        Boolean isMethodNameAbsent = methodToWriteDataFor == null || methodToWriteDataFor.length() <= 0;
         for (String methodName : actualData.keySet()) {
-            if(!methodName.equals(methodToWriteDataFor)){
+            if(!isMethodNameAbsent && !methodName.equals(methodToWriteDataFor)){
                 continue;
             }
             List<Map<String, Object>> testRecords = actualData.get(methodName);
@@ -332,18 +304,7 @@ public class XMLDataLoader implements Loader {
 
     }
 
- @Override
-	public void writeFullData(FileOutputStream fos,
-			Map<String, List<Map<String, Object>>> actualData) {
-		// TODO Auto-generated method stub
-		
-	}
+    
 
-	@Override
-	public Map<String, List<Map<String, Object>>> loadFromInputStream(
-			InputStream file) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

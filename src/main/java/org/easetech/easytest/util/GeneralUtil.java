@@ -478,6 +478,12 @@ public class GeneralUtil {
         return value;
     }
     
+    /**
+     * Convert the given Class object to an object instance if possible
+     * @param idClass
+     * @param object
+     * @return
+     */
     public static Object convertToTargetType(Class<?> idClass, Object object) {
     	Object returnObj = null;
     	
@@ -501,7 +507,6 @@ public class GeneralUtil {
     		returnObj = convertToInteger(object);
     	} else if(Boolean.class.isAssignableFrom(idClass) || boolean.class.isAssignableFrom(idClass)){
     		returnObj = convertToBoolean(object);
-
     	} else if(Byte.class.isAssignableFrom(idClass) || byte.class.isAssignableFrom(idClass)){
     		returnObj = convertToByte(object);
     	} else if(Character.class.isAssignableFrom(idClass) || char.class.isAssignableFrom(idClass)){
