@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 public class TestCombinedLoadingAndWriting {
 
     @Test
-    @DataLoader(filePaths = { "input-data-mod-again.xml" }, loaderType = LoaderType.XML)
+    @DataLoader(filePaths = { "classpath:input-data-mod-again.xml" }, loaderType = LoaderType.XML)
     public Item getItemsDataFromXMLLoaderModified(@Param(name = "libraryId")
     String libraryId, @Param(name = "itemId")
     String itemId, @Param(name = "itemType")
@@ -27,7 +27,7 @@ public class TestCombinedLoadingAndWriting {
     }
     
     @Test
-    @DataLoader(filePaths = { "org/easetech/data/test-combined.xls" }, loaderType = LoaderType.EXCEL)
+    @DataLoader(filePaths = { "classpath:org/easetech/data/test-combined.xls" }, loaderType = LoaderType.EXCEL)
     public Item getExcelTestDataWithReturnType(@Param(name = "libraryId")
     Float libraryId, @Param(name = "itemId")
     Float itemId) {

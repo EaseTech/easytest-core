@@ -1,6 +1,7 @@
 package org.easetech.easytest.reports.data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Class contains duration of item. Item can be a method call. A test method
@@ -92,10 +93,18 @@ public class DurationBean implements Serializable {
 	/**
 	 * Returns the difference end - start in milli seconds
 	 * 
-	 * @return
+	 * @return difference in ms
 	 */
 	public long getMsDifference() {
 		return getNanoDifference() / NANO_TO_MILLI;
+	}
+	
+	/**
+	 * Returns rounded milli seconds
+	 * @return rounded difference in ms
+	 */
+	public BigDecimal getRoundedMsDifference() {
+		return new BigDecimal((double) this.getNanoDifference() / NANO_TO_MILLI);
 	}
 
 	@Override

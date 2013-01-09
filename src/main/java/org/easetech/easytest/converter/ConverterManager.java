@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * A class that manages the registered Converters and makes them available to the framework. This class can be used to
- * locate a {@link Converter} for any given type name.
+ * A class that manages the registered Converters and makes them available to the framework. 
+ * This class can be used to locate a {@link Converter} for any given type name.
+ * 
+ * @author Anuj Kumar
  * 
  */
 @SuppressWarnings("rawtypes")
