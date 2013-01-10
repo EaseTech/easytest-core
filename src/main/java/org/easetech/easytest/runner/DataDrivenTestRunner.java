@@ -4,12 +4,9 @@ package org.easetech.easytest.runner;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.sf.cglib.proxy.Enhancer;
-import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
@@ -17,9 +14,7 @@ import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.TestBean;
 import org.easetech.easytest.annotation.TestConfigProvider;
-import org.easetech.easytest.config.ConfigLoader;
 import org.easetech.easytest.converter.Converter;
-import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
 import org.easetech.easytest.interceptor.MethodIntercepter;
@@ -33,7 +28,6 @@ import org.easetech.easytest.util.TestInfo;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.Runner;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
@@ -190,7 +184,8 @@ public class DataDrivenTestRunner extends BaseSuite {
             super(klass);
             try {
                 testInstance = getTestClass().getOnlyConstructor().newInstance();
-                ConfigLoader.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
+                TestConfigUtil.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
+                TestConfigUtil.loadResourceProperties(getTestClass().getJavaClass(), testInstance);
                 instrumentClass(getTestClass().getJavaClass());
                 // initialize report container class
                 // TODO add condition whether reports must be switched on or off

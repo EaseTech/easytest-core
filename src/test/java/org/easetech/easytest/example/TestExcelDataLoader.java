@@ -6,7 +6,6 @@ import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Report;
-import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
