@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(org.easetech.easytest.runner.DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "input-data.xml" }, loaderType = LoaderType.XML)
+@DataLoader(filePaths = { "input-data.xml" })
 public class TestXMLDataLoader {
     
     
@@ -30,7 +30,7 @@ public class TestXMLDataLoader {
     }
     
     @Test
-    @DataLoader(filePaths = { "classpath:input-data-mod.xml" }, loaderType = LoaderType.XML)
+    @DataLoader(filePaths = { "classpath:input-data-mod.xml" })
     public Item getItemsDataFromXMLLoaderModified(@Param(name = "libraryId")
     String libraryId, @Param(name = "itemId")
     String itemId, @Param(name = "itemType")

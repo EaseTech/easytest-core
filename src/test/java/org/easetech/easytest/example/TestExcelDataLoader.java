@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" }, loaderType = LoaderType.EXCEL)
+@DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
 @Report
 @TestConfigProvider({TestConfigProviderClass.class})
 public class TestExcelDataLoader {

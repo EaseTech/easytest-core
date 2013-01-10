@@ -1,7 +1,5 @@
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.Intercept;
-
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Provided;
@@ -28,7 +26,7 @@ public class TestBeanProviderFunctionality {
 
 
     @Test
-    @DataLoader(filePaths={"classpath:overrideExcelData.csv"} , loaderType=LoaderType.CSV)
+    @DataLoader(filePaths={"classpath:overrideExcelData.csv"})
     public Item getExcelTestDataWithDouble(@Param(name = "libraryId")
     Double libraryId, @Param(name = "itemId")
     Double itemId) {

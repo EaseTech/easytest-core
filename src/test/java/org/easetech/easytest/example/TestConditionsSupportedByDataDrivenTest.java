@@ -12,7 +12,6 @@ import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.example.editors.LibraryIdEditor;
-import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -29,7 +28,7 @@ import org.junit.runner.RunWith;
  * 
  */
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "classpath:getDDTData.csv" }, loaderType = LoaderType.CSV)
+@DataLoader(filePaths = { "getDDTData.csv" })
 public class TestConditionsSupportedByDataDrivenTest {
     
     @Test
