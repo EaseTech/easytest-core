@@ -80,10 +80,11 @@ public class BaseSuite extends Suite {
         for (FrameworkMethod method : availableMethods) {
             // Try loading the data if any at the method level
             if (method.getAnnotation(DataLoader.class) != null) {
+                DataLoaderUtil.loadData(null, method, getTestClass(), writableData);
                 methodsWithData.add(method);
             } else {
                 // Method does not have its own dataloader annotation
-                // Does method have data already loaded at the class level?
+                // Does method have data already loaded?
                 boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
                     method.getName(), testClass));
                 if (methodDataLoaded) {
@@ -92,6 +93,8 @@ public class BaseSuite extends Suite {
                     methodsWithNoData.add(method);
                 }
             }
+            //Next Try registering the converters, if any at the method level
+            registerConverter(method.getAnnotation(Converters.class));
 
         }
         // Finally create a runner for methods that do not have Data specified with them.

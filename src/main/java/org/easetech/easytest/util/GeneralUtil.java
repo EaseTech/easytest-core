@@ -32,6 +32,8 @@ public class GeneralUtil {
     private static final Logger LOG = LoggerFactory.getLogger(GeneralUtil.class);
 
     private static final String FILE_SEPARATOR = String.valueOf(File.separatorChar);
+    
+    private static final String NULL_STR = "null";
 
     /**
      * Rounds a value with number of decimals
@@ -476,6 +478,9 @@ public class GeneralUtil {
      */
     public static Object convertToTargetType(Class<?> idClass, Object object) {
         Object returnObj = null;
+        if(object == null || NULL_STR.equals(object.toString())){
+            return null;
+        }
 
         if (String.class.isAssignableFrom(idClass)) {
             returnObj = convertToString(object);
@@ -505,8 +510,6 @@ public class GeneralUtil {
             returnObj = convertToShort(object);
         } else if (Enum.class.isAssignableFrom(idClass)) {
             returnObj = convertToEnum(idClass, object);
-        } else if (Object.class.isAssignableFrom(idClass)) {
-            returnObj = object;
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Could not find either Editor or Converter instance for class :" + idClass);

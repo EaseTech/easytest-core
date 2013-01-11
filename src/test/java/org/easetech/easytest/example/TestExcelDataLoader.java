@@ -39,8 +39,8 @@ public class TestExcelDataLoader {
    
 
     @Test
-    public void getExcelTestData(@Param(name = "libraryId")
-    Float libraryId, @Param(name = "itemId")
+    public void getExcelTestData(@Param("libraryId")
+    Float libraryId, @Param("itemId")
     Float itemId) {
         System.out.print("Executing getExcelTestData :");
         System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
@@ -48,8 +48,8 @@ public class TestExcelDataLoader {
 
     @Test
     @DataLoader(filePaths={"classpath:overrideExcelData.csv"} , loaderType=LoaderType.CSV)
-    public Item getExcelTestDataWithDouble(@Param(name = "libraryId")
-    Double libraryId, @Param(name = "itemId")
+    public Item getExcelTestDataWithDouble(@Param("libraryId")
+    Double libraryId, @Param("itemId")
     Double itemId) {
         System.out.print("Executing getExcelTestDataWithDouble :");
         // if(itemId.equals(11568.0D)){
@@ -63,8 +63,8 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    public void getExcelTestDataWithString(@Param(name = "libraryId")
-    String libraryId, @Param(name = "itemId")
+    public void getExcelTestDataWithString(@Param("libraryId")
+    String libraryId, @Param("itemId")
     String itemId) {
         System.out.print("Executing getExcelTestDataWithString :");
         System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
@@ -79,8 +79,8 @@ public class TestExcelDataLoader {
 
     @Test
     @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" }, loaderType = LoaderType.EXCEL)
-    public Item getExcelTestDataWithReturnType(@Param(name = "libraryId")
-    Float libraryId, @Param(name = "itemId")
+    public Item getExcelTestDataWithReturnType(@Param("libraryId")
+    Float libraryId, @Param("itemId")
     Float itemId) {
         System.out.println("Executing  getExcelTestDataWithReturnType : ");
         LOG.debug("LibraryId is :" + libraryId + " and Item Id is :" + itemId);

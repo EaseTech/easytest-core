@@ -27,8 +27,8 @@ public class TestBeanProviderFunctionality {
 
     @Test
     @DataLoader(filePaths={"classpath:overrideExcelData.csv"})
-    public Item getExcelTestDataWithDouble(@Param(name = "libraryId")
-    Double libraryId, @Param(name = "itemId")
+    public Item getExcelTestDataWithDouble(@Param("libraryId")
+    Double libraryId, @Param("itemId")
     Double itemId) {
         Assert.assertNotNull(itemService);
         System.out.print("Executing getExcelTestDataWithDouble :");

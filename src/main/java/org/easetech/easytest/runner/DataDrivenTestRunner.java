@@ -327,16 +327,12 @@ public class DataDrivenTestRunner extends BaseSuite {
             for (FrameworkMethod methodWithData : methodsWithData) {
                 String superMethodName = DataConverter.getFullyQualifiedTestName(methodWithData.getName(), testClass);
                 for (FrameworkMethod method : super.computeTestMethods()) {
-
                     if (superMethodName.equals(DataConverter.getFullyQualifiedTestName(method.getName(), testClass))) {
                         // Load the data,if any, at the method level
-                        DataLoaderUtil.loadData(null, method, getTestClass(), writableData);
-                        registerConverter(method.getAnnotation(org.easetech.easytest.annotation.Converters.class));
                         List<Map<String, Object>> methodData = null;
                         if (DataContext.getData() != null) {
                             methodData = DataContext.getData().get(superMethodName);
                         }
-
                         if (methodData == null) {
                             Assert.fail("Method with name : " + superMethodName
                                 + " expects some input test data. But there doesnt seem to be any test "

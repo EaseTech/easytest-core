@@ -1,17 +1,15 @@
 
 package org.easetech.easytest.runner;
 
-import java.util.Properties;
-
 import java.io.IOException;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.easetech.easytest.annotation.TestProperties;
+import java.util.Properties;
 import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.TestBean;
 import org.easetech.easytest.annotation.TestConfigProvider;
+import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.io.Resource;
 import org.easetech.easytest.io.ResourceLoader;
 import org.easetech.easytest.io.ResourceLoaderStrategy;
@@ -70,8 +68,8 @@ public final class TestConfigUtil {
 
         for (Class<?> configClass : configClasses) {
             Object classInstance = configClass.newInstance();
-            loadResourceProperties(configClass , classInstance);
-            
+            loadResourceProperties(configClass, classInstance);
+
             Method[] methods = configClass.getDeclaredMethods();
             for (Method method : methods) {
                 TestBean testBean = method.getAnnotation(TestBean.class);
@@ -90,42 +88,66 @@ public final class TestConfigUtil {
         }
     }
 
+    /**
+     * Load the resource properties specified by {@link TestProperties} annotation
+     * @param configClass
+     * @param classInstance
+     */
     public static void loadResourceProperties(Class<?> configClass, Object classInstance) {
         TestProperties resource = configClass.getAnnotation(TestProperties.class);
         if (resource != null) {
-            java.util.Properties properties = new java.util.Properties();
-            ResourceLoader resourceLoader = new ResourceLoaderStrategy(configClass);
-            for (String resourcePath : resource.value()) {
-                Resource fileResource = resourceLoader.getResource(resourcePath);
-                if (fileResource.exists()) {
-                    
-                    try {
-                        properties.load(fileResource.getInputStream());
-                    } catch (IOException e) {
-                        throw new RuntimeException(
-                            "IOException occured while trying to load the properties from file : " + resourcePath, e);
-                    }
-                } else {
-                    Assert.fail("Properties file with path " + resourcePath + " does not exist.");
-                }
-
-            }
-            Field[] fields = configClass.getDeclaredFields();
-            for(Field field : fields){
-                if(field.getType().isAssignableFrom(Properties.class)){
-                    field.setAccessible(true);
-                    try {
-                        field.set(classInstance, properties);
-                    } catch (Exception e) {
-                        LOG.error("An exception occured while trying to set the Properties instance on the class " + configClass,e);
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
+            Properties properties = getProperties(resource , configClass);
+            setPropertiesFields(configClass , classInstance , properties);
+        }else{
+            setPropertiesFields(configClass , classInstance , null);
         }
 
     }
+    
+    private static void setPropertiesFields(Class<?> configClass , Object classInstance , Properties properties){
+        Field[] fields = configClass.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.getType().isAssignableFrom(Properties.class)) {
+                field.setAccessible(true);
+                try {
+                    Properties fieldProperties = null;
+                    //If the annotation TestProperties is present at the field level then it gets the priority
+                    TestProperties fieldResource = field.getAnnotation(TestProperties.class);
+                    if(fieldResource != null){
+                        fieldProperties = getProperties(fieldResource , configClass);                      
+                    }
+                    field.set(classInstance, fieldProperties != null ? fieldProperties : properties);
+                    
+                } catch (Exception e) {
+                    LOG.error("An exception occured while trying to set the Properties instance on the class {}. Exception is : {}"
+                        ,configClass, e);
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+    
+    private static Properties getProperties(TestProperties resource , Class<?> configClass){
+        java.util.Properties properties = new java.util.Properties();
+        ResourceLoader resourceLoader = new ResourceLoaderStrategy(configClass);
+        for (String resourcePath : resource.value()) {
+            Resource fileResource = resourceLoader.getResource(resourcePath);
+            if (fileResource.exists()) {
+
+                try {
+                    properties.load(fileResource.getInputStream());
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                        "IOException occured while trying to load the properties from file : " + resourcePath, e);
+                }
+            } else {
+                Assert.fail("Properties file with path " + resourcePath + " does not exist.");
+            }
+
+        }
+        return properties;
+    }
+
 
     /**
      * Load the test configurations for the test class and associated the bean instance with the fields annotated with
