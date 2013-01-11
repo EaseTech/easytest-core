@@ -269,7 +269,7 @@ public class XMLDataLoader implements Loader {
      * The output data is identified by the key {@link Loader#ACTUAL_RESULT}
      */
     private void updateTestMethods(InputTestData inputTestData, String methodToWriteDataFor , Map<String, List<Map<String, Object>>> actualData) {
-        Boolean isMethodNameAbsent = methodToWriteDataFor == null || methodToWriteDataFor.isEmpty();
+        Boolean isMethodNameAbsent = methodToWriteDataFor == null || methodToWriteDataFor.length() <= 0;
         for (String methodName : actualData.keySet()) {
             if(!isMethodNameAbsent && !methodName.equals(methodToWriteDataFor)){
                 continue;

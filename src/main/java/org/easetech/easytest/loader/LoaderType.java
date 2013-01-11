@@ -34,5 +34,14 @@ public enum LoaderType {
      * This option is used in conjunction with {@link DataLoader} annotation.
      *  
      */
-    CUSTOM
+    CUSTOM,
+    /**
+     * Identifies that the user has not specified any specific loader type.
+     * The framework should identify the type of file from its extension.
+     * If the file type is any one of the available standard types(XML, Excel, XLS)
+     * appropriate loaders will be called. Else the framework will assume the file to be loaded by 
+     * the custom loader. In such a case, a custom loader implementation should be provided as
+     * part of the {@link DataLoader}'s loader attribute declaration. 
+     */
+    NONE
 }

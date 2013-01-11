@@ -189,7 +189,7 @@ public class TestResultBean implements Serializable {
 
 	public void addTestItemDurationBean(DurationBean testItemDurationBean) {
 		this.testItemDurations.add(testItemDurationBean);
-		if (testItemDurationBean.getItem() != null && !testItemDurationBean.getItem().isEmpty()) {
+		if (testItemDurationBean.getItem() != null && !(testItemDurationBean.getItem().length() <= 0)) {
 			this.testItemDurationsMap.put(testItemDurationBean.getItem(), testItemDurationBean);
 		}
 	}

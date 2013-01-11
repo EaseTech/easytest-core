@@ -20,7 +20,7 @@ public class RealItemService implements ItemService {
         System.out.println("findItems Called");
         Item item = new Item();
         item.setDescription("Item Description Modified Again");
-        item.setItemId(itemId.toString());
+        item.setItemId(itemId== null ? null : itemId.toString());
         item.setItemType("BOOK");
         return item;
     }

@@ -48,7 +48,7 @@ public class FileSystemResource implements Resource {
      * @param path the path where the file system resource resides
      */
     public FileSystemResource(String path) {
-        if(path == null || path.isEmpty()){
+        if(path == null || path.length() <= 0){
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = CommonUtils.cleanPath(path);
@@ -61,7 +61,7 @@ public class FileSystemResource implements Resource {
      * @param file representing the file system resource
      */
     public FileSystemResource(File file){
-        if(path == null || path.isEmpty()){
+        if(path == null || path.length() <= 0){
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = CommonUtils.cleanPath(file.getPath());
