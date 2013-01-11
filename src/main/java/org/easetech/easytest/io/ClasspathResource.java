@@ -47,7 +47,7 @@ public class ClasspathResource implements Resource {
      * @param path The path of the classpath resource
      */
     public ClasspathResource(String path) {
-        if (path == null || path.isEmpty()) {
+        if (path == null || path.length() <= 0) {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
@@ -62,7 +62,7 @@ public class ClasspathResource implements Resource {
      * @param classLoader The {@link ClassLoader} to load the class path resource
      */
     public ClasspathResource(String path, ClassLoader classLoader) {
-        if (path == null || path.isEmpty()) {
+        if (path == null || path.length() <= 0) {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
@@ -77,7 +77,7 @@ public class ClasspathResource implements Resource {
      * @param classObj The {@link Class} to load the class path resource
      */
     public ClasspathResource(String path, Class<?> classObj) {
-        if (path == null || path.isEmpty()) {
+        if (path == null || path.length() <= 0) {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
@@ -85,7 +85,7 @@ public class ClasspathResource implements Resource {
     }
 
     public ClasspathResource(String path, ClassLoader classLoader, Class<?> classObj) {
-        if (path == null || path.isEmpty()) {
+        if (path == null || path.length() <= 0) {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
