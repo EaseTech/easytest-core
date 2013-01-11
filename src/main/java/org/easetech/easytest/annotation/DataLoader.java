@@ -55,8 +55,8 @@ public @interface DataLoader {
     /** The list of files representing the input test data for the given test method. */
     String[] filePaths() default {};
 
-    /** The type of file that contains the data. Defaults to "csv"*/
-    LoaderType loaderType() default LoaderType.CSV;
+    /** The type of file that contains the data. Defaults to "none"*/
+    LoaderType loaderType() default LoaderType.NONE;
 
     
     /** The custom Loader class that will be used by EasyTest to load the test data*/

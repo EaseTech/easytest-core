@@ -12,7 +12,6 @@ import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.example.editors.LibraryIdEditor;
-import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -29,11 +28,11 @@ import org.junit.runner.RunWith;
  * 
  */
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "classpath:getDDTData.csv" }, loaderType = LoaderType.CSV)
+@DataLoader(filePaths = { "getDDTData.csv" })
 public class TestConditionsSupportedByDataDrivenTest {
     
     @Test
-    public void testBug(@Param(name="className") String name, @Param(name="dateDebut")Date dateDebut , @Param(name="dateFin")Date dateFin){
+    public void testBug(@Param("className") String name, @Param("dateDebut")Date dateDebut , @Param("dateFin")Date dateFin){
         System.out.println("Class Name :" + name + " DateDebut : " + dateDebut + " dateFin :" + dateFin);
     }
 
@@ -106,7 +105,7 @@ public class TestConditionsSupportedByDataDrivenTest {
      * @param item an instance of Item object that is automatically converted from a map to an Item instance.
      */
     @Test
-    public String testDDTConverter(@Param(name="items")LinkedList<ItemId> items) {
+    public String testDDTConverter(@Param("items")LinkedList<ItemId> items) {
         System.out.print("Executing testDDTConverter :");
         for(ItemId itemId : items){
             System.out.println("Item Id is:" + itemId);
