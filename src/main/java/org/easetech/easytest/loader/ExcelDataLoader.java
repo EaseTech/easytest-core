@@ -277,7 +277,7 @@ public class ExcelDataLoader implements Loader {
             workbook = WorkbookFactory.create(new POIFSFileSystem(resource.getInputStream()));
 
         } catch (Exception e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
 
         Sheet sheet = workbook.getSheetAt(0);
