@@ -73,11 +73,13 @@ public class InternalParameterizedStatement extends Statement{
 
     /**
      * The name of the method currently being executed. Used for populating the {@link #writableData} map.
+     * Note this is a static field and therefore the state is maintained across the test executions
      */
-    private String mapMethodName = "";
+    private static String mapMethodName = "";
     
     /**
      * The default rowNum within the {@link #writableData}'s particular method data.
+     * Note this is a static field and therefore the state is maintained across the test executions
      */
     private static int rowNum = 0;
     
