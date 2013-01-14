@@ -32,6 +32,9 @@ public class TestCombinedLoadingAndWriting {
     Float itemId) {
         System.out.print("Executing  TestCombinedLoadingAndWriting#getExcelTestDataWithReturnType : ");
         ItemService itemService = new RealItemService();
+        if(libraryId == null || itemId == null){
+            return null;
+        }
         Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
             new ItemId(Long.valueOf(itemId.longValue())));
         return item;

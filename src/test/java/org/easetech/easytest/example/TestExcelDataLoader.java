@@ -84,6 +84,12 @@ public class TestExcelDataLoader {
     Float itemId) {
         System.out.println("Executing  getExcelTestDataWithReturnType : ");
         LOG.debug("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
+        if(libraryId == null){
+            return null;
+        }
+        if(itemId == null){
+            return null;
+        }
         Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
             new ItemId(Long.valueOf(itemId.longValue())));
         LOG.debug("return item: " + item.toString());
