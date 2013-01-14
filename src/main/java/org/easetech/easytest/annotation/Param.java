@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * custom) is same as the name of the input parameter type then this annotation can be omitted. For eg:<br>
  * <code><B>
  * public void testWithStrongParameters(LibraryId id ,
- * (@)Param(name="itemid") ItemId
+ * (@)Param("itemid") ItemId
  * itemId) { .... } </B>
  * </code> <br>
  * In the above example we have not provided @Param annotation to the input paramater LibraryId. In this case the test
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * 
  * The annotation contains a single mandatory field :
  * 
- * <li><B> name</B> : the name of the parameter(Mandatory) as is present in the input test data file. <li>In case the
+ * <li><B> value</B> : the name of the parameter(Mandatory) as is present in the input test data file. <li>In case the
  * param annotation is not specified and the Parameter type is Map, {@link DataSupplier} simply provides the HashMap
  * instance that was created while loading the data. This {@link HashMap} represents a single set of test data for the
  * test method.</li> <li>In case the param name is specified along with the {link @Param} annotation, the framework will
@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @Test
  * @DataLoader(filePaths ={ "getItemsData.csv" }) <br>public void testWithStrongParameters(LibraryId id
- *                       ,@Param(name="itemid") ItemId itemId) { .... } </code> <br>
+ *                       ,@Param("itemid") ItemId itemId) { .... } </code> <br>
  * <br>
  *                       <li>Example of using Map to get the entire data:</li></br> <br>
  *                       <code><br>
@@ -98,7 +98,7 @@ import org.slf4j.LoggerFactory;
  *       <code>
  * 
  *  (At)Test<br>
- *   public void testArrayList(@Param(name="items") ArrayList&lt;ItemId> items){<br>
+ *   public void testArrayList(@Param("items") ArrayList&lt;ItemId> items){<br>
  *       Assert.assertNotNull(items);<br>
  *      for(ItemId item : items){<br>
  *          System.out.println("testArrayList : "+item);<br>
@@ -144,21 +144,6 @@ public @interface Param {
         private static final String EMPTY_STRING = "";
 
         /**
-         * Register Editors for Standard Java Classes
-         */
-        /*
-         * static { PropertyEditorManager.registerEditor(Integer.class, IntEditor.class);
-         * PropertyEditorManager.registerEditor(Long.class, LongEditor.class);
-         * PropertyEditorManager.registerEditor(Float.class, FloatEditor.class);
-         * PropertyEditorManager.registerEditor(Byte.class, ByteEditor.class);
-         * PropertyEditorManager.registerEditor(Short.class, ShortEditor.class);
-         * PropertyEditorManager.registerEditor(Double.class, DoubleEditor.class);
-         * PropertyEditorManager.registerEditor(Boolean.class, BoolEditor.class);
-         * 
-         * }
-         */
-
-        /**
          * Method to return the list of data for the given Test method
          * 
          * @param signature the {@link ParameterSignature}
@@ -189,12 +174,6 @@ public @interface Param {
             } else if (Collection.class.isAssignableFrom(parameterType)) {
                 listOfData = convertCollection(signature, provider != null ? provider.value() : null, data.get(value),
                     parameterType);
-                // if (signature.getIsGenericParameter()) {
-                //
-                // } else {
-                // listOfData = convertCollection(Object.class, provider != null ? provider.value() : null,
-                // data.get(value), parameterType);
-                // }
             } else {
                 listOfData = convert(signature.getParameterType(), provider != null ? provider.value() : null,
                     data.get(value));
