@@ -218,10 +218,11 @@ public class InternalParameterizedStatement extends Statement{
                         try {
                             statement.evaluate();
                             handleDataPointSuccess();
-                        } catch (AssumptionViolatedException e) {
+                        } catch (AssumptionViolatedException e) {                         
                             eachNotifier.addFailedAssumption(e);
                             handleAssumptionViolation(e);
                         } catch (Throwable e) {
+                            
                             if (e instanceof AssertionError) { // Assertion error
                                 testResult.setPassed(Boolean.FALSE);
                                 testResult.setResult(e.getMessage());
@@ -229,6 +230,7 @@ public class InternalParameterizedStatement extends Statement{
                                 testResult.setException(Boolean.TRUE);
                                 testResult.setExceptionResult(e.toString());
                             }
+                            eachNotifier.addFailure(e);
                             reportParameterizedError(e, complete.getArgumentStrings(true));
                         } finally {
                             eachNotifier.fireTestFinished();
