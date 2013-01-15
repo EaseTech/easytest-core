@@ -28,7 +28,8 @@ public class DefaultMethodIntercepter implements MethodIntercepter {
         long startTime = System.nanoTime();
         Object result = methodToIntercept.invoke(targetInstance, methodArgs);
         long duration = System.nanoTime() - startTime;
-        LOG.debug("Method {} took {} nanoseconds", methodToIntercept.getName(), duration);
+        System.out.println("Method " + methodToIntercept.getName() + " on class " + targetInstance.getClass()+ " took " + duration + " nanoseconds" );
+        LOG.debug("Method {} on class {} took " + duration +" nanoseconds", methodToIntercept.getName(), targetInstance.getClass());
         return result;
     }
 

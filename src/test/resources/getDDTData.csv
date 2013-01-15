@@ -1,6 +1,8 @@
 testDDTGetItem,LibraryId,itemType,searchText
 ,4,journal,batman
 ,1,ebook,potter
+,0,ebook,potrey
+,null,something,extra
 testDDTGetItemsWithCustomLoader,LibraryId,itemType,searchText
 ,10,book,catwoman
 ,2,journal,spiderman

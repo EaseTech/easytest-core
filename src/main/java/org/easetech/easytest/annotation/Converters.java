@@ -8,8 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to be used for declaring the converters
- * to be used in the Test Class.
+ * Annotation to be used for declaring the converters on a test Class
+ * See {@link Converter} for more details on what Converters are and how can they be used.
  * 
  * @author Anuj Kumar
  *
