@@ -14,22 +14,21 @@ import java.lang.annotation.Target;
  * 
  * A method or class level annotation providing users with the ability to specify a data {@link Loader} strategy for their test class.
  * EasyTest supports CSV, EXCEL and XML based data loading. But it may not be sufficient in all the cases.
- * Also EasyTest's Data Loading Strategy may not suit every user. In such a case, a user can use the loader 
- * attribute along with the attribute <B>loaderType = {@link LoaderType#CUSTOM}</B> 
+ * Also EasyTest's Data Loading Strategy may not suit every user. In such a case, a user can write his own Custom Loader and pass it to the Data Loader annotation
  * to supply your own custom Loader.<br>
  * 
  * For eg. this is how you can use it :
  * <code>
- *   @Theory
- *   @DataLoader(loader=MyCustomDataLoader.class, loaderType=LoaderType.CUSTOM)<br>
+ *   @Test
+ *   @DataLoader(loader=MyCustomDataLoader.class)<br>
  *    public void testGetItems(........<br>
  * </code>
  *<br>
  *OR
  *<br>
  *<code>
- *   @Theory
- *   @DataLoader(filePaths={testData.csv} , loader=MyCustomDataLoader.class, loaderType=LoaderType.CUSTOM)<br>
+ *   @Test
+ *   @DataLoader(filePaths={testData.json} , loader=MyCustomDataLoader.class)<br>
  *    public void testGetItems(........<br>
  * </code>
  *<br>
@@ -38,8 +37,8 @@ import java.lang.annotation.Target;
  *
  *<br>
  *<code>
- *   @Theory
- *   @DataLoader(filePaths={testData.csv}, loaderType=LoaderType.CSV)<br>
+ *   @Test
+ *   @DataLoader(filePaths={testData.csv})<br>
  *    public void testGetItems(........<br>
  * </code>
  *<br>
@@ -55,8 +54,8 @@ public @interface DataLoader {
     /** The list of files representing the input test data for the given test method. */
     String[] filePaths() default {};
 
-    /** The type of file that contains the data. Defaults to "csv"*/
-    LoaderType loaderType() default LoaderType.CSV;
+    /** The type of file that contains the data. Defaults to "none"*/
+    LoaderType loaderType() default LoaderType.NONE;
 
     
     /** The custom Loader class that will be used by EasyTest to load the test data*/

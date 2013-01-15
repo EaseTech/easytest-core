@@ -18,6 +18,6 @@ public @interface TestConfigProvider {
      * An array of Class objects identifying the test config provider class
      * @return An array of Class objects identifying the test config provider class 
      */
-    Class<?>[] value() default {};
+    Class<?>[] value();
 
 }
