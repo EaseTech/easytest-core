@@ -300,7 +300,12 @@ public class GeneralUtil {
             } else if (object instanceof Double) {
                 longvalue = ((Double) object).longValue();
             } else if (object instanceof String) {
-                longvalue = Long.valueOf((String) object);
+                String strLongValue = (String) object;
+            	if("".equalsIgnoreCase(strLongValue)) {
+            		longvalue = (long) 0;
+            	} else {
+            		longvalue = Long.valueOf((String) object);
+            	}
             }
         }
         return longvalue;
