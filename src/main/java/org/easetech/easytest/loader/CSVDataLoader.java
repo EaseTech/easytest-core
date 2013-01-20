@@ -1,22 +1,24 @@
 
 package org.easetech.easytest.loader;
 
-import org.junit.Assert;
-
-import com.csvreader.CsvReader;
-import com.csvreader.CsvWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.easetech.easytest.io.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
 
 /**
  * An implementation of {@link Loader} for the CSV based files. This Loader is responsible for reading and writing to a list of CSV
@@ -152,15 +154,109 @@ public class CSVDataLoader implements Loader {
         return data;
 
     }
-
+    
     /**
+     * Write the data back to the file that is represented by the Resource instance
+     * @param resource the resource instance to which teh data needs to be written
+     * @param actualData the actual data that needs to be written
+     * @param methodNames OPTIONAL names of methods for which the data needs to be written. If the method 
+     * names are not provided, then the data is written for all the test methods ofr which teh data is present 
+     * in the actualData parameter
+     */
+    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
+        if (methodNames == null || methodNames.length == 0) {
+    	    writeFullDataToCSV(resource, actualData);
+		} else {
+		    for (String methodName : methodNames) {
+		    	writeDataToCSV(resource, actualData,methodName);
+		    }
+
+		}
+
+    }
+    
+    private void writeFullDataToCSV(Resource resource,
+			Map<String, List<Map<String, Object>>> actualData) {
+    	
+  
+        List<String[]> writableData = new ArrayList<String[]>();
+        try {
+
+
+            
+            for (String methodName : actualData.keySet()) {
+
+                boolean isHeaderWritten = false;
+                Map<String, Integer> parameterIndexMap = new LinkedHashMap<String, Integer>();
+                int noOfColumns = 0;
+                for (Map<String, Object> methodData : actualData.get(methodName)) {
+                    // rowNum increment by one to proceed with next record of the method.
+                    LOG.debug("methodData.keySet().size" + methodData.keySet().size());
+                    LOG.debug("methodData" + methodData);
+                    
+
+                    if (!isHeaderWritten) {
+                        int columnIndex = 0;
+                        noOfColumns = methodData.keySet().size()+1;
+                        String[] headerValues = new String[noOfColumns];
+                        // Write the method name and parameter names in header.
+                        //writeDataToCell(sheet, rowNum, columnIndex++, methodName);
+                        headerValues[columnIndex++] = methodName;
+                        for (String parameterName : methodData.keySet()) {
+                        	headerValues[columnIndex] = parameterName;                             
+                         // capturing column index so that corresponding values will be placed at same column
+                            parameterIndexMap.put(parameterName, columnIndex);
+                            columnIndex++;
+                        }
+                        // incrementing row after writing header
+                        //rowNum++;
+                        isHeaderWritten = true;
+                        writableData.add(headerValues);
+                    }
+
+                    // Write the actual result and test status values.
+                    if (isHeaderWritten) {
+                        int columnIndex = 0;
+                        String[] parameterValues = new String[noOfColumns];
+                        // we need to put empty cell in first column as per easytest csv structure.
+
+                        parameterValues[columnIndex++] = null;
+                        for (String parameter : methodData.keySet()) {
+                        	System.out.println("Index:parameter:value"+parameterIndexMap.get(parameter)+parameter+methodData.get(parameter));
+                        	parameterValues[parameterIndexMap.get(parameter)] = methodData.get(parameter)!=null?methodData.get(parameter).toString():null;
+                        }
+
+                        writableData.add(parameterValues);
+                    }
+
+                }
+            }
+  
+            CsvWriter csvWriter = new CsvWriter(resource.getOutputStream(), COMMA_SEPARATOR,Charset.defaultCharset());
+            // finally we have the values in order to be written to the CSV file.
+            for (String[] data : writableData) {
+                csvWriter.writeRecord(data);
+                
+            }
+            csvWriter.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }catch(Exception ex){
+        	ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
+		
+	}
+
+	/**
      * Write the Data to the given Resource
      * @param resource the resource representing the CSV file to which teh data should be written
      * @param actualData the actual data to write back
      * @param methodNames the optional names of methods for which the data shouuld be written. If this varargs is empty,
      * then the data will be written back for all the methods.
      */
-    public void writeData(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
+    private void writeDataToCSV(Resource resource, Map<String, List<Map<String, Object>>> actualData, String... methodNames) {
         Boolean isKeyRow = true;
         List<String[]> writableData = new ArrayList<String[]>();
         try {
