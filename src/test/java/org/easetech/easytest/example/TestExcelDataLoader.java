@@ -7,7 +7,6 @@ import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.TestConfigProvider;
-import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths={"classpath:overrideExcelData.csv"} , loaderType=LoaderType.CSV)
+    @DataLoader(filePaths={"classpath:overrideExcelData.csv"})
     public Item getExcelTestDataWithDouble(@Param("libraryId")
     Double libraryId, @Param("itemId")
     Double itemId) {
@@ -78,7 +77,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" }, loaderType = LoaderType.EXCEL)
+    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" })
     public Item getExcelTestDataWithReturnType(@Param("libraryId")
     Float libraryId, @Param("itemId")
     Float itemId) {
