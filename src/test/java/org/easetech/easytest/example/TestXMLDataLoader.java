@@ -25,10 +25,10 @@ public class TestXMLDataLoader {
     
 
     @Test
-    public Item getItemsDataFromXMLLoader(@Param( "libraryId")
-    String libraryId, @Param( "itemId")
-    String itemId, @Param( "itemType")
-    String itemType, @Param( "expectedItems")
+    public Item getItemsDataFromXMLLoader(@Param(name= "libraryId")
+    String libraryId, @Param(name= "itemId")
+    String itemId, @Param(name= "itemType")
+    String itemType, @Param(name= "expectedItems")
     String expectedItems) {
         System.out.println("Print Property :" + loadedProperties.getProperty("simple.property"));
         System.out.print("Executing getItemsDataFromXMLLoader :");
@@ -43,10 +43,10 @@ public class TestXMLDataLoader {
     
     @Test
     @DataLoader(filePaths = { "classpath:input-data-mod.xml" })
-    public Item getItemsDataFromXMLLoaderModified(@Param( "libraryId")
-    String libraryId, @Param( "itemId")
-    String itemId, @Param( "itemType")
-    String itemType, @Param( "expectedItems")
+    public Item getItemsDataFromXMLLoaderModified(@Param(name= "libraryId")
+    String libraryId, @Param(name= "itemId")
+    String itemId, @Param(name= "itemType")
+    String itemType, @Param(name= "expectedItems")
     String expectedItems) {
         System.out.print("Executing getItemsDataFromXMLLoaderModified :");
         System.out.println("LibraryId :" + libraryId + " itemId : " + itemId + " itemType :" + itemType

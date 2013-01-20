@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 public class TestConditionsSupportedByDataDrivenTest {
     
     @Test
-    public void testBug(@Param("className") String name, @Param("dateDebut")Date dateDebut , @Param("dateFin")Date dateFin){
+    public void testBug(@Param(name="className") String name, @Param(name="dateDebut")Date dateDebut , @Param(name="dateFin")Date dateFin){
         System.out.println("Class Name :" + name + " DateDebut : " + dateDebut + " dateFin :" + dateFin);
     }
 
@@ -105,7 +105,7 @@ public class TestConditionsSupportedByDataDrivenTest {
      * @param item an instance of Item object that is automatically converted from a map to an Item instance.
      */
     @Test
-    public String testDDTConverter(@Param("items")LinkedList<ItemId> items) {
+    public String testDDTConverter(@Param(name="items")LinkedList<ItemId> items) {
         System.out.print("Executing testDDTConverter :");
         for(ItemId itemId : items){
             System.out.println("Item Id is:" + itemId);

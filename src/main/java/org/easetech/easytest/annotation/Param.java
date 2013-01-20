@@ -46,17 +46,17 @@ import org.slf4j.LoggerFactory;
  * custom) is same as the name of the input parameter type then this annotation can be omitted. For eg:<br>
  * <code><B>
  * public void testWithStrongParameters(LibraryId id ,
- * (@)Param("itemid") ItemId
+ * (@)Param(name="itemid") ItemId
  * itemId) { .... } </B>
  * </code> <br>
- * In the above example we have not provided @Param annotation to the input paramater LibraryId. In this case the test
+ * In the above example we have not provided @Param annotation to the input parameter LibraryId. In this case the test
  * parameter name in the test file should be LibraryId. You have to take care that in scenario where the input
  * parameters are of the same type, the names should be different. Thus if you have two input parameters of type
  * LibraryId then you should provide atleast @Param annotation on one of the input parameters.
  * 
  * The annotation contains a single mandatory field :
  * 
- * <li><B> value</B> : the name of the parameter(Mandatory) as is present in the input test data file. <li>In case the
+ * <li><B> name</B> : the name of the parameter(Mandatory) as is present in the input test data file. <li>In case the
  * param annotation is not specified and the Parameter type is Map, {@link DataSupplier} simply provides the HashMap
  * instance that was created while loading the data. This {@link HashMap} represents a single set of test data for the
  * test method.</li> <li>In case the param name is specified along with the {link @Param} annotation, the framework will
@@ -70,11 +70,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @Test
  * @DataLoader(filePaths ={ "getItemsData.csv" }) <br>public void testWithStrongParameters(LibraryId id
- *                       ,@Param("itemid") ItemId itemId) { .... } </code> <br>
+ *                       ,@Param(name="itemid") ItemId itemId) { .... } </code> <br>
  * <br>
  *                       <li>Example of using Map to get the entire data:</li></br> <br>
  *                       <code><br>
- * @Test (@)DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType(<B>@Paramr()</B>
+ * @Test (@)DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType(
  *       Map<String, Object> inputData) {<br> ........
  * 
  *       }</code>
@@ -98,7 +98,7 @@ import org.slf4j.LoggerFactory;
  *       <code>
  * 
  *  (At)Test<br>
- *   public void testArrayList(@Param("items") ArrayList&lt;ItemId> items){<br>
+ *   public void testArrayList(@Param(name="items") ArrayList&lt;ItemId> items){<br>
  *       Assert.assertNotNull(items);<br>
  *      for(ItemId item : items){<br>
  *          System.out.println("testArrayList : "+item);<br>
@@ -124,7 +124,7 @@ import org.slf4j.LoggerFactory;
 public @interface Param {
 
     /** The name of the parameter for which value needs to be fetched from the data set */
-    String value();
+    String name();
 
     /**
      * Static class that overrides the getValueSources method of {@link ParameterSupplier} to return the data in Junit
@@ -172,10 +172,10 @@ public @interface Param {
             if (Map.class.isAssignableFrom(parameterType)) {
                 listOfData = convert(data.get(value), parameterType);
             } else if (Collection.class.isAssignableFrom(parameterType)) {
-                listOfData = convertCollection(signature, provider != null ? provider.value() : null, data.get(value),
+                listOfData = convertCollection(signature, provider != null ? provider.name() : null, data.get(value),
                     parameterType);
             } else {
-                listOfData = convert(signature.getParameterType(), provider != null ? provider.value() : null,
+                listOfData = convert(signature.getParameterType(), provider != null ? provider.name() : null,
                     data.get(value));
             }
             return listOfData;
