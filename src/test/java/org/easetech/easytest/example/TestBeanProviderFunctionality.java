@@ -1,10 +1,11 @@
 package org.easetech.easytest.example;
 
+import javax.inject.Named;
+
+import javax.inject.Inject;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
-import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.TestConfigProvider;
-import org.easetech.easytest.loader.LoaderType;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,8 +17,9 @@ import org.slf4j.LoggerFactory;
 @TestConfigProvider({TestConfigProviderClass.class})
 public class TestBeanProviderFunctionality {
     
-    @Provided
-    public ItemService itemService;
+    @Inject
+    @Named("itemService")
+    public ItemService testSubject;
 
     /**
      * An instance of logger associated with the test framework.
@@ -30,14 +32,14 @@ public class TestBeanProviderFunctionality {
     public Item getExcelTestDataWithDouble(@Param(name="libraryId")
     Double libraryId, @Param(name="itemId")
     Double itemId) {
-        Assert.assertNotNull(itemService);
+        Assert.assertNotNull(testSubject);
         System.out.print("Executing getExcelTestDataWithDouble :");
         // if(itemId.equals(11568.0D)){
         // Assert.fail("ItemId is 11568 but should be 2");
         // }
         System.out.println("LibraryId Anuj is :" + libraryId + " and Item Id is :" + itemId);
         //itemService.testString = "String";
-        Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
+        Item item = testSubject.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
             new ItemId(Long.valueOf(itemId.longValue())));
         return item;
     }

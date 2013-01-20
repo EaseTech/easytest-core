@@ -258,7 +258,7 @@
 			<artifactId>javaee-api</artifactId>
 			<version>5</version>
 		</dependency>
-            
+
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
@@ -312,7 +312,13 @@
 			<artifactId>jaxb-impl</artifactId>
 			<version>2.2.6</version>
 		</dependency>
-            
+
+		<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
