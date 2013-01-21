@@ -351,7 +351,7 @@ public class InternalParameterizedStatement extends Statement {
 
                     }
                 } catch (CouldNotGenerateValueException e) {
-                    // ignore
+                    throw new RuntimeException(e);
                 }
                 testReportContainer.addTestResult(testResult);
             }

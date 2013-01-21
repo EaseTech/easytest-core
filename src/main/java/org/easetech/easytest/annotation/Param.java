@@ -1,12 +1,21 @@
 
 package org.easetech.easytest.annotation;
 
+import java.sql.Time;
+
+import java.sql.Timestamp;
+
+import java.sql.Date;
+
+import java.lang.reflect.InvocationTargetException;
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,8 +83,8 @@ import org.slf4j.LoggerFactory;
  * <br>
  *                       <li>Example of using Map to get the entire data:</li></br> <br>
  *                       <code><br>
- * @Test (@)DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType(
- *       Map<String, Object> inputData) {<br> ........
+ * @Test (@)DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType( Map<String,
+ *       Object> inputData) {<br> ........
  * 
  *       }</code>
  * 
@@ -275,23 +284,25 @@ public @interface Param {
                             LOG.debug("Converter for class " + idClass
                                 + "  not found. Final try to resolve the object.");
                         }
-                        // if there is no converter and editor, values will be converted using our GeneralUtil methods
-                        // these methods cover multiple combinations of types from test data file
-                        // to the target data type
-                        // There are scenarios where param name will be null(in cases where user has not specified
-                        // @Param
-                        // annotation).
-                        // That scenario needs to be handled as well
-                        for (Map<String, Object> object : convertFrom) {
-                            finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
-                                GeneralUtil.convertToTargetType(idClass, object.get(paramName))));
+                        try {
+                            GeneralUtil.fillDataUsingConstructor(idClass, convertFrom, finalData, paramName);
+                        } catch (IllegalArgumentException e) {
+                            throw new RuntimeException(e);
+                        } catch (InstantiationException e) {
+                            throw new RuntimeException(e);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException(e);
                         }
+
                     }
                 }
             }
 
             return finalData;
         }
+
 
         /**
          * Method that returns a list of {@link PotentialAssignment} that contains the value as specified by idClass
@@ -308,14 +319,13 @@ public @interface Param {
         @SuppressWarnings("unchecked")
         private List<PotentialAssignment> convertCollection(EasyParamSignature signature, String paramName,
             List<Map<String, Object>> convertFrom, Class parameterType) {
-            Class<?> idClass = signature.getIsGenericParameter() ? signature.getGenericParameterArgType()
+            Class<?> genericType = signature.getIsGenericParameter() ? signature.getGenericParameterArgType()
                 : Object.class;
-            Collection objectValues = getCollectionInstance(parameterType, idClass);
+            Collection objectValues = getCollectionInstance(parameterType, genericType);
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
 
             if (!signature.getIsGenericParameter()) {
-                LOG.debug("Collection is of Non generic type.Setting the same values as fetched from the test file.",
-                    idClass);
+                LOG.debug("Collection is of Non generic type.Setting the same values as fetched from the test file.");
                 for (Map<String, Object> object : convertFrom) {
                     String[] strValues = ((String) object.get(paramName)).split(COLON);
                     for (int i = 0; i < strValues.length; i++) {
@@ -323,10 +333,10 @@ public @interface Param {
                     }
                     finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                 }
-            } else if (GeneralUtil.isStandardObjectInstance(idClass)) {
+            } else if (GeneralUtil.isStandardObjectInstance(genericType)) {
                 LOG.debug(
                     "parameter to the collection is a Standard Java Class {} . Using Internal Editors to resolve values",
-                    idClass);
+                    genericType);
                 if (objectValues == null) {
                     Assert.fail("Unable to identify the Collection with Class :" + parameterType);
                 }
@@ -334,20 +344,20 @@ public @interface Param {
                 for (Map<String, Object> object : convertFrom) {
                     String[] strValues = ((String) object.get(paramName)).split(COLON);
                     for (int i = 0; i < strValues.length; i++) {
-                        objectValues.add(GeneralUtil.convertToTargetType(idClass, strValues[i]));
+                        objectValues.add(GeneralUtil.convertToTargetType(genericType, strValues[i]));
                     }
                     finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                 }
             } else {
-                PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
+                PropertyEditor editor = PropertyEditorManager.findEditor(genericType);
                 if (editor != null) {
-                    LOG.debug("Editor for class {} found", idClass);
+                    LOG.debug("Editor for class {} found", genericType);
                     for (Map<String, Object> object : convertFrom) {
                         String strValue = null;
                         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
                             strValue = getStringValue(paramName, object);
                         } else {
-                            strValue = getStringValue(idClass.getSimpleName(), object);
+                            strValue = getStringValue(genericType.getSimpleName(), object);
                         }
                         if (strValue != null) {
                             String[] values = strValue.split(COLON);
@@ -362,10 +372,10 @@ public @interface Param {
                     }
 
                 } else {
-                    LOG.debug("Editor for class {}  not found. Trying to find converter.", idClass);
-                    Converter<?> converter = ConverterManager.findConverter(idClass);
+                    LOG.debug("Editor for class {}  not found. Trying to find converter.", genericType);
+                    Converter<?> converter = ConverterManager.findConverter(genericType);
                     if (converter != null) {
-                        LOG.debug("Converter for class {} found ", idClass);
+                        LOG.debug("Converter for class {} found ", genericType);
                         for (Map<String, Object> object : convertFrom) {
                             Map<String, Object> tempMap = new HashMap<String, Object>();
                             String values = (String) object.get(paramName);
@@ -377,7 +387,21 @@ public @interface Param {
                             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                         }
                     } else {
-                        // finally if nothing else is found. Put the object
+                        try {
+                            GeneralUtil.fillDataUsingConstructor(genericType, convertFrom, finalData, paramName, objectValues);
+                        } catch (IllegalArgumentException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (InstantiationException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                     }
 
                 }

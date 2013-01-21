@@ -1,7 +1,5 @@
 package org.easetech.easytest.example;
 
-import java.beans.PropertyEditorManager;
-
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
@@ -17,7 +15,7 @@ import org.junit.runner.RunWith;
 public class TestBorderConditions {
     
     public static void before(){
-        PropertyEditorManager.registerEditor(ItemId.class, ItemIdEditor.class);
+        //PropertyEditorManager.registerEditor(ItemId.class, ItemIdEditor.class);
     }
 
     private ItemService itemService = new RealItemService();

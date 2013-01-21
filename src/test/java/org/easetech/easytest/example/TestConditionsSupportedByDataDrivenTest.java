@@ -3,7 +3,6 @@ package org.easetech.easytest.example;
 
 
 
-import java.beans.PropertyEditorManager;
 import java.sql.Date;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.TreeMap;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.ConverterManager;
-import org.easetech.easytest.example.editors.LibraryIdEditor;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -49,7 +47,7 @@ public class TestConditionsSupportedByDataDrivenTest {
     @BeforeClass
     public static void setUpGone() {
         System.out.println("Should be printed only once");
-        PropertyEditorManager.registerEditor(LibraryId.class, LibraryIdEditor.class);
+        //PropertyEditorManager.registerEditor(LibraryId.class, LibraryIdEditor.class);
         ConverterManager.registerConverter(ItemConverter.class);
     }
     
@@ -58,6 +56,8 @@ public class TestConditionsSupportedByDataDrivenTest {
         System.out.println("Should ALSO be printed only once");
         
     }
+    
+    
 
     /**
      * Test DDT runner with a generic MAP parameter
