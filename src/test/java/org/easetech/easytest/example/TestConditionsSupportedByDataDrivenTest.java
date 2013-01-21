@@ -3,7 +3,6 @@ package org.easetech.easytest.example;
 
 
 
-import java.beans.PropertyEditorManager;
 import java.sql.Date;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.TreeMap;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.ConverterManager;
-import org.easetech.easytest.example.editors.LibraryIdEditor;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,7 +30,7 @@ import org.junit.runner.RunWith;
 public class TestConditionsSupportedByDataDrivenTest {
     
     @Test
-    public void testBug(@Param("className") String name, @Param("dateDebut")Date dateDebut , @Param("dateFin")Date dateFin){
+    public void testBug(@Param(name="className") String name, @Param(name="dateDebut")Date dateDebut , @Param(name="dateFin")Date dateFin){
         System.out.println("Class Name :" + name + " DateDebut : " + dateDebut + " dateFin :" + dateFin);
     }
 
@@ -49,7 +47,7 @@ public class TestConditionsSupportedByDataDrivenTest {
     @BeforeClass
     public static void setUpGone() {
         System.out.println("Should be printed only once");
-        PropertyEditorManager.registerEditor(LibraryId.class, LibraryIdEditor.class);
+        //PropertyEditorManager.registerEditor(LibraryId.class, LibraryIdEditor.class);
         ConverterManager.registerConverter(ItemConverter.class);
     }
     
@@ -58,6 +56,8 @@ public class TestConditionsSupportedByDataDrivenTest {
         System.out.println("Should ALSO be printed only once");
         
     }
+    
+    
 
     /**
      * Test DDT runner with a generic MAP parameter
@@ -105,7 +105,7 @@ public class TestConditionsSupportedByDataDrivenTest {
      * @param item an instance of Item object that is automatically converted from a map to an Item instance.
      */
     @Test
-    public String testDDTConverter(@Param("items")LinkedList<ItemId> items) {
+    public String testDDTConverter(@Param(name="items")LinkedList<ItemId> items) {
         System.out.print("Executing testDDTConverter :");
         for(ItemId itemId : items){
             System.out.println("Item Id is:" + itemId);
