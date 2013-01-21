@@ -1,3 +1,4 @@
+
 package org.easetech.easytest.runner;
 
 import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
@@ -40,14 +41,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An internal class that holds the logic of running a given Test method.
- * This class contains the common code for both {@link EasyTestRunner} and SpringTestRunner
- * that is present in the easytest-spring module.
+ * An internal class that holds the logic of running a given Test method. This class contains the common code for both
+ * {@link EasyTestRunner} and SpringTestRunner that is present in the easytest-spring module.
  * 
  * @author Anuj Kumar
- *
+ * 
  */
-public class InternalParameterizedStatement extends Statement{
+public class InternalParameterizedStatement extends Statement {
 
     /**
      * An instance of logger associated with the test framework.
@@ -60,35 +60,37 @@ public class InternalParameterizedStatement extends Statement{
      * an instance of {@link FrameworkMethod} identifying the method to be tested.
      */
     private FrameworkMethod fTestMethod;
-    
+
     /**
      * Instance of {@link TestResultBean} containg result for a single execution of test method
      */
     TestResultBean testResult;
-    
+
     /**
      * The report container which holds all the reporting data
      */
     private ReportDataContainer testReportContainer = null;
 
     /**
-     * The name of the method currently being executed. Used for populating the {@link #writableData} map.
+     * The name of the method currently being executed. Used for populating the {@link #writableData} map. Note this is
+     * a static field and therefore the state is maintained across the test executions
      */
-    private String mapMethodName = "";
-    
+    private static String mapMethodName = "";
+
     /**
-     * The default rowNum within the {@link #writableData}'s particular method data.
+     * The default rowNum within the {@link #writableData}'s particular method data. Note this is a static field and
+     * therefore the state is maintained across the test executions
      */
     private static int rowNum = 0;
-    
+
     /**
      * An instance of {@link Map} that contains the data to be written to the File
      */
     private Map<String, List<Map<String, Object>>> writableData = new HashMap<String, List<Map<String, Object>>>();
-    
+
     /**
-     * A List of {@link Assignments}. Each member in the list corresponds to a single set of test data to be
-     * passed to the test method. For eg. If the user has specified the test data in the CSV file as:<br>
+     * A List of {@link Assignments}. Each member in the list corresponds to a single set of test data to be passed to
+     * the test method. For eg. If the user has specified the test data in the CSV file as:<br>
      * <br>
      * <B>testGetItems,LibraryId,itemType,searchText</B> <br>
      * ,4,journal,batman <br>
@@ -111,15 +113,16 @@ public class InternalParameterizedStatement extends Statement{
      * An instance of {@link TestClass} identifying the class under test
      */
     private TestClass fTestClass;
-    
+
     /**
      * The actual instance of the test class. This is extremely handy in cases where we want to reflectively set
      * instance fields on a test class.
      */
     Object testInstance;
-    
-    public InternalParameterizedStatement(FrameworkMethod fTestMethod , TestResultBean testResult,
-        ReportDataContainer testReportContainer,Map<String, List<Map<String, Object>>> writableData, TestClass testClass, Object testInstance){
+
+    public InternalParameterizedStatement(FrameworkMethod fTestMethod, TestResultBean testResult,
+        ReportDataContainer testReportContainer, Map<String, List<Map<String, Object>>> writableData,
+        TestClass testClass, Object testInstance) {
         this.fTestMethod = fTestMethod;
         this.testResult = testResult == null ? new TestResultBean() : testResult;
         this.testReportContainer = testReportContainer;
@@ -129,9 +132,9 @@ public class InternalParameterizedStatement extends Statement{
         this.testInstance = testInstance;
         DataContext.setMethodName(DataConverter.getFullyQualifiedTestName(fTestMethod.getName(),
             testClass.getJavaClass()));
-        
+
     }
-    
+
     private TestClass getTestClass() {
         return fTestClass;
     }
@@ -145,11 +148,10 @@ public class InternalParameterizedStatement extends Statement{
     }
 
     /**
-     * This method encapsulates the actual change in behavior from the traditional JUnit Theories way of
-     * populating and supplying the test data to the test method. This method creates a list of
-     * {@link Assignments} identified by {@link #listOfAssignments} and then calls
-     * {@link #runWithCompleteAssignment(EasyAssignments)} for each {@link Assignments} element in the
-     * {@link #listOfAssignments}
+     * This method encapsulates the actual change in behavior from the traditional JUnit Theories way of populating and
+     * supplying the test data to the test method. This method creates a list of {@link Assignments} identified by
+     * {@link #listOfAssignments} and then calls {@link #runWithCompleteAssignment(EasyAssignments)} for each
+     * {@link Assignments} element in the {@link #listOfAssignments}
      * 
      * @param parameterAssignment an instance of {@link Assignments} identifying the parameters that needs to be
      *            supplied test data
@@ -161,8 +163,8 @@ public class InternalParameterizedStatement extends Statement{
             boolean isFirstSetOfArguments = listOfAssignments.isEmpty();
             for (int i = 0; i < potentialAssignments.size(); i++) {
                 if (isFirstSetOfArguments) {
-                    EasyAssignments assignments = EasyAssignments.allUnassigned(fTestMethod.getMethod(),
-                        getTestClass());
+                    EasyAssignments assignments = EasyAssignments
+                        .allUnassigned(fTestMethod.getMethod(), getTestClass());
                     listOfAssignments.add(assignments.assignNext(potentialAssignments.get(i)));
                 } else {
                     EasyAssignments assignments = listOfAssignments.get(i);
@@ -185,7 +187,7 @@ public class InternalParameterizedStatement extends Statement{
             runWithCompleteAssignment(assignments);
         }
     }
-    
+
     /**
      * Run the test data with complete Assignments
      * 
@@ -222,6 +224,7 @@ public class InternalParameterizedStatement extends Statement{
                             eachNotifier.addFailedAssumption(e);
                             handleAssumptionViolation(e);
                         } catch (Throwable e) {
+
                             if (e instanceof AssertionError) { // Assertion error
                                 testResult.setPassed(Boolean.FALSE);
                                 testResult.setResult(e.getMessage());
@@ -229,6 +232,7 @@ public class InternalParameterizedStatement extends Statement{
                                 testResult.setException(Boolean.TRUE);
                                 testResult.setExceptionResult(e.toString());
                             }
+                            eachNotifier.addFailure(e);
                             reportParameterizedError(e, complete.getArgumentStrings(true));
                         } finally {
                             eachNotifier.fireTestFinished();
@@ -247,18 +251,18 @@ public class InternalParameterizedStatement extends Statement{
             }
         }.methodBlock(fTestMethod).evaluate();
     }
-    
+
     /**
-     * This method is responsible for actually executing the test method as well as capturing the test data
-     * returned by the test method. The algorithm to capture the output data is as follows:
+     * This method is responsible for actually executing the test method as well as capturing the test data returned by
+     * the test method. The algorithm to capture the output data is as follows:
      * <ol>
      * After the method has been invoked explosively, the returned value is checked. If there is a return value:
      * <li>We get the name of the method that is currently executing,
      * <li>We find the exact place in the test input data for which this method was executed,
      * <li>We put the returned result in the map of input test data. The entry in the map has the key :
      * {@link Loader#ACTUAL_RESULT} and the value is the returned value by the test method.
-     * <li>If expected result{@link Loader#EXPECTED_RESULT} exist in user input data then we compare it with
-     * actual result and put the test status either passed/failed. The entry in the map has the key :
+     * <li>If expected result{@link Loader#EXPECTED_RESULT} exist in user input data then we compare it with actual
+     * result and put the test status either passed/failed. The entry in the map has the key :
      * {@link Loader#TEST_STATUS} and the value is the either PASSED or FAILED.
      * 
      * We finally write the test data to the file.
@@ -268,8 +272,8 @@ public class InternalParameterizedStatement extends Statement{
      * @param freshInstance a fresh instance of the class for which the method needs to be invoked.
      * @return an instance of {@link Statement}
      */
-    private Statement methodCompletesWithParameters(final FrameworkMethod method,
-        final EasyAssignments complete, final Object freshInstance) {
+    private Statement methodCompletesWithParameters(final FrameworkMethod method, final EasyAssignments complete,
+        final Object freshInstance) {
 
         final RunNotifier testRunNotifier = new RunNotifier();
         final TestRunDurationListener testRunDurationListener = new TestRunDurationListener();
@@ -322,14 +326,11 @@ public class InternalParameterizedStatement extends Statement{
 
                         LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
                         if (writableData.get(mapMethodName) != null) {
-                            LOG.debug("writableData.get({}) is {} ", mapMethodName,
-                                writableData.get(mapMethodName));
-
+                            LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
                             Map<String, Object> writableRow = writableData.get(mapMethodName).get(rowNum);
                             writableRow.put(Loader.ACTUAL_RESULT, returnObj);
                             if (testContainsInputParams) {
-                                LOG.debug("writableData.get({}) is {} ", mapMethodName,
-                                    writableData.get(mapMethodName));
+                                LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
                                 inputData.put(Loader.ACTUAL_RESULT, returnObj);
                             }
 
@@ -350,7 +351,7 @@ public class InternalParameterizedStatement extends Statement{
 
                     }
                 } catch (CouldNotGenerateValueException e) {
-                    // ignore
+                    throw new RuntimeException(e);
                 }
                 testReportContainer.addTestResult(testResult);
             }
@@ -370,6 +371,5 @@ public class InternalParameterizedStatement extends Statement{
     protected void handleDataPointSuccess() {
         successes++;
     }
-    
 
 }

@@ -277,7 +277,7 @@ public class ExcelDataLoader implements Loader {
             workbook = WorkbookFactory.create(new POIFSFileSystem(resource.getInputStream()));
 
         } catch (Exception e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e);
         }
 
         Sheet sheet = workbook.getSheetAt(0);
@@ -315,9 +315,14 @@ public class ExcelDataLoader implements Loader {
                 // Write the actual result and test status values.
                 if (isActualResultHeaderWritten) {
                     LOG.debug("actualResult:" + actualResult.toString());
+                    //trim actual result to 30KB if it is more than that
+                    actualResult = trimActualResult(actualResult.toString());                    
                     writeDataToCell(sheet, rowNum, columnNum, actualResult.toString());
 
                     if (testStatus != null) {
+                        // Check against trimmed actual result
+                    	Object expectedResult = methodData.get(EXPECTED_RESULT);
+                    	testStatus = expectedResult.toString().equals(actualResult.toString()) ? Loader.TEST_PASSED : Loader.TEST_FAILED ;
                         LOG.debug("testStatus:" + testStatus.toString());
                         writeDataToCell(sheet, rowNum, columnNum + 1, testStatus.toString());
                     }
@@ -332,7 +337,16 @@ public class ExcelDataLoader implements Loader {
 
     }
 
-    private Integer getMethodRowNumFromExcel(Sheet sheet, String methodName) {
+    private Object trimActualResult(String stringValue) {
+    	
+        // Excel cell content limit is 32KB, hence we trim the remaining part of the value.
+        if (stringValue.length() > 30000) {
+            stringValue = stringValue.substring(0, 30000);
+        }
+		return stringValue;
+	}
+
+	private Integer getMethodRowNumFromExcel(Sheet sheet, String methodName) {
         Integer rowNum = null;
         for (Row row : sheet) {
             // getting first cell value as method name is available in first column
@@ -368,12 +382,7 @@ public class ExcelDataLoader implements Loader {
 
         if (value instanceof String) {
             cell.setCellType(Cell.CELL_TYPE_STRING);
-            String stringValue = value.toString();
-            // Excel cell content limit is 32KB, hence we trim the remaining part of the value.
-            if (stringValue.length() > 30000) {
-                stringValue = stringValue.substring(0, 30000);
-            }
-            cell.setCellValue(stringValue);
+            cell.setCellValue((String)trimActualResult(value.toString()));
         } else if (value instanceof Double) {
             cell.setCellType(Cell.CELL_TYPE_NUMERIC);
             cell.setCellValue((Double) value);
@@ -388,11 +397,7 @@ public class ExcelDataLoader implements Loader {
             cell.setCellValue((Float) value);
         } else if (value != null) {
             cell.setCellType(Cell.CELL_TYPE_STRING);
-            String stringValue = value.toString();
-            if (stringValue.length() > 30000) {
-                stringValue = stringValue.substring(0, 30000);
-            }
-            cell.setCellValue(stringValue);
+            cell.setCellValue((String)trimActualResult(value.toString()));
         }
     }
 
