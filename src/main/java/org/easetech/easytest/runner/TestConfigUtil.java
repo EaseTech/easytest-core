@@ -1,6 +1,10 @@
 
 package org.easetech.easytest.runner;
 
+import javax.inject.Named;
+
+import javax.inject.Inject;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -90,44 +94,46 @@ public final class TestConfigUtil {
 
     /**
      * Load the resource properties specified by {@link TestProperties} annotation
+     * 
      * @param configClass
      * @param classInstance
      */
     public static void loadResourceProperties(Class<?> configClass, Object classInstance) {
         TestProperties resource = configClass.getAnnotation(TestProperties.class);
         if (resource != null) {
-            Properties properties = getProperties(resource , configClass);
-            setPropertiesFields(configClass , classInstance , properties);
-        }else{
-            setPropertiesFields(configClass , classInstance , null);
+            Properties properties = getProperties(resource, configClass);
+            setPropertiesFields(configClass, classInstance, properties);
+        } else {
+            setPropertiesFields(configClass, classInstance, null);
         }
 
     }
-    
-    private static void setPropertiesFields(Class<?> configClass , Object classInstance , Properties properties){
+
+    private static void setPropertiesFields(Class<?> configClass, Object classInstance, Properties properties) {
         Field[] fields = configClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.getType().isAssignableFrom(Properties.class)) {
                 field.setAccessible(true);
                 try {
                     Properties fieldProperties = null;
-                    //If the annotation TestProperties is present at the field level then it gets the priority
+                    // If the annotation TestProperties is present at the field level then it gets the priority
                     TestProperties fieldResource = field.getAnnotation(TestProperties.class);
-                    if(fieldResource != null){
-                        fieldProperties = getProperties(fieldResource , configClass);                      
+                    if (fieldResource != null) {
+                        fieldProperties = getProperties(fieldResource, configClass);
                     }
                     field.set(classInstance, fieldProperties != null ? fieldProperties : properties);
-                    
+
                 } catch (Exception e) {
-                    LOG.error("An exception occured while trying to set the Properties instance on the class {}. Exception is : {}"
-                        ,configClass, e);
+                    LOG.error(
+                        "An exception occured while trying to set the Properties instance on the class {}. Exception is : {}",
+                        configClass, e);
                     throw new RuntimeException(e);
                 }
             }
         }
     }
-    
-    private static Properties getProperties(TestProperties resource , Class<?> configClass){
+
+    private static Properties getProperties(TestProperties resource, Class<?> configClass) {
         java.util.Properties properties = new java.util.Properties();
         ResourceLoader resourceLoader = new ResourceLoaderStrategy(configClass);
         for (String resourcePath : resource.value()) {
@@ -137,8 +143,8 @@ public final class TestConfigUtil {
                 try {
                     properties.load(fileResource.getInputStream());
                 } catch (IOException e) {
-                    throw new RuntimeException(
-                        "IOException occured while trying to load the properties from file : " + resourcePath, e);
+                    throw new RuntimeException("IOException occured while trying to load the properties from file : "
+                        + resourcePath, e);
                 }
             } else {
                 Assert.fail("Properties file with path " + resourcePath + " does not exist.");
@@ -147,7 +153,6 @@ public final class TestConfigUtil {
         }
         return properties;
     }
-
 
     /**
      * Load the test configurations for the test class and associated the bean instance with the fields annotated with
@@ -162,30 +167,45 @@ public final class TestConfigUtil {
             Provided providedAnnotation = field.getAnnotation(Provided.class);
             if (providedAnnotation != null) {
                 String providerBeanName = providedAnnotation.value();
-                Object beanInstance = null;
-                if (!(providerBeanName == null) && !(providerBeanName.length() <= 0)) {
-                    // Load the bean by name
-                    beanInstance = ConfigContext.getBeanByName(providerBeanName);
-                } else {
-                    // provider bean name is NULL.
-                    // load bean by type
-                    Class beanClass = field.getType();
-                    beanInstance = ConfigContext.getBeanByType(beanClass);
-                    if (beanInstance == null) {
-                        beanInstance = ConfigContext.getBeanByName(field.getName());
+                injectTestBean(providerBeanName, field, testInstance);
+            } else {
+                Inject injectAnnotation = field.getAnnotation(Inject.class);
+                if (injectAnnotation != null) {
+                    // Check if it is Named wiring
+                    Named namedInjection = field.getAnnotation(Named.class);
+                    String providerBeanName = null;
+                    if (namedInjection != null) {
+                        providerBeanName = namedInjection.value();
                     }
+                    injectTestBean(providerBeanName, field, testInstance);
 
                 }
-                try {
-                    LOG.debug("Field {} is being set with the instance {}", field.getName(), beanInstance);
-                    field.setAccessible(true);
-                    field.set(testInstance, beanInstance);
-                } catch (Exception e) {
-                    Assert.fail("Failed while trying to handle Provider annotation for Field : "
-                        + field.getDeclaringClass() + e.getStackTrace());
-                }
-
             }
+        }
+    }
+
+    private static void injectTestBean(String providerBeanName, Field field, Object testInstance) {
+        Object beanInstance = null;
+        if (!(providerBeanName == null) && !(providerBeanName.length() <= 0)) {
+            // Load the bean by name
+            beanInstance = ConfigContext.getBeanByName(providerBeanName);
+        } else {
+            // provider bean name is NULL.
+            // load bean by type
+            Class beanClass = field.getType();
+            beanInstance = ConfigContext.getBeanByType(beanClass);
+            if (beanInstance == null) {
+                beanInstance = ConfigContext.getBeanByName(field.getName());
+            }
+
+        }
+        try {
+            LOG.debug("Field {} is being set with the instance {}", field.getName(), beanInstance);
+            field.setAccessible(true);
+            field.set(testInstance, beanInstance);
+        } catch (Exception e) {
+            Assert.fail("Failed while trying to handle Provider annotation for Field : " + field.getDeclaringClass()
+                + e.getStackTrace());
         }
     }
 

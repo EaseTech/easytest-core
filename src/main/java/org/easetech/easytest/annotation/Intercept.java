@@ -15,7 +15,7 @@ import org.easetech.easytest.interceptor.InternalInterceptor;
  * 
  * A field level annotation that can be used to intercept calls to methods within the subject under test.
  * A user can specify the interceptor it wants to use to intercept the call to the test subject's method.
- * The interceptor should implement {@link MethodInterceptor}.
+ * The interceptor should implement {@link MethodIntercepter}.
  * The default interceptor is {@link InternalInterceptor} that simply prints 
  * the time taken in nano seconds by the test method on the console.
  * 

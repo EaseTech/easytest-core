@@ -22,7 +22,11 @@ public @interface Provided {
     
     /** The OPTIONAL name of the bean that should be loaded. If not 
      * provided then EasyTest framework tries to load the bean using
-     * the field's type. */
+     * the field's type. If the bean with Type is also not found, 
+     * then the framework searches for bean which has the same name as the name of the field
+     */
     String value() default "";
+    
+    //Class<? extends FieldProvider> providerClass() default null;
 
 }
