@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.Assert;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
@@ -277,7 +276,7 @@ public class ExcelDataLoader implements Loader {
             workbook = WorkbookFactory.create(new POIFSFileSystem(resource.getInputStream()));
 
         } catch (Exception e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
 
         Sheet sheet = workbook.getSheetAt(0);
