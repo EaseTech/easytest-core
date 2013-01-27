@@ -15,8 +15,8 @@
 	<name>EasyTest to ease Data Driven Testing</name>
 	<description>EasyTest is a JUnit extension perform Data Driven Testing with ease and simplicity. 
     It supports method parameters with Test annotation and much more.</description>
-	<url>https://github.com/EaseTech/easytest</url>
-	<version>0.8</version>
+	<url>https://github.com/EaseTech/easytest-core</url>
+	<version>0.8-SNAPSHOT</version>
 
 	<developers>
 		<developer>
@@ -46,9 +46,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:https://anujgandharv@github.com/EaseTech/easytest.git</connection>
-		<developerConnection>scm:git:https://anujgandharv@github.com/EaseTech/easytest.git</developerConnection>
-		<url>scm:git:https://anujgandharv@github.com/EaseTech/easytest</url>
+		<connection>scm:git:https://anujgandharv@github.com/EaseTech/easytest-core.git</connection>
+		<developerConnection>scm:git:https://anujgandharv@github.com/EaseTech/easytest-core.git</developerConnection>
+		<url>scm:git:https://anujgandharv@github.com/EaseTech/easytest-core</url>
 	</scm>
 
 	<build>
