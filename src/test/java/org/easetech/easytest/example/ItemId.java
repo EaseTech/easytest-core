@@ -22,6 +22,9 @@ public class ItemId {
     public ItemId(Long id) {
         this.id = id;
     }
+    
+    public ItemId() {
+    }
 
     /**
      * @return the toString representation
@@ -30,5 +33,21 @@ public class ItemId {
     public String toString() {
         return "ItemId [id=" + id + "]";
     }
+
+    /**
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    
 
 }

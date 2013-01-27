@@ -20,7 +20,7 @@ public class TestCombinedLoadingAndWriting {
             + " expectedItems :" + expectedItems);
         Item item=  new Item();
         item.setDescription("Description Modified Once Again");
-        item.setItemId(itemId);
+        item.setItemId(new ItemId(Long.valueOf(itemId)));
         item.setItemType(itemType);
         return item;
     }

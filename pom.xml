@@ -17,7 +17,7 @@
 	<description>EasyTest is a JUnit extension perform Data Driven Testing with ease and simplicity. 
     It supports method parameters with Test annotation and much more.</description>
 	<url>https://github.com/EaseTech/easytest</url>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.8-SNAPSHOT</version>
 
 	<developers>
 		<developer>
@@ -317,6 +317,12 @@
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-lgpl</artifactId>
+			<version>1.9.11</version>
 		</dependency>
 
 		<dependency>

@@ -7,7 +7,7 @@ public class Item {
 
     private String itemType;
 
-    private String itemId;
+    private ItemId itemId;
 
     /**
      * @return the description
@@ -40,14 +40,14 @@ public class Item {
     /**
      * @return the itemId
      */
-    public String getItemId() {
+    public ItemId getItemId() {
         return itemId;
     }
 
     /**
      * @param itemId the itemId to set
      */
-    public void setItemId(String itemId) {
+    public void setItemId(ItemId itemId) {
         this.itemId = itemId;
     }
 
