@@ -36,7 +36,7 @@ public class TestXMLDataLoader {
             + " expectedItems :" + expectedItems);
         Item item=  new Item();
         item.setDescription("Description Modified");
-        item.setItemId(itemId);
+        item.setItemId(new ItemId(Long.valueOf(itemId)));
         item.setItemType(itemType);
         return item;
     }
@@ -53,7 +53,7 @@ public class TestXMLDataLoader {
             + " expectedItems :" + expectedItems);
         Item item=  new Item();
         item.setDescription("Description Modified");
-        item.setItemId(itemId);
+        item.setItemId(new ItemId(Long.valueOf(itemId)));
         item.setItemType(itemType);
         return item;
     }

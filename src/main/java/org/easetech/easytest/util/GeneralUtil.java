@@ -1,6 +1,15 @@
 
 package org.easetech.easytest.util;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.util.regex.Matcher;
+
+import java.util.regex.Pattern;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -42,6 +51,10 @@ public class GeneralUtil {
     private static final String EMPTY_STRING = "";
 
     private static final String COLON = ":";
+
+    private static final Pattern OBJECT_PATTERN = Pattern.compile("\\{.*\\}");
+
+    private static final Pattern ARRAY_PATTERN = Pattern.compile("\\[.*\\]");
 
     /**
      * Rounds a value with number of decimals
@@ -550,6 +563,56 @@ public class GeneralUtil {
         return result;
     }
 
+    public static Boolean populateJSONData(Class<?> idClass, List<Map<String, Object>> convertFrom,
+        List<PotentialAssignment> potentialAssignments, String paramName){
+        Boolean result = false;
+        Object value = null;
+        for (Map<String, Object> object : convertFrom) {
+            if (paramName != null && !EMPTY_STRING.equals(paramName)){
+                value = object.get(paramName);
+                if(value != null && isJSON(value.toString())){
+                    handleJSONData(value.toString(),idClass , potentialAssignments);
+                    result = true;
+                }
+            }else{
+                value = object.get(idClass.getSimpleName());
+                if(value != null && isJSON(value.toString())){
+                    handleJSONData(value.toString(),idClass , potentialAssignments);
+                    result = true;
+                }
+            }
+        }
+        return result;
+        
+    }
+
+    public static <T> void handleJSONData(String expr, Class<T> idClass, List<PotentialAssignment> potentialAssignments) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            T value = mapper.readValue(expr, idClass);
+            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, value));
+        } catch (JsonParseException e) {
+            throw new RuntimeException(e);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static Boolean isJSON(String expression) {
+        if (expression == null || "".equals(expression)) {
+            return false;
+        }
+        Matcher objectMatcher = OBJECT_PATTERN.matcher(expression);
+        Matcher arrayMatcher = ARRAY_PATTERN.matcher(expression);
+        if (objectMatcher.matches() || arrayMatcher.matches()) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Method responsible for calling a constructor on an object to try to fill it with data.
      * 
@@ -557,19 +620,20 @@ public class GeneralUtil {
      * @param convertFrom
      * @param finalData
      * @param paramName
+     * @return Boolean in case the data is successfuly filled else false
      * @throws IllegalArgumentException
      * @throws InstantiationException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    public static void fillDataUsingConstructor(Class<?> idClass, List<Map<String, Object>> convertFrom,
+    public static Boolean populateParamData(Class<?> idClass, List<Map<String, Object>> convertFrom,
         List<PotentialAssignment> finalData, String paramName) throws IllegalArgumentException, InstantiationException,
         IllegalAccessException, InvocationTargetException {
-        fillDataUsingConstructor(idClass, convertFrom, finalData, paramName, null);
+        return fillDataUsingConstructor(idClass, convertFrom, finalData, paramName, null);
 
     }
 
-    public static void fillDataUsingConstructor(Class<?> idClass, List<Map<String, Object>> convertFrom,
+    public static Boolean fillDataUsingConstructor(Class<?> idClass, List<Map<String, Object>> convertFrom,
         List<PotentialAssignment> finalData, String paramName, Collection collectionInstance)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         // See if the parameter class has a constructor that we can use.
@@ -610,29 +674,37 @@ public class GeneralUtil {
             fill(idClass, paramName, constructor, finalData, convertFrom, Short.class, collectionInstance);
         } else if ((constructor = getConstructor(idClass, Enum.class)) != null) {
             fill(idClass, paramName, constructor, finalData, convertFrom, Enum.class, collectionInstance);
+        } else {
+            return false;
         }
+        return true;
 
     }
 
-    @SuppressWarnings({ "unused", "unchecked" })
-    private static <T> void fill(Class idClass, String paramName, Constructor constructor,
-        List<PotentialAssignment> finalData, List<Map<String, Object>> convertFrom, Class<T> argType, Collection collectionInstance)
-        throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    @SuppressWarnings({ "unused" })
+    private static <T> Boolean fill(Class idClass, String paramName, Constructor constructor,
+        List<PotentialAssignment> finalData, List<Map<String, Object>> convertFrom, Class<T> argType,
+        Collection collectionInstance) throws IllegalArgumentException, InstantiationException, IllegalAccessException,
+        InvocationTargetException {
         if (GeneralUtil.isStandardObjectInstance(argType)) {
             for (Map<String, Object> object : convertFrom) {
                 T target = null;
                 Object result = null;
-                Object inputData = object.get(paramName);
-                if(collectionInstance != null){
+                if (collectionInstance != null) {
                     fillCollectionData(idClass, object, paramName, constructor, finalData, argType, collectionInstance);
-                }else{
+                } else {
                     fillData(idClass, object, paramName, constructor, finalData, argType);
                 }
-                
+
             }
+            return true;
+        } else {
+            return false;
         }
+
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> void fillCollectionData(Class<?> idClass, Map<String, Object> object, String paramName,
         Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Collection collectionInstance)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -645,19 +717,20 @@ public class GeneralUtil {
                 target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
-            }          
+            }
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, collectionInstance));
         } else {
-            String[] strValues = ((String) object.get(idClass.getSimpleName())).split(COLON);           
+            String[] strValues = ((String) object.get(idClass.getSimpleName())).split(COLON);
             for (int i = 0; i < strValues.length; i++) {
                 target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
-            }          
+            }
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, collectionInstance));
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> void fillData(Class<?> idClass, Map<String, Object> object, String paramName,
         Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -685,5 +758,47 @@ public class GeneralUtil {
             // do nothing
         }
         return constructor;
+    }
+
+    public static Constructor getConstructor(Class<?> idClass) {
+        Constructor constructor = getConstructor(idClass, Long.class) == null ? getConstructor(idClass, long.class)
+            : getConstructor(idClass, Long.class);
+        if (constructor != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, String.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Integer.class) == null ? getConstructor(idClass, int.class)
+            : getConstructor(idClass, Integer.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Byte.class) == null ? getConstructor(idClass, byte.class)
+            : getConstructor(idClass, Byte.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Character.class) == null ? getConstructor(idClass, char.class)
+            : getConstructor(idClass, Character.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Date.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, java.util.Date.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Timestamp.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Time.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Double.class) == null ? getConstructor(idClass, double.class)
+            : getConstructor(idClass, Double.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Float.class) == null ? getConstructor(idClass, float.class)
+            : getConstructor(idClass, Float.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Boolean.class) == null ? getConstructor(idClass,
+            boolean.class) : getConstructor(idClass, Boolean.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Short.class) == null ? getConstructor(idClass, short.class)
+            : getConstructor(idClass, Boolean.class)) != null) {
+            return constructor;
+        } else if ((constructor = getConstructor(idClass, Enum.class)) != null) {
+            return constructor;
+        }
+        return null;
     }
 }
