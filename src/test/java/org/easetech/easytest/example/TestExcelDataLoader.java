@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import javax.inject.Inject;
+
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
@@ -22,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class TestExcelDataLoader {
     
     @Intercept
-    @Provided
+    @Inject
     private ItemService itemService;
     
     /**

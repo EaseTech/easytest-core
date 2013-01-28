@@ -1,21 +1,13 @@
 
 package org.easetech.easytest.annotation;
 
-import java.sql.Time;
-
-import java.sql.Timestamp;
-
-import java.sql.Date;
-
-import java.lang.reflect.InvocationTargetException;
-
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -239,11 +231,11 @@ public @interface Param {
          */
         private List<PotentialAssignment> convert(Class<?> idClass, String paramName,
             List<Map<String, Object>> convertFrom) {
-            List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
+            List<PotentialAssignment> potentialAssignments = new ArrayList<PotentialAssignment>();
 
             if (GeneralUtil.isStandardObjectInstance(idClass)) {
                 for (Map<String, Object> object : convertFrom) {
-                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
+                    potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING,
                         GeneralUtil.convertToTargetType(idClass, object.get(paramName))));
                 }
             } else {
@@ -262,7 +254,7 @@ public @interface Param {
                             editor.setAsText(getStringValue(idClass.getSimpleName(), object));
                         }
                         // add data to PotentialAssignment even if it is null
-                        finalData.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
+                        potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
 
                     }
 
@@ -277,30 +269,32 @@ public @interface Param {
                             LOG.debug("Converter for class " + idClass + "  found. ");
                         }
                         for (Map<String, Object> object : convertFrom) {
-                            finalData.add(PotentialAssignment.forValue(EMPTY_STRING, converter.convert(object)));
+                            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, converter.convert(object)));
                         }
                     } else {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Converter for class " + idClass
-                                + "  not found. Final try to resolve the object.");
+                        
+                        if(!GeneralUtil.populateJSONData(idClass , convertFrom, potentialAssignments, paramName)){
+                            try {
+                                GeneralUtil.populateParamData(idClass, convertFrom, potentialAssignments, paramName);
+                            } catch (IllegalArgumentException e) {
+                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                                throw e;
+                            } catch (InstantiationException e) {
+                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                                throw new RuntimeException(e);
+                            } catch (IllegalAccessException e) {
+                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                                throw new RuntimeException(e);
+                            } catch (InvocationTargetException e) {
+                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                                throw new RuntimeException(e);
+                            }
                         }
-                        try {
-                            GeneralUtil.fillDataUsingConstructor(idClass, convertFrom, finalData, paramName);
-                        } catch (IllegalArgumentException e) {
-                            throw new RuntimeException(e);
-                        } catch (InstantiationException e) {
-                            throw new RuntimeException(e);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e);
-                        }
-
                     }
                 }
             }
 
-            return finalData;
+            return potentialAssignments;
         }
 
 
@@ -390,17 +384,17 @@ public @interface Param {
                         try {
                             GeneralUtil.fillDataUsingConstructor(genericType, convertFrom, finalData, paramName, objectValues);
                         } catch (IllegalArgumentException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                            throw e;
                         } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                            throw new RuntimeException(e);
                         } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                            throw new RuntimeException(e);
                         } catch (InvocationTargetException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
+                            throw new RuntimeException(e);
                         }
                     }
 
