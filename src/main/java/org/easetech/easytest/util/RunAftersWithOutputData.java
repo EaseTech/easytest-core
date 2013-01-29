@@ -12,6 +12,7 @@ import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
 import org.easetech.easytest.io.ResourceLoader;
 import org.easetech.easytest.io.ResourceLoaderStrategy;
 import org.easetech.easytest.reports.data.ReportDataContainer;
+import org.easetech.easytest.reports.data.ReportParametersBean;
 import org.easetech.easytest.reports.impl.ReportRunner;
 import org.junit.AfterClass;
 import org.junit.experimental.theories.internal.ParameterizedAssertionError;
@@ -35,7 +36,6 @@ public class RunAftersWithOutputData extends Statement {
      * An instance of logger associated with the test framework.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(RunAftersWithOutputData.class);
-
 
     /**
      * The actual data structure that contains both the input as well as output data
@@ -146,12 +146,12 @@ public class RunAftersWithOutputData extends Statement {
         if (testReportContainer != null) {
         	Report annotation = testReportContainer.getTestClass().getAnnotation(Report.class);
         	
-        	ReportParameters reportParameters = null;
+        	ReportParametersBean reportParameters = null;
         	
         	if (System.getProperty("reports.generate") != null) {
-        		reportParameters = new ReportParameters(System.getProperty("reports.format"), System.getProperty("reports.location"), System.getProperty("reports.package"));
+        		reportParameters = new ReportParametersBean(System.getProperty("reports.format"), System.getProperty("reports.location"), System.getProperty("reports.package"));
         	} else if (annotation != null) {
-                reportParameters = new ReportParameters(annotation.outputFormats(), annotation.outputLocation());
+                reportParameters = new ReportParametersBean(annotation.outputFormats(), annotation.outputLocation());
         	} else {
         		return null;
         	}
@@ -178,69 +178,5 @@ public class RunAftersWithOutputData extends Statement {
     	return submit;
     }
     
-    private class ReportParameters {
-    	private EXPORT_FORMAT[] outputFormats;
-        private String outputLocation;
-        private List<String> packageNames = null;
-    	
-        // constructor if there is no command line parameters
-    	public ReportParameters(EXPORT_FORMAT[] outputFormats, String outputLocation) {
-    		LOG.info("Processing reports with annotations outputFormats=" + outputFormats + " outputLocation=" + outputLocation);
-    		this.outputFormats = outputFormats;
-    		this.outputLocation = outputLocation;
-    	}
-    	
-    	// constructor that processes the command line parameters
-        /*
-         * Process command line parameters
-         * -Dreports.generate : generates reports
-    	 * -Dreports.format=pdf : report output is pdf, (optional, default=pdf). Comma separated, valid value is pdf,xls
-    	 * -Dreports.location=classpath:org/easetech/easytest/output : (optional, default="" current folder). (e.g. file:c:\\temp is supported as well)
-         */
-    	public ReportParameters(String reportsFormat, String outputLocation, String packages) {
-    		LOG.info("Processing reports with command line parameters reports.generate=true reports.format=" + reportsFormat + " reports.location=" + outputLocation + " packages=" + packages);
-    		// parsing the comma separated output formats
-			List<EXPORT_FORMAT> formatResults = new ArrayList<Report.EXPORT_FORMAT>();
-			if (reportsFormat != null) {
-				String[] formats = reportsFormat.split(",");
-				for (String format : formats) {
-					try {
-						formatResults.add(EXPORT_FORMAT.valueOf(format.toUpperCase().trim()));
-					} catch (Exception e) {
-						LOG.error("Report format " + format + " not supported", e);
-					}
-				}
-			}
-			
-			if (formatResults.isEmpty()) {
-				formatResults.add(EXPORT_FORMAT.PDF); // adding PDF as default if empty
-				LOG.info("Outputting to PDF as default format");
-			}
-			this.outputFormats = formatResults.toArray(new EXPORT_FORMAT[formatResults.size()]);
-			
-			this.outputLocation = outputLocation != null ? outputLocation : "";
-			
-			// parse package names
-			if (packages != null) {
-				this.packageNames = new ArrayList<String>();
-				String[] packagesArray = packages.split(",");
-				for (String packageName : packagesArray) {
-					this.packageNames.add(packageName.trim());
-				}
-			}
-    	}
-
-		public EXPORT_FORMAT[] getOutputFormats() {
-			return outputFormats;
-		}
-
-		public String getOutputLocation() {
-			return outputLocation;
-		}
-
-		public List<String> getPackageNames() {
-			return packageNames;
-		}
-    }
     
 }
