@@ -303,8 +303,9 @@ public class InternalParameterizedStatement extends Statement {
                     DurationBean testItemDurationBean = new DurationBean(currentMethodName,
                         testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
                     testResult.addTestItemDurationBean(testItemDurationBean);
-
-                    testResult.setOutput((returnObj == null) ? "void" : returnObj);
+                    
+                    String methodReturnType = method.getMethod().getReturnType().getName();
+                    testResult.setOutput((returnObj == null) ? methodReturnType.equals("void") ? "void" : "null" : returnObj);
                     testResult.setPassed(Boolean.TRUE);
                     if (!mapMethodName.equals(method.getMethod().getName())) {
                         // if mapMethodName is not same as the current executing method name
@@ -346,10 +347,10 @@ public class InternalParameterizedStatement extends Statement {
                                     writableRow.put(Loader.TEST_STATUS, Loader.TEST_FAILED);
                                 }
                             }
-                            rowNum++;
                         }
 
                     }
+                    rowNum++;
                 } catch (CouldNotGenerateValueException e) {
                     throw new RuntimeException(e);
                 }
