@@ -1,8 +1,0 @@
-checkForNull,itemId
-,null
-, 0 
-, -1
-checkForNullWithTypedParam,itemId
-,null
-, 0
-, -1
