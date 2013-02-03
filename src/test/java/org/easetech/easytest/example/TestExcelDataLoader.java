@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import junit.framework.Assert;
+
 import javax.inject.Inject;
 
 import org.easetech.easytest.annotation.DataLoader;
@@ -30,80 +32,84 @@ public class TestExcelDataLoader {
     /**
      * An instance of logger associated with the test framework.
      */
-//    protected static final Logger LOG = LoggerFactory.getLogger(TestExcelDataLoader.class);
-//    
-//    @Before
-//    public void before(){
-//        System.out.println("IS THIS GETTING CALLEDDDDDDDDDDDDDDDDD");
-//    }
-//    
-//   
-//
-//    @Test
-//    public void getExcelTestData(@Param(name="libraryId")
-//    Float libraryId, @Param(name="itemId")
-//    Float itemId) {
-//        System.out.print("Executing getExcelTestData :");
-//        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
-//    }
-//
-//    @Test
-//    @DataLoader(filePaths={"classpath:overrideExcelData.csv"})
-//    public Item getExcelTestDataWithDouble(@Param(name="libraryId")
-//    Double libraryId, @Param(name="itemId")
-//    Double itemId) {
-//        System.out.print("Executing getExcelTestDataWithDouble :");
-//        // if(itemId.equals(11568.0D)){
-//        // Assert.fail("ItemId is 11568 but should be 2");
-//        // }
-//        System.out.println("LibraryId Anuj is :" + libraryId + " and Item Id is :" + itemId);
-//        //itemService.testString = "String";
-//        Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
-//            new ItemId(Long.valueOf(itemId.longValue())));
-//        return item;
-//    }
-//
-//    @Test
-//    public void getExcelTestDataWithString(@Param(name="libraryId")
-//    String libraryId, @Param(name="itemId")
-//    String itemId) {
-//        System.out.print("Executing getExcelTestDataWithString :");
-//        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
-//    }
-//
-//    @Test
-//    public void getExcelTestDataNumberFormat() {
-//        System.out.print("Executing getExcelTestDataNumberFormat :");
-//        System.out.println("This is a simple test");
-//        //throw new RuntimeException("testqwe");
-//    }
-//
-//    @Test
-//    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" })
-//    public Item getExcelTestDataWithReturnType(@Param(name="libraryId")
-//    Float libraryId, @Param(name="itemId")
-//    Float itemId) {
-//        System.out.println("Executing  getExcelTestDataWithReturnType : ");
-//        LOG.debug("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
-//        if(libraryId == null){
-//            return null;
-//        }
-//        if(itemId == null){
-//            return null;
-//        }
-//        Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
-//            new ItemId(Long.valueOf(itemId.longValue())));
-//        LOG.debug("return item: " + item.toString());
+    protected static final Logger LOG = LoggerFactory.getLogger(TestExcelDataLoader.class);
+    
+    @Before
+    public void before(){
+        System.out.println("IS THIS GETTING CALLEDDDDDDDDDDDDDDDDD");
+    }
+    
+   
+
+    @Test
+    public void getExcelTestData(@Param(name="libraryId")
+    Float libraryId, @Param(name="itemId")
+    Float itemId) {
+        System.out.print("Executing getExcelTestData :");
+        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
+    }
+
+    @Test
+    @DataLoader(filePaths={"classpath:overrideExcelData.csv"})
+    public Item getExcelTestDataWithDouble(@Param(name="libraryId")
+    Double libraryId, @Param(name="itemId")
+    Double itemId) {
+        System.out.print("Executing getExcelTestDataWithDouble :");
+        // if(itemId.equals(11568.0D)){
+        // Assert.fail("ItemId is 11568 but should be 2");
+        // }
+        System.out.println("LibraryId Anuj is :" + libraryId + " and Item Id is :" + itemId);
+        //itemService.testString = "String";
+        Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
+            new ItemId(Long.valueOf(itemId.longValue())));
+        return item;
+    }
+
+    @Test
+    public void getExcelTestDataWithString(@Param(name="libraryId")
+    String libraryId, @Param(name="itemId")String itemId, @Param(name="expected") String expectedItems) {
+        System.out.print("Executing getExcelTestDataWithString :");
+        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId + " and ExpectedItems is :" + expectedItems);
+    }
+
+    @Test
+    public void getExcelTestDataNumberFormat() {
+        System.out.print("Executing getExcelTestDataNumberFormat :");
+        System.out.println("This is a simple test");
+        //throw new RuntimeException("testqwe");
+    }
+
+    @Test
+    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" })
+    public Item getExcelTestDataWithReturnType(@Param(name="libraryId")
+    Float libraryId, @Param(name="itemId")
+    Float itemId) {
+        System.out.println("Executing  getExcelTestDataWithReturnType : ");
+        LOG.debug("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
+        if(libraryId == null){
+            return null;
+        }
+        if(itemId == null){
+            return null;
+        }
+        Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
+            new ItemId(Long.valueOf(itemId.longValue())));
+        LOG.debug("return item: " + item.toString());
+        
+//        Boolean test = Boolean.FALSE;
 //        
-////        Boolean test = Boolean.FALSE;
-////        
-////        Assert.assertTrue( "test TRUE expected" ,test);
-//        return item;
-//    }
+//        Assert.assertTrue( "test TRUE expected" ,test);
+        return item;
+    }
     
     @Test
     public void testEmptyCellData(LibraryId libId , ItemId itemId){
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAA" + libId +"      "+ itemId);
+        if(libId.getId() != null){
+            Assert.fail("libId should be NULL");
+        }else if(itemId.getId() != null){
+            Assert.fail("libId should be NULL");
+        }
+        
     }
     
    

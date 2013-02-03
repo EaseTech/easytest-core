@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.loader;
 
+import java.util.Iterator;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -134,27 +136,25 @@ public class ExcelDataLoader implements Loader {
 
         Map<Integer, Object> tempData = new HashMap<Integer, Object>();
         List<Map<String, Object>> dataValues = null;
-
+        LinkedHashMap<String , Object> actualData = new LinkedHashMap<String, Object>();
         for (Row row : sheet) {
-            boolean keyRow = false;
-            Map<String, Object> actualData = new LinkedHashMap<String, Object>();
+            boolean keyRow = isKeyRow(row, workbook);
+            actualData = initializeRowData(row , workbook , actualData);
+            
+            //Map<String, Object> actualData = new LinkedHashMap<String, Object>();
             StringBuffer debugInfo = new StringBuffer("Row data being read is ");
             for (Cell cell : row) {
                 Object cellData = objectFrom(workbook, cell);
                 debugInfo.append(":" + cellData);
-                if ((cell.getColumnIndex() == 0) && cellData != null && !"".equals(cellData)) {
+                if ((cell.getColumnIndex() == 0) && keyRow) {
                     // Indicates that this is a new set of test data.
                     dataValues = new ArrayList<Map<String, Object>>();
-                    // Indicates that this row consists of Keys
-                    keyRow = true;
                     finalData.put(cellData.toString().trim(), dataValues);
-                } else if (cellData == null) {
-                    // dont do anything. May be can be used in future.
                 } else {
                     if (keyRow) {
-                        tempData.put(cell.getColumnIndex(), objectFrom(workbook, cell));
+                        tempData.put(cell.getColumnIndex(), cellData);
                     } else {
-                        actualData.put(tempData.get(cell.getColumnIndex()).toString(), objectFrom(workbook, cell));
+                        actualData.put(tempData.get(cell.getColumnIndex()).toString(), cellData);
                     }
                 }
             }
@@ -164,6 +164,52 @@ public class ExcelDataLoader implements Loader {
             }
         }
         return finalData;
+    }
+    
+    private LinkedHashMap<String, Object> initializeRowData(Row row , HSSFWorkbook workbook , LinkedHashMap<String, Object> actualData){      
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
+        if(isKeyRow(row, workbook)){
+            //reset the actualData
+            actualData = new LinkedHashMap<String, Object>();
+            for(Cell cell : row){
+                if(cell.getColumnIndex() != 0){
+                    Object cellData = objectFrom(workbook, cell);
+                    actualData.put(cellData.toString(), null);
+                }
+            }
+        }else{
+            
+            //not a key row, so reinitialize each key to null
+            for(String key : actualData.keySet()){
+                result.put(key ,null);
+
+            }
+            return result;
+        }
+        return actualData;
+        
+    }
+    
+    private Boolean isKeyRow(Row row , HSSFWorkbook workbook){
+        Boolean result = false;
+        Cell cell = row.getCell(0);
+        Object cellData = objectFrom(workbook, cell);
+        if(cellData != null && !"".equals(cellData)){
+            result = true;
+        }
+        return result;
+    }
+    private Map<String,Object> nullValueMap(Map<Integer , Object> tempObject){
+        Map<String , Object> result = new LinkedHashMap<String, Object>();
+        if(tempObject.isEmpty()){
+            return result;
+        }else{
+            Iterator<Integer> tempObjItr = tempObject.keySet().iterator();
+            while(tempObjItr.hasNext()){
+                result.put(tempObject.get(tempObjItr.next()).toString(), null);
+            }
+        }
+        return result;
     }
 
     /**

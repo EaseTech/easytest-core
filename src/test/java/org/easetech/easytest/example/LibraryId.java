@@ -22,6 +22,17 @@ public class LibraryId {
     public LibraryId(Long id) {
         this.id = id;
     }
+    
+    
+
+    /**
+     * @return the id
+     */
+    public Long getId() {
+        return id;
+    }
+
+
 
     /**
      * @return the toString representation
