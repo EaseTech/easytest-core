@@ -8,9 +8,11 @@ import java.util.Map;
 import org.easetech.easytest.annotation.TestBean;
 
 /**
- * A context class for holding the Configuration beans declared by the user. This class provides a utility to identify a
- * test bean declared using {@link TestBean} annotations inside a class that is decalred in the test class using {@link TestConfigProvider}
+ * A context class for holding the Configuration beans declared by the user. This class provides a utility for the
+ * EasyTest framework to identify a test bean declared using {@link TestBean} annotations inside a class that is
+ * declared in the test class using {@link TestConfigProvider}
  * 
+ * @author Anuj Kumar
  */
 public final class ConfigContext {
 
@@ -29,7 +31,8 @@ public final class ConfigContext {
     public static final ThreadLocal<Map<Class, Object>> beansByType = new ThreadLocal<Map<Class, Object>>();
 
     /**
-     * Set the test bean in the threadlocal variable by name
+     * Set the test bean in the thread local variable by name
+     * 
      * @param beanName the name of the bean
      * @param beanInstance the instance to set
      */
@@ -42,13 +45,14 @@ public final class ConfigContext {
         beansByName.set(beanNamesMap);
 
     }
-    
+
     /**
      * Set the test bean in the threadlocal variable by type
+     * 
      * @param beanType the type of the bean
      * @param beanInstance the instance to set
      */
-    public static void setTestBeanByType(Class beanType , Object beanInstance){
+    public static void setTestBeanByType(Class beanType, Object beanInstance) {
         Map<Class, Object> beanTypesMap = beansByType.get();
         if (beanTypesMap == null) {
             beanTypesMap = new HashMap<Class, Object>();
@@ -56,28 +60,30 @@ public final class ConfigContext {
         beanTypesMap.put(beanType, beanInstance);
         beansByType.set(beanTypesMap);
     }
-    
+
     /**
-     * Get the bean by name
+     * Get the test bean by name.
+     * 
      * @param beanName the name of the bean to get value for
      * @return the bean instance or null if not found
      */
-    public static Object getBeanByName(String beanName){
+    public static Object getBeanByName(String beanName) {
         Map<String, Object> beanNamesMap = beansByName.get();
-        if(beanNamesMap == null){
+        if (beanNamesMap == null) {
             return null;
         }
         return beanNamesMap.get(beanName);
     }
-    
+
     /**
-     * Get the bean by type
-     * @param beanType the type of bean to get 
+     * Get the test bean by type
+     * 
+     * @param beanType the type of bean to get
      * @return the instance of the bean
      */
-    public static Object getBeanByType(Class beanType){
+    public static Object getBeanByType(Class beanType) {
         Map<Class, Object> beanTypesMap = beansByType.get();
-        if(beanTypesMap == null){
+        if (beanTypesMap == null) {
             return null;
         }
         return beanTypesMap.get(beanType);

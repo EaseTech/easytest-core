@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * Data Context Holder for the test data and the corresponding test method.
+ * This is an internal class that 
  * 
  * @author Anuj Kumar
  *
@@ -58,7 +59,7 @@ public final class DataContext {
      * attributeData.put("itemId",0008);<br>
      * Map&lt;String,List&lt;Map&lt;String,Object&gt;&gt; actualData = new HashMap&lt;String,List&lt;Map&lt;String,Object&gt;&gt;();<br>
      * actualData.put("org.easetech.easytest.example.TestExcelDataLoader:getExcelTestDataWithDouble" , Collections.singletonList(attributeData));<br>
-     * 
+     * </code>
      * Note that this is different from {@link #setConvertedData(Map)} in the sense that the method name does not have the attributes at the end.
      * 
      */
@@ -94,7 +95,7 @@ public final class DataContext {
      * attributeData.put("itemId",0008);<br>
      * Map&lt;String,List&lt;Map&lt;String,Object&gt;&gt; actualData = new HashMap&lt;String,List&lt;Map&lt;String,Object&gt;&gt;();<br>
      * actualData.put("org.easetech.easytest.example.TestExcelDataLoader:getExcelTestDataWithDouble{libraryId=0009, itemId=0008}" , Collections.singletonList(attributeData));
-     * 
+     * </code>
      */
     public static void setConvertedData(Map<String, List<Map<String , Object>>> data) {
         Map<String, List<Map<String , Object>>> testData = convertedDataThreadLocal.get();

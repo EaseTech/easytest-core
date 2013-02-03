@@ -1,21 +1,16 @@
 
 package org.easetech.easytest.loader;
 
-import java.util.Iterator;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.datatype.Duration;
-
-import junit.framework.Assert;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,15 +32,16 @@ import org.slf4j.LoggerFactory;
  * <code>
  * <B>testGetItems LibraryId itemType searchText</B>
  * <br>
- * <EMPTY CELL> 4 journal batman
- * <EMPTY CELL> 2 ebook   spiderman
+ * {@literal <}EMPTY CELL{@literal >} 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;journal batman<br>
+ * {@literal <}EMPTY CELL{@literal >} 2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ebook   spiderman
  * <br>
+ * </code>
  * where <B>testGetItems</B> represents the name of the test method for which the test data is being defined,<br>
  * <B>LibraryId itemType searchText</B> represents the test data fields for the test method, and</br>
  * <B>4 journal batman (and 2 ebook spiderman)</B> represents the actual test data to be passed to the test method.
  * Each row in the EXCEL file represents a single set of test data.<br>
  * 
- * Note the leading <EMPTY CELL> in the test data row. It denotes that this cell does not contain any value.It tells the 
+ * Note the leading {@literal <}EMPTY CELL{@literal >} in the test data row. It denotes that this cell does not contain any value.It tells the 
  * framework that testGetItems is just a method name and does not have any value.<br>
  * 
  * An Excel cannot have a blank line in between test data whether it is for a single test or for multiple tests.

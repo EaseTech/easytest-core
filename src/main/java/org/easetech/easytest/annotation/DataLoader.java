@@ -17,18 +17,18 @@ import java.lang.annotation.Target;
  * Also EasyTest's Data Loading Strategy may not suit every user. In such a case, a user can write his own Custom Loader and pass it to the Data Loader annotation
  * to supply your own custom Loader.<br>
  * 
- * For eg. this is how you can use it :
+ * For eg. this is how you can use it :<br>
  * <code>
- *   @Test
- *   @DataLoader(loader=MyCustomDataLoader.class)<br>
+ *   {@literal @}Test
+ *   {@literal @}DataLoader(loader=MyCustomDataLoader.class)<br>
  *    public void testGetItems(........<br>
  * </code>
  *<br>
  *OR
- *<br>
+ *<br><br>
  *<code>
- *   @Test
- *   @DataLoader(filePaths={testData.json} , loader=MyCustomDataLoader.class)<br>
+ *   {@literal @}Test
+ *   {@literal @}DataLoader(filePaths={testData.json} , loader=MyCustomDataLoader.class)<br>
  *    public void testGetItems(........<br>
  * </code>
  *<br>
@@ -37,8 +37,18 @@ import java.lang.annotation.Target;
  *
  *<br>
  *<code>
- *   @Test
- *   @DataLoader(filePaths={testData.csv})<br>
+ *   {@literal @}Test
+ *   {@literal @}DataLoader(filePaths={testData.csv})<br>
+ *    public void testGetItems(........<br>
+ * </code>
+ *<br>
+ *
+ *OR
+ *
+ *<br>
+ *<code>
+ *   {@literal @}Test
+ *   {@literal @}DataLoader(filePaths={testDataExcel.xls})<br>
  *    public void testGetItems(........<br>
  * </code>
  *<br>
