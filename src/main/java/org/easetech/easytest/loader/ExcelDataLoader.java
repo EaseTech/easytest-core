@@ -12,6 +12,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.datatype.Duration;
+
+import junit.framework.Assert;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
@@ -316,13 +320,14 @@ public class ExcelDataLoader implements Loader {
         Map<String, List<Map<String, Object>>> data) throws IOException {
 
         LOG.debug("writeDataToSpreadsheet started" + resource.toString() + data);
+       
         Workbook workbook;
         try {
 
             workbook = WorkbookFactory.create(new POIFSFileSystem(resource.getInputStream()));
 
         } catch (Exception e) {
-            throw new IOException(e.getMessage());
+            throw new IOException(e);
         }
 
         Sheet sheet = workbook.getSheetAt(0);
@@ -336,22 +341,48 @@ public class ExcelDataLoader implements Loader {
         int columnNum = sheet.getRow(recordNum).getLastCellNum();
         int rowNum = 0;
         boolean isActualResultHeaderWritten = false;
+        boolean isTestDurationHeaderWritten = false;
+        boolean isHeaderRowNumIncremented = false;
 
         for (Map<String, Object> methodData : data.get(methodNameForDataLoad)) {
             // rowNum increment by one to proceed with next record of the method.
             rowNum++;
-
+            
+            Object testDuration = methodData.get(DURATION);
+            if(testDuration != null) {
+            	
+            	if (!isTestDurationHeaderWritten) {
+                    if (recordNum != null) {
+                        // Write the test duration header.
+                        writeDataToCell(sheet, recordNum, columnNum, DURATION);
+                        //increment the rowNum
+                        rowNum = rowNum + recordNum;
+                        isTestDurationHeaderWritten = true;
+                    }
+                }
+            	
+            	// Write the actual result and test status values.
+                if (isTestDurationHeaderWritten) {                
+                    LOG.debug("testDuration:" + testDuration.toString());                                       
+                    writeDataToCell(sheet, rowNum, columnNum, testDuration.toString());
+                }
+            }
+            if(!isHeaderRowNumIncremented && (isTestDurationHeaderWritten || isActualResultHeaderWritten)){
+            	
+            	isHeaderRowNumIncremented = true;
+            }
+            
             Object actualResult = methodData.get(ACTUAL_RESULT);
+            Object testStatus = methodData.get(TEST_STATUS);
             if (actualResult != null) {
-
-                Object testStatus = methodData.get(TEST_STATUS);
+                
                 if (!isActualResultHeaderWritten) {
                     if (recordNum != null) {
                         // Write the actual result and test status headers.
-                        writeDataToCell(sheet, recordNum, columnNum, ACTUAL_RESULT);
+                        writeDataToCell(sheet, recordNum, columnNum+1, ACTUAL_RESULT);
                         if (testStatus != null)
-                            writeDataToCell(sheet, recordNum, columnNum + 1, TEST_STATUS);
-                        rowNum = rowNum + recordNum;
+                            writeDataToCell(sheet, recordNum, columnNum + 2, TEST_STATUS);
+                        //rowNum = rowNum + recordNum;
                         isActualResultHeaderWritten = true;
                     }
                 }
@@ -362,18 +393,19 @@ public class ExcelDataLoader implements Loader {
                     LOG.debug("actualResult:" + actualResult.toString());
                     //trim actual result to 30KB if it is more than that
                     actualResult = trimActualResult(actualResult.toString());                    
-                    writeDataToCell(sheet, rowNum, columnNum, actualResult.toString());
+                    writeDataToCell(sheet, rowNum, columnNum +1, actualResult.toString());
 
                     if (testStatus != null) {
                         // Check against trimmed actual result
                     	Object expectedResult = methodData.get(EXPECTED_RESULT);
                     	testStatus = expectedResult.toString().equals(actualResult.toString()) ? Loader.TEST_PASSED : Loader.TEST_FAILED ;
                         LOG.debug("testStatus:" + testStatus.toString());
-                        writeDataToCell(sheet, rowNum, columnNum + 1, testStatus.toString());
+                        writeDataToCell(sheet, rowNum, columnNum + 2, testStatus.toString());
                     }
                 }
 
             }
+            
         }
 
         // Write the output to a file
