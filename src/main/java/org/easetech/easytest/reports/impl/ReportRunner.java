@@ -29,6 +29,12 @@ public class ReportRunner implements Callable<Boolean> {
 
 	private String destinationLocation;
 
+	/**
+	 * Constructor
+	 * @param testReportContainer The class that holds the report data
+	 * @param formats The export format types (PDF, HTML, XLS)
+	 * @param destinationLocation The final export destination location
+	 */
 	public ReportRunner(ReportDataContainer testReportContainer, EXPORT_FORMAT formats[], String destinationLocation) {
 		this.testReportContainer = testReportContainer;
 		this.formats = formats;
@@ -37,6 +43,9 @@ public class ReportRunner implements Callable<Boolean> {
 		this.reportExporter = new ReportExporter();
 	}
 
+	/**
+	 * The actual export runs in a seperate thread
+	 */
 	public Boolean call() throws Exception {
 		Map<String, Object> reportParameters = new HashMap<String, Object>();
 

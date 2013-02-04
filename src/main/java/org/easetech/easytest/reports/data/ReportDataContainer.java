@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Accumulates all the test results during a test run. Results are used as input
+ * This class gathers all the test results during a test run. Results are used as input
  * for the TestReportHelper
  * 
  * @author gpcmol
@@ -31,9 +31,6 @@ public class ReportDataContainer {
 	 */
 	private Map<String, List<TestResultBean>> methodTestResults;
 
-	// TODO map method, list duration ??? This can also be obtained from the
-	// testresultbean list
-
 	/**
 	 * Private constructor Initializes the report data structures
 	 */
@@ -56,13 +53,13 @@ public class ReportDataContainer {
 	 * Creates a TestResultBean which contains all the test result data and adds
 	 * it to the report data structures
 	 * 
-	 * @param method
-	 * @param input
-	 * @param output
-	 * @param passed
-	 * @param result
-	 * @param exception
-	 * @param exceptionResult
+	 * @param method The test method name
+	 * @param input The map of input data (key=parameter name, value=data)
+	 * @param output The output (this can be the returning data of the test method
+	 * @param passed The passed result (passed/failed/exception)
+	 * @param result The assertion message
+	 * @param exception True if exception
+	 * @param exceptionResult The exception message when execution of method throws exception
 	 */
 	public void addTestResult(String method, Map<String, Object> input,
 			Object output, Boolean passed, String result, Boolean exception,
@@ -72,6 +69,10 @@ public class ReportDataContainer {
 		this.addTestResult(testResultBean);
 	}
 
+	/**
+	 * Add a {@link TestResultBean} to the list
+	 * @param testResult
+	 */
 	public void addTestResult(TestResultBean testResult) {
 		String key = testResult.getMethod();
 		List<TestResultBean> list = this.methodTestResults.get(key);

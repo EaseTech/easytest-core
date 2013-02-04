@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class is a single result of a test run for one test method.
+ * This pojo is a single result of a test run for one test method.
  * 
  * @author gpcmol
  * 
@@ -70,12 +70,27 @@ public class TestResultBean implements Serializable {
 	 */
 	private Date date;
 
+	/**
+	 * Constructor
+	 */
 	public TestResultBean() {
 		this.input = new LinkedHashMap<String, Object>();
 		this.testItemDurations = new ArrayList<DurationBean>();
 		this.testItemDurationsMap = new HashMap<String, DurationBean>();
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param method The test method name
+	 * @param input The map of input data (key=parameter name, value=data)
+	 * @param output The output (this can be the returning data of the test method
+	 * @param passed The passed result (passed/failed/exception)
+	 * @param result The assertion message
+	 * @param exception True if exception
+	 * @param exceptionResult The exception message when execution of method throws exception
+	 * @param date The date
+	 */
 	public TestResultBean(String method, Map<String, Object> input,
 			Object output, Boolean passed, String result, Boolean exception,
 			String exceptionResult, Date date) {
@@ -187,6 +202,10 @@ public class TestResultBean implements Serializable {
 		this.testItemDurationsMap = testItemDurationsMap;
 	}
 
+	/**
+	 * Add the {@link DurationBean} to the list
+	 * @param testItemDurationBean
+	 */
 	public void addTestItemDurationBean(DurationBean testItemDurationBean) {
 		this.testItemDurations.add(testItemDurationBean);
 		if (testItemDurationBean.getItem() != null && !(testItemDurationBean.getItem().length() <= 0)) {

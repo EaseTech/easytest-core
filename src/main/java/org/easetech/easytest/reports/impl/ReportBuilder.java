@@ -25,6 +25,10 @@ import org.jfree.data.general.DefaultPieDataset;
  */
 public class ReportBuilder {
 
+	/**
+	 * The report types. DEFAULT is the default
+	 *
+	 */
 	public enum REPORT_TYPES {
 		DEFAULT //ALL, PERFORMANCE
 	}
@@ -114,15 +118,15 @@ public class ReportBuilder {
 	 * Produces the graphs of the totals for the test report
 	 */
 	public void createTestReportSummaryGraphs(ReportTotalsBean reportTotalsBean) {
-
+		// not implemented
 	}
 
 	/**
 	 * Returns BufferedImage for ReportTotalsBean
 	 * 
-	 * @param itemName
-	 * @param testReportTotals
-	 * @return
+	 * @param itemName The item name
+	 * @param testReportTotals The pojo that holds the data from which the image is created
+	 * @return buffered graph image
 	 */
 	private BufferedImage getPercentageImage(String itemName, ReportTotalsBean testReportTotals) {
 		Map<String, Double> totalsDatasetValuesMap = new LinkedHashMap<String, Double>();

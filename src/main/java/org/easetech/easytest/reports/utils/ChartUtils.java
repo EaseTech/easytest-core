@@ -21,13 +21,10 @@ public class ChartUtils {
 	/**
 	 * Returns a BufferedImage of JFreeChart object
 	 * 
-	 * @param chart
-	 *            JFreeChart object
-	 * @param width
-	 *            width
-	 * @param height
-	 *            height
-	 * @return BufferedImage
+	 * @param chart JFreeChart object
+	 * @param width The chart width
+	 * @param height The chart height
+	 * @return The chart as BufferedImage
 	 */
 	public static BufferedImage getBufferedImageChartImage(JFreeChart chart, int width, int height) {
 		BufferedImage createBufferedImage = chart.createBufferedImage(width, height);

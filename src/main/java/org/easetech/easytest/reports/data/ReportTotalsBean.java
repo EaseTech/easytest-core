@@ -6,7 +6,8 @@ import java.io.Serializable;
 import org.easetech.easytest.util.CommonUtils;
 
 /**
- * This class contains the totals of a set of tests
+ * This pojo contains the totals of a set of tests
+ * This is used to feed to a report
  * 
  * @author gpcmol
  * 

@@ -70,6 +70,10 @@ public class CommonUtils {
 		return createFolder(destinationFolder);
 	}
 	
+	/**
+	 * Get the current folder
+	 * @return the current folder
+	 */
 	public static String getCurrentFolder() {
 		File file = new File("");
 		String absolutePath = file.getAbsolutePath();

@@ -9,9 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This bean holds the report parameters, like output format, location etc.
+ * This pojo holds the report parameters, like output format, location etc.
+ * This information can be given by the @Report annotation or the command
+ * line parameters otherwise
+ * 
  * @author gpcmol
- *
+ * 
  */
 public class ReportParametersBean {
 
@@ -80,7 +83,7 @@ public class ReportParametersBean {
 
 		this.outputLocation = outputLocation != null ? outputLocation : "";
 
-		// parse package names
+		// parse package names, not yet implemented
 		if (packages != null) {
 			this.packageNames = new ArrayList<String>();
 			String[] packagesArray = packages.split(",");

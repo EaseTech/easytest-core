@@ -34,7 +34,7 @@ import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.DataContext;
-import org.easetech.easytest.util.GeneralUtil;
+import org.easetech.easytest.util.CommonConversionUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.ParameterSignature;
@@ -241,10 +241,10 @@ public @interface Param {
             List<Map<String, Object>> convertFrom) {
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
 
-            if (GeneralUtil.isStandardObjectInstance(idClass)) {
+            if (CommonConversionUtils.isStandardObjectInstance(idClass)) {
                 for (Map<String, Object> object : convertFrom) {
                     finalData.add(PotentialAssignment.forValue(EMPTY_STRING,
-                        GeneralUtil.convertToTargetType(idClass, object.get(paramName))));
+                        CommonConversionUtils.convertToTargetType(idClass, object.get(paramName))));
                 }
             } else {
                 PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
@@ -285,7 +285,7 @@ public @interface Param {
                                 + "  not found. Final try to resolve the object.");
                         }
                         try {
-                            GeneralUtil.fillDataUsingConstructor(idClass, convertFrom, finalData, paramName);
+                            CommonConversionUtils.fillDataUsingConstructor(idClass, convertFrom, finalData, paramName);
                         } catch (IllegalArgumentException e) {
                             throw new RuntimeException(e);
                         } catch (InstantiationException e) {
@@ -333,7 +333,7 @@ public @interface Param {
                     }
                     finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                 }
-            } else if (GeneralUtil.isStandardObjectInstance(genericType)) {
+            } else if (CommonConversionUtils.isStandardObjectInstance(genericType)) {
                 LOG.debug(
                     "parameter to the collection is a Standard Java Class {} . Using Internal Editors to resolve values",
                     genericType);
@@ -344,7 +344,7 @@ public @interface Param {
                 for (Map<String, Object> object : convertFrom) {
                     String[] strValues = ((String) object.get(paramName)).split(COLON);
                     for (int i = 0; i < strValues.length; i++) {
-                        objectValues.add(GeneralUtil.convertToTargetType(genericType, strValues[i]));
+                        objectValues.add(CommonConversionUtils.convertToTargetType(genericType, strValues[i]));
                     }
                     finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                 }
@@ -388,7 +388,7 @@ public @interface Param {
                         }
                     } else {
                         try {
-                            GeneralUtil.fillDataUsingConstructor(genericType, convertFrom, finalData, paramName, objectValues);
+                            CommonConversionUtils.fillDataUsingConstructor(genericType, convertFrom, finalData, paramName, objectValues);
                         } catch (IllegalArgumentException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();

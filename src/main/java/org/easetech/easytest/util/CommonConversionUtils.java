@@ -1,25 +1,18 @@
 
 package org.easetech.easytest.util;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import junit.framework.Assert;
-import org.apache.commons.io.FileUtils;
+
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;
@@ -31,11 +24,9 @@ import org.slf4j.LoggerFactory;
  * @author gpcmol
  * 
  */
-public class GeneralUtil {
+public class CommonConversionUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GeneralUtil.class);
-
-    private static final String FILE_SEPARATOR = String.valueOf(File.separatorChar);
+    private static final Logger LOG = LoggerFactory.getLogger(CommonConversionUtils.class);
 
     private static final String NULL_STR = "null";
 
@@ -44,113 +35,12 @@ public class GeneralUtil {
     private static final String COLON = ":";
 
     /**
-     * Rounds a value with number of decimals
-     * 
-     * @param valueToRound
-     * @param numberOfDecimalPlaces
-     * @return rounded double
-     */
-    public static Double getRounded(double valueToRound, int numberOfDecimalPlaces) {
-        BigDecimal bigDecimal = new BigDecimal(valueToRound).setScale(numberOfDecimalPlaces, RoundingMode.HALF_UP);
-        return bigDecimal.doubleValue();
-    }
-
-    /**
-     * Create directory
-     * 
-     * @param destinationFolder
-     * @return
-     */
-    public static String createDefaultOutputFolder(String destinationFolder) {
-        if (destinationFolder == null || destinationFolder.equals("")) {
-            destinationFolder = System.getProperty("user.dir") + File.separatorChar + "target" + File.separatorChar
-                + "reports";
-        }
-        return createFolder(destinationFolder);
-    }
-
-    public static String getCurrentFolder() {
-        File file = new File("");
-        String absolutePath = file.getAbsolutePath();
-        return absolutePath;
-    }
-
-    /**
-     * Creates directory. If absolute location is empty, pick current folder
-     * 
-     * @param absoluteLocation
-     * @return directory
-     */
-    public static String createFolder(String absoluteLocation) {
-        if (absoluteLocation == null) {
-            return null;
-        }
-        File file = new File(absoluteLocation);
-        if (!file.isDirectory()) {
-            try {
-                FileUtils.forceMkdir(file);
-            } catch (IOException e) {
-                LOG.error("Error creating directory " + absoluteLocation + " (" + e.getMessage() + ")");
-            }
-        }
-        return absoluteLocation;
-    }
-
-    /**
-     * Format date with pattern ddMMyyyyHHmmss
-     * 
-     * @param date
-     * @return string with formatted date
-     */
-    public static String getFormattedDate(Date date) {
-        DateFormat instance = new SimpleDateFormat("ddMMyyyyHHmmss");
-        return instance.format(date);
-    }
-
-    /**
-     * Returns absulute path of either the classpath of file location
-     * 
-     * @param location
-     * @return absolute location
-     */
-    public static String getAbsoluteLocation(String location) {
-        String path = null;
-
-        if (location.equals("")) {
-            return GeneralUtil.getCurrentFolder();
-        }
-
-        if (location.startsWith("file:")) {
-            path = location.substring(location.indexOf(":") + 1, location.length());
-        } else if (location.startsWith("classpath:")) {
-            path = location.substring(location.indexOf(":") + 1, location.length());
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            URL url = classLoader.getResource(".");
-            try {
-                File file = new File(url.toURI());
-                String tempPath = file.toString();
-                if (!tempPath.endsWith(FILE_SEPARATOR)) {
-                    tempPath += FILE_SEPARATOR;
-                }
-                path = path.replace("/", FILE_SEPARATOR);
-                path = tempPath + path;
-            } catch (URISyntaxException e) {
-                LOG.error("URI exception ", e);
-            }
-        } else {
-            LOG.error("Report output location " + location + " not found");
-        }
-        return path;
-    }
-
-    /**
      * Method to convert object to java.sql.Timestamp type It checks the instance of the object is of different datatype
      * then it gets the value from the object and casts it to required data type.
      * 
      * @param Object object
      * @return java.sql.Timestamp converted value.
      */
-
     public static Timestamp convertToSQLTimestamp(Object object) {
         Timestamp timestamp = null;
         if (object != null) {
@@ -203,7 +93,6 @@ public class GeneralUtil {
      * @param Object object
      * @return java.sql.Date converted value.
      */
-
     public static java.sql.Date convertToSQLDate(Object object) {
         java.sql.Date sqlDate = null;
         if (object != null) {
@@ -221,7 +110,6 @@ public class GeneralUtil {
      * @param Object object
      * @return java.sql.Tim converted value.
      */
-
     public static java.sql.Time convertToSQLTime(Object object) {
         java.sql.Time time = null;
         if (object != null) {
@@ -500,7 +388,7 @@ public class GeneralUtil {
         } else if (Timestamp.class.isAssignableFrom(idClass)) {
             returnObj = convertToSQLTimestamp(object);
         } else if (Time.class.isAssignableFrom(idClass)) {
-            returnObj = GeneralUtil.convertToSQLTime(object);
+            returnObj = CommonConversionUtils.convertToSQLTime(object);
         } else if (java.sql.Date.class.isAssignableFrom(idClass)) {
             returnObj = convertToSQLDate(object);
         } else if (Date.class.isAssignableFrom(idClass)) {
@@ -618,7 +506,7 @@ public class GeneralUtil {
     private static <T> void fill(Class idClass, String paramName, Constructor constructor,
         List<PotentialAssignment> finalData, List<Map<String, Object>> convertFrom, Class<T> argType, Collection collectionInstance)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        if (GeneralUtil.isStandardObjectInstance(argType)) {
+        if (CommonConversionUtils.isStandardObjectInstance(argType)) {
             for (Map<String, Object> object : convertFrom) {
                 T target = null;
                 Object result = null;
@@ -642,7 +530,7 @@ public class GeneralUtil {
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
             String[] strValues = ((String) object.get(paramName)).split(COLON);
             for (int i = 0; i < strValues.length; i++) {
-                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
+                target = (T) CommonConversionUtils.convertToTargetType(argType, strValues[i]);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
             }          
@@ -650,7 +538,7 @@ public class GeneralUtil {
         } else {
             String[] strValues = ((String) object.get(idClass.getSimpleName())).split(COLON);           
             for (int i = 0; i < strValues.length; i++) {
-                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
+                target = (T) CommonConversionUtils.convertToTargetType(argType, strValues[i]);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
             }          
@@ -665,11 +553,11 @@ public class GeneralUtil {
         T target = null;
 
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
-            target = (T) GeneralUtil.convertToTargetType(argType, object.get(paramName));
+            target = (T) CommonConversionUtils.convertToTargetType(argType, object.get(paramName));
             result = constructor.newInstance(target);
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, result));
         } else {
-            result = constructor.newInstance((T) GeneralUtil.convertToTargetType(argType,
+            result = constructor.newInstance((T) CommonConversionUtils.convertToTargetType(argType,
                 object.get(idClass.getSimpleName())));
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, result));
         }

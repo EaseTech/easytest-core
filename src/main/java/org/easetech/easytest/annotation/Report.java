@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * A test class level annotation providing reporting parameters.
  * 
- * @author Christiaan Mol
+ * @author gpcmol
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)

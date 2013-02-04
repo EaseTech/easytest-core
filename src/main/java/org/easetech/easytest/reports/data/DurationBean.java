@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * Class contains duration of item. Item can be a method call. A test method
+ * This pojo contains duration of item. Item can be a method call. A test method
  * runs for every test data input. In the test method, it is possible to measure
  * the time of a service call which has been called in the test method. In this
  * case to have this service method call, annotate it with @Intercept
@@ -43,12 +43,9 @@ public class DurationBean implements Serializable {
 	/**
 	 * Constructor
 	 * 
-	 * @param item
-	 *            e.g. method call
-	 * @param startInNano
-	 *            start system time in nano
-	 * @param endInNano
-	 *            end system time in nano
+	 * @param item e.g. method call
+	 * @param startInNano start system time in nano
+	 * @param endInNano end system time in nano
 	 */
 	public DurationBean(String item, long startInNano, long endInNano) {
 		this();

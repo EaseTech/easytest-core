@@ -11,8 +11,6 @@ public class TestRunDurationListener extends EasyTestRunListener {
 
 	private long startInNano = 0L;
 	private long endInNano = 0L;
-
-
 	
 	public void testFinished(Description description) throws Exception {
 		endInNano = System.nanoTime();

@@ -33,6 +33,16 @@ public class ReportExporter {
 	private static final String DEFAULT_REPORT_JRXML = "/reports/MainReport_new.jrxml";
 	private static final String DEFAULT_REPORT_JRXML_XLS = "/reports/MainReport_xls.jrxml";
 	
+	/**
+	 * Exports the report to a destination location for the specified export types
+	 * @param dataSource The Jasper Reports datasource
+	 * @param jasperParameters The Jasper Reports parameters
+	 * @param destinationFolder The final export destination location
+	 * @param name The export filename
+	 * @param formats The formatting types to which the report is exported
+	 * @throws JRException
+	 * @throws IOException
+	 */
 	public void printDefaultReport(JRDataSource dataSource, Map<String, Object> jasperParameters,
 			String destinationFolder, String name, EXPORT_FORMAT... formats) throws JRException, IOException {
 		destinationFolder = CommonUtils.createDefaultOutputFolder(destinationFolder);
