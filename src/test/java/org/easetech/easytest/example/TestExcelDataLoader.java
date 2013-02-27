@@ -112,6 +112,12 @@ public class TestExcelDataLoader {
         
     }
     
+    
+    @Test
+    public String testNoData(){
+        System.out.println("ANUJ TEST NO DATA");
+        return "Anuj";
+    }
    
 
 }

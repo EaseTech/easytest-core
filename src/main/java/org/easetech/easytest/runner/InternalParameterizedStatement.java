@@ -315,7 +315,7 @@ public class InternalParameterizedStatement extends Statement {
                         // initialize the row number.
                         rowNum = 0;
                     }
-                    if (writableData.get(mapMethodName) != null) {
+                    if (writableData.get(mapMethodName) != null && writableData.get(mapMethodName).size() > 0) {
                         inputData = writableData.get(mapMethodName).get(rowNum);
                         LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
                         writableRow = writableData.get(mapMethodName).get(rowNum);

@@ -89,14 +89,21 @@ public class BaseSuite extends Suite {
                 methodsWithData.add(method);
             } else {
                 // Method does not have its own dataloader annotation
-                // Does method have data already loaded?
-                boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
-                    method.getName(), testClass));
-                if (methodDataLoaded) {
-                    methodsWithData.add(method);
-                } else {
+                //Does method need input data ??
+                if(method.getMethod().getParameterTypes().length == 0){
                     methodsWithNoData.add(method);
                 }
+                else{
+                 // Does method have data already loaded?
+                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
+                        method.getName(), testClass));
+                    if (methodDataLoaded) {
+                        methodsWithData.add(method);
+                    } else {
+                        methodsWithNoData.add(method);
+                    }
+                }
+                
             }
             //Next Try registering the converters, if any at the method level
             registerConverter(method.getAnnotation(Converters.class));
