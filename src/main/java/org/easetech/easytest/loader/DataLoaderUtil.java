@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Utility class for loading test data
+ * A Utility class for loading test data. This class has methods to identify information about loading the data
  * 
  * @author Anuj Kumar
  * 
