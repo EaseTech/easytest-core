@@ -315,10 +315,18 @@ public class InternalParameterizedStatement extends Statement {
                         // initialize the row number.
                         rowNum = 0;
                     }
-                    if (writableData.get(mapMethodName) != null && writableData.get(mapMethodName).size() > 0) {
-                        inputData = writableData.get(mapMethodName).get(rowNum);
+                    //if (writableData.get(mapMethodName) != null && writableData.get(mapMethodName).size() > 0) {
+                    if (writableData.get(mapMethodName) != null ) {
+                    	if(writableData.get(mapMethodName).size() > 0) {
+                    		inputData = writableData.get(mapMethodName).get(rowNum);
+                    		writableRow = writableData.get(mapMethodName).get(rowNum);
+                    	} else {
+                    		inputData = null;                    		                		
+                    		writableData.get(mapMethodName).add(new HashMap<String,Object>() );
+                    		writableRow = writableData.get(mapMethodName).get(rowNum);
+                    	}
                         LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
-                        writableRow = writableData.get(mapMethodName).get(rowNum);
+                        
                         testResult.setInput(inputData);
                     } else {
                         testResult.setInput(null);
