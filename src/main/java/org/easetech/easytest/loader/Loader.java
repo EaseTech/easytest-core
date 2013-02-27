@@ -44,6 +44,11 @@ public interface Loader {
     String TEST_STATUS = "TestStatus";
     
     /**
+     * The key identifying the Test Duration in milli seconds
+     */
+    String DURATION = "Duration(ms)";
+    
+    /**
      * The constants for test status PASSED/FAILED 
      */    
     final String TEST_PASSED = "PASSED";

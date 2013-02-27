@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.annotation.TestConfigProvider;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +24,7 @@ import org.junit.runners.model.Statement;
 
 /**
  * Base {@link Suite} class for EasyTest based Runners. This class abstracts a lot of boiler plate logic so as to give
- * EasyTest Runners convenient and single place for reference.
+ * EasyTest based Runners convenient and single place for reference.
  * 
  * @author Anuj Kumar
  * 
@@ -61,7 +63,10 @@ public class BaseSuite extends Suite {
 
     /**
      * 
-     * Construct a new BaseSuite
+     * Construct a new BaseSuite.
+     * The constructor is responsible for loading any test bean configurations provided by the user using {@link TestConfigProvider},
+     * load any input test data provided using the {@link DataLoader} annotation, both at the class level as well as method level
+     * register any converters provide using {@link Converters}, both at the class level as well as method level.
      * @param klass the class under test
      * @throws InitializationError if any error occurs
      */
@@ -84,14 +89,21 @@ public class BaseSuite extends Suite {
                 methodsWithData.add(method);
             } else {
                 // Method does not have its own dataloader annotation
-                // Does method have data already loaded?
-                boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
-                    method.getName(), testClass));
-                if (methodDataLoaded) {
-                    methodsWithData.add(method);
-                } else {
+                //Does method need input data ??
+                if(method.getMethod().getParameterTypes().length == 0){
                     methodsWithNoData.add(method);
                 }
+                else{
+                 // Does method have data already loaded?
+                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
+                        method.getName(), testClass));
+                    if (methodDataLoaded) {
+                        methodsWithData.add(method);
+                    } else {
+                        methodsWithNoData.add(method);
+                    }
+                }
+                
             }
             //Next Try registering the converters, if any at the method level
             registerConverter(method.getAnnotation(Converters.class));

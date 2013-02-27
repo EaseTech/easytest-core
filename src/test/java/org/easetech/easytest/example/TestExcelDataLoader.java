@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import junit.framework.Assert;
+
 import javax.inject.Inject;
 
 import org.easetech.easytest.annotation.DataLoader;
@@ -19,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
-@Report
+//@Report
 @TestConfigProvider({TestConfigProviderClass.class})
 public class TestExcelDataLoader {
     
@@ -65,10 +67,9 @@ public class TestExcelDataLoader {
 
     @Test
     public void getExcelTestDataWithString(@Param(name="libraryId")
-    String libraryId, @Param(name="itemId")
-    String itemId) {
+    String libraryId, @Param(name="itemId")String itemId, @Param(name="expected") String expectedItems) {
         System.out.print("Executing getExcelTestDataWithString :");
-        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
+        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId + " and ExpectedItems is :" + expectedItems);
     }
 
     @Test
@@ -101,6 +102,22 @@ public class TestExcelDataLoader {
         return item;
     }
     
+    @Test
+    public void testEmptyCellData(LibraryId libId , ItemId itemId){
+        if(libId.getId() != null){
+            Assert.fail("libId should be NULL");
+        }else if(itemId.getId() != null){
+            Assert.fail("libId should be NULL");
+        }
+        
+    }
+    
+    
+    @Test
+    public String testNoData(){
+        System.out.println("ANUJ TEST NO DATA");
+        return "Anuj";
+    }
    
 
 }

@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * then, {@link DataDrivenTestRunner}, will provide the details of the executing test method in the JUnit supported IDEs
  * like this:
  * 
- * <ul>
+ * 
  * <li><B><I>getTestData{libraryId=1 ,itemId=2}</I></B></li>
  * <li><B><I>getTestData{libraryId=2456 ,itemId=789}</I></B></li></br></br>
  * 

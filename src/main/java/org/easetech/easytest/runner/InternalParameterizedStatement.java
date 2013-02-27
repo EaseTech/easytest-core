@@ -4,6 +4,7 @@ package org.easetech.easytest.runner;
 import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
 
 import org.easetech.easytest.loader.DataConverter;
+import org.easetech.easytest.util.CommonUtils;
 import org.easetech.easytest.util.DataContext;
 
 import java.util.HashMap;
@@ -293,6 +294,7 @@ public class InternalParameterizedStatement extends Statement {
                     // Log Statistics about the test method as well as the actual testSubject, if required.
                     boolean testContainsInputParams = (values.length != 0);
                     Map<String, Object> inputData = null;
+                    Map<String, Object> writableRow = null;
 
                     // invoke test method
                     eachRunNotifier.fireTestStarted();
@@ -313,42 +315,54 @@ public class InternalParameterizedStatement extends Statement {
                         // initialize the row number.
                         rowNum = 0;
                     }
-                    if (writableData.get(mapMethodName) != null) {
+                    if (writableData.get(mapMethodName) != null && writableData.get(mapMethodName).size() > 0) {
                         inputData = writableData.get(mapMethodName).get(rowNum);
+                        LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
+                        writableRow = writableData.get(mapMethodName).get(rowNum);
                         testResult.setInput(inputData);
                     } else {
                         testResult.setInput(null);
                     }
+                    
+                    if(writableRow != null){
 
-                    if (returnObj != null) {
-                        LOG.debug("Data returned by method {} is {} :", method.getName(), returnObj);
-                        // checking and assigning the map method name.
-
-                        LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
-                        if (writableData.get(mapMethodName) != null) {
-                            LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
-                            Map<String, Object> writableRow = writableData.get(mapMethodName).get(rowNum);
-                            writableRow.put(Loader.ACTUAL_RESULT, returnObj);
-                            if (testContainsInputParams) {
-                                LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
-                                inputData.put(Loader.ACTUAL_RESULT, returnObj);
-                            }
-
-                            Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);
-                            // if expected result exist in user input test data,
-                            // then compare that with actual output result
-                            // and write the status back to writable map data.
-                            if (expectedResult != null) {
-                                LOG.debug("Expected result exists");
-                                if (expectedResult.toString().equals(returnObj.toString())) {
-                                    writableRow.put(Loader.TEST_STATUS, Loader.TEST_PASSED);
-                                } else {
-                                    writableRow.put(Loader.TEST_STATUS, Loader.TEST_FAILED);
-                                }
-                            }
-                            rowNum++;
-                        }
-
+                        if (returnObj != null) {
+	                        LOG.debug("Data returned by method {} is {} :", method.getName(), returnObj);
+	                        // checking and assigning the map method name.
+	
+	                        LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
+	                       
+	                                                        
+	                            writableRow.put(Loader.ACTUAL_RESULT, returnObj);
+	                            if (testContainsInputParams) {
+	                                LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
+	                                inputData.put(Loader.ACTUAL_RESULT, returnObj);
+	                            }
+	
+	                            Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);
+	                            // if expected result exist in user input test data,
+	                            // then compare that with actual output result
+	                            // and write the status back to writable map data.
+	                            if (expectedResult != null) {
+	                                LOG.debug("Expected result exists");
+	                                if (expectedResult.toString().equals(returnObj.toString())) {
+	                                    writableRow.put(Loader.TEST_STATUS, Loader.TEST_PASSED);
+	                                } else {
+	                                    writableRow.put(Loader.TEST_STATUS, Loader.TEST_FAILED);
+	                                }
+	                            }
+	                            
+	                        
+	
+	                    }
+	                    LOG.debug("testItemDurationBean:"+testItemDurationBean);
+	                    if(testItemDurationBean != null){
+	                    	Double testDuration = CommonUtils.getRounded(testItemDurationBean.getRoundedMsDifference().doubleValue(),3);
+	                    	LOG.debug("testItemDurationBean.getRoundedMsDifference():"+testDuration);
+	                    	writableRow.put(Loader.DURATION,testDuration);
+	                    }
+	                    LOG.debug("rowNum:"+rowNum);
+	                    rowNum++;
                     }
                 } catch (CouldNotGenerateValueException e) {
                     throw new RuntimeException(e);

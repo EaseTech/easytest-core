@@ -1,8 +1,6 @@
 
 package org.easetech.easytest.io;
 
-import org.easetech.easytest.annotation.DataLoader;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,18 +8,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.easetech.easytest.annotation.DataLoader;
 import org.junit.Assert;
 
 /**
- * An instance of {@link Resource} interface for handling Classpath resources.
- * The classpath resources should be prefixed with {@link ResourceLoader#CLASSPATH_PREFIX}
- * in order for the {@link ResourceLoaderStrategy} to pick them up. For eg.
- * This class is automatically instantiated by the EasyTest's {@link ResourceLoaderStrategy}
- * when it sees the {@link DataLoader} annotation with the filePath attribute being specified as:
- * <br>@DataLoader(filePaths={<b>classpath</b>:org/example/myDataFile.xls})
+ * An instance of {@link Resource} interface for handling Classpath resources. The classpath resources is responsible
+ * for loading the resource from the user's classpath.The resource path is specified using the {@link DataLoader}'s
+ * filePaths attribute and can be prefixed with {@link ResourceLoader#CLASSPATH_PREFIX} in order for the
+ * {@link ResourceLoaderStrategy} to pick them up. For eg. This class is automatically instantiated by the EasyTest's
+ * {@link ResourceLoaderStrategy} when it sees the {@link DataLoader} annotation with the filePath attribute being
+ * specified as: <br>
+ * @DataLoader(filePaths={org/example/myDataFile.xls})<br>
+ * OR <br>
+ * @DataLoader(filePaths={<b>classpath</b>:org/example/myDataFile.xls})
  * 
  * @author Anuj Kumar
- *
+ * 
  */
 public class ClasspathResource implements Resource {
 
@@ -43,6 +45,7 @@ public class ClasspathResource implements Resource {
     /**
      * 
      * Construct a new ClasspathResource and defaults the {@link #classLoader} with current Threads ContextClassLoader
+     * 
      * @see {@link Thread#currentThread()}'s getContextClassLoader method.
      * @param path The path of the classpath resource
      */
@@ -56,8 +59,8 @@ public class ClasspathResource implements Resource {
 
     /**
      * 
-     * Construct a new ClasspathResource instance such that the resource 
-     * will be loaded using the given ClassLoader
+     * Construct a new ClasspathResource instance such that the resource will be loaded using the given ClassLoader
+     * 
      * @param path the path of the classpath resource
      * @param classLoader The {@link ClassLoader} to load the class path resource
      */
@@ -71,8 +74,8 @@ public class ClasspathResource implements Resource {
 
     /**
      * 
-     * Construct a new ClasspathResource instance such that the resource
-     * will be loaded using the given Class object.
+     * Construct a new ClasspathResource instance such that the resource will be loaded using the given Class object.
+     * 
      * @param path the path of the classpath resource
      * @param classObj The {@link Class} to load the class path resource
      */
@@ -117,17 +120,18 @@ public class ClasspathResource implements Resource {
 
     /**
      * Identifies whether the resource exists or not.
+     * 
      * @return boolean indicating whether the resouorce exists or not
      */
     public boolean exists() {
-        return getClassObj() != null ? (getClassObj().getResource(getPath()) != null ? true : getClassLoader().getResource(
-            getPath()) != null) : getClassLoader().getResource(
-                getPath()) != null;
+        return getClassObj() != null ? (getClassObj().getResource(getPath()) != null ? true : getClassLoader()
+            .getResource(getPath()) != null) : getClassLoader().getResource(getPath()) != null;
     }
 
     /**
-     * Get the input stream associated with the given file path. 
-     * @return the input stream associated with the given file path. 
+     * Get the input stream associated with the given file path.
+     * 
+     * @return the input stream associated with the given file path.
      */
     public InputStream getInputStream() {
         InputStream is = null;
@@ -147,8 +151,9 @@ public class ClasspathResource implements Resource {
     }
 
     /**
-     * Get the url associated with the given file path. 
-     * @return the url associated with the given file path. 
+     * Get the url associated with the given file path.
+     * 
+     * @return the url associated with the given file path.
      */
     public URL getURL() {
         URL url = null;
@@ -167,8 +172,9 @@ public class ClasspathResource implements Resource {
     }
 
     /**
-     * Get the File associated with the given file path. 
-     * @return the File associated with the given file path. 
+     * Get the File associated with the given file path.
+     * 
+     * @return the File associated with the given file path.
      */
     public File getFile() {
         File file = null;
@@ -183,29 +189,31 @@ public class ClasspathResource implements Resource {
                         + " . This mainly occurs if this URL is not formatted strictly according to to RFC2396 and thus cannot be converted to a URI. Exception message is : "
                         + e.getMessage());
             }
-            
+
         }
         return file;
     }
 
     /**
-     * Get the resource Name associated with the given resource. 
-     * @return the resource name associated with the given resource. 
+     * Get the resource Name associated with the given resource.
+     * 
+     * @return the resource name associated with the given resource.
      */
     public String getResourceName() {
-        if(getURL() != null){
+        if (getURL() != null) {
             return getURL().getPath();
         }
         return getPath();
     }
 
     /**
-     * Get the output Stream associated with the given resource. 
-     * @return the output stream name associated with the given resource. 
+     * Get the output Stream associated with the given resource.
+     * 
+     * @return the output stream name associated with the given resource.
      */
     public OutputStream getOutputStream() {
         OutputStream outputStream = null;
-        if(getFile() != null){
+        if (getFile() != null) {
             try {
                 outputStream = new FileOutputStream(getFile());
             } catch (FileNotFoundException e) {
@@ -214,7 +222,7 @@ public class ClasspathResource implements Resource {
                 } catch (FileNotFoundException e1) {
                     throw new RuntimeException(getResourceName() + " cannot be opened because it does not exist");
                 }
-                
+
             }
         }
         return outputStream;
@@ -223,11 +231,9 @@ public class ClasspathResource implements Resource {
     /**
      * @return
      */
-    
+
     public String toString() {
         return "ClasspathResource [path=" + path + "]";
     }
-    
-    
 
 }
