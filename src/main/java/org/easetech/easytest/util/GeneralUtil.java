@@ -459,6 +459,30 @@ public class GeneralUtil {
     public static String convertToString(Object object) {
         return (object == null) ? null : object.toString();
     }
+    
+    /**
+     * Method to convert object to String type It returns toString value of object.
+     * 
+     * @param Object object
+     * @return Character converted value.
+     */
+    public static StringBuffer convertToStringBuffer(Object object) {
+        
+        return (object == null) ? null : new StringBuffer(object.toString());
+    }
+    
+    /**
+     * Method to convert object to String type It returns toString value of object.
+     * 
+     * @param Object object
+     * @return Character converted value.
+     */
+    public static StringBuilder convertToStringBuilder(Object object) {
+    	
+        return (object == null) ? null : new StringBuilder(object.toString());
+    }
+    
+    
 
     /**
      * Method to convert object to Character type It checks the instance of the object is of different datatype then it
@@ -536,6 +560,10 @@ public class GeneralUtil {
             returnObj = convertToShort(object);
         } else if (Enum.class.isAssignableFrom(idClass)) {
             returnObj = convertToEnum(idClass, object);
+        } else if (StringBuffer.class.isAssignableFrom(idClass)) {
+            returnObj = convertToStringBuffer(object);
+        } else if (StringBuilder.class.isAssignableFrom(idClass)) {
+            returnObj = convertToStringBuilder(object);
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Could not find either Editor or Converter instance for class :" + idClass);
@@ -557,7 +585,8 @@ public class GeneralUtil {
             || boolean.class.isAssignableFrom(idClass) || Byte.class.isAssignableFrom(idClass)
             || byte.class.isAssignableFrom(idClass) || Character.class.isAssignableFrom(idClass)
             || char.class.isAssignableFrom(idClass) || Short.class.isAssignableFrom(idClass)
-            || short.class.isAssignableFrom(idClass) || Enum.class.isAssignableFrom(idClass)) {
+            || short.class.isAssignableFrom(idClass) || Enum.class.isAssignableFrom(idClass)
+            || StringBuffer.class.isAssignableFrom(idClass) || StringBuilder.class.isAssignableFrom(idClass)) {
             result = true;
         }
         return result;
