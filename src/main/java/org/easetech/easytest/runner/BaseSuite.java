@@ -89,7 +89,7 @@ public class BaseSuite extends Suite {
                 methodsWithData.add(method);
             } else {
                 // Method does not have its own dataloader annotation
-                //Does method need input data ??
+                 //Does method need input data ??
                 if(method.getMethod().getParameterTypes().length == 0){
                     methodsWithNoData.add(method);
                 }
@@ -103,7 +103,6 @@ public class BaseSuite extends Suite {
                         methodsWithNoData.add(method);
                     }
                 }
-                
             }
             //Next Try registering the converters, if any at the method level
             registerConverter(method.getAnnotation(Converters.class));
