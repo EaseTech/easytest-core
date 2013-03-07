@@ -251,7 +251,9 @@ public @interface Param {
                             }
 
                         } else {
-                            editor.setAsText(getStringValue(idClass.getSimpleName(), object));
+                            if(getStringValue(idClass.getSimpleName(), object) != null){
+                        		editor.setAsText(getStringValue(idClass.getSimpleName(), object));
+                        	}
                         }
                         // add data to PotentialAssignment even if it is null
                         potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));

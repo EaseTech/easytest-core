@@ -154,7 +154,9 @@ public class ExcelDataLoader implements Loader {
                     if (keyRow) {
                         tempData.put(cell.getColumnIndex(), cellData);
                     } else {
-                        actualData.put(tempData.get(cell.getColumnIndex()).toString(), cellData);
+                    	if(tempData.get(cell.getColumnIndex()) != null) {
+                    		actualData.put(tempData.get(cell.getColumnIndex()).toString(), cellData);
+                    	}
                     }
                 }
             }
@@ -174,7 +176,8 @@ public class ExcelDataLoader implements Loader {
             for(Cell cell : row){
                 if(cell.getColumnIndex() != 0){
                     Object cellData = objectFrom(workbook, cell);
-                    actualData.put(cellData.toString(), null);
+                    if(cellData != null)
+                    	actualData.put(cellData.toString(), null);
                 }
             }
         }else{
@@ -448,9 +451,15 @@ public class ExcelDataLoader implements Loader {
             int lastColumn = row.getLastCellNum();
             if (lastColumn < 0)
                 lastColumn = 0;
+            // if there are any blank cells, then last cell number will return value higher than actual column number.
+            //so set that value back to your required column number.
+            if(lastColumn > columnNum) {
+            	lastColumn = columnNum;
+            }
             for (int i = lastColumn; i <= columnNum; i++) {
                 cell = row.createCell(i);
             }
+
         }
 
         if (value instanceof String) {
