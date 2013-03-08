@@ -181,20 +181,15 @@ public class CSVDataLoader implements Loader {
     	
   
         List<String[]> writableData = new ArrayList<String[]>();
-        try {
-
-
-            
+        try {  
             for (String methodName : actualData.keySet()) {
-
                 boolean isHeaderWritten = false;
                 Map<String, Integer> parameterIndexMap = new LinkedHashMap<String, Integer>();
                 int noOfColumns = 0;
                 for (Map<String, Object> methodData : actualData.get(methodName)) {
                     // rowNum increment by one to proceed with next record of the method.
                     LOG.debug("methodData.keySet().size" + methodData.keySet().size());
-                    LOG.debug("methodData" + methodData);
-                    
+                    LOG.debug("methodData" + methodData);                    
 
                     if (!isHeaderWritten) {
                         int columnIndex = 0;
@@ -209,6 +204,8 @@ public class CSVDataLoader implements Loader {
                             parameterIndexMap.put(parameterName, columnIndex);
                             columnIndex++;
                         }
+                        //Next write the Duration header
+                        parameterIndexMap.put(DURATION, columnIndex++);
                         // incrementing row after writing header
                         //rowNum++;
                         isHeaderWritten = true;
@@ -223,10 +220,10 @@ public class CSVDataLoader implements Loader {
 
                         parameterValues[columnIndex++] = null;
                         for (String parameter : methodData.keySet()) {
-                        	System.out.println("Index:parameter:value"+parameterIndexMap.get(parameter)+parameter+methodData.get(parameter));
                         	parameterValues[parameterIndexMap.get(parameter)] = methodData.get(parameter)!=null?methodData.get(parameter).toString():null;
                         }
-
+                        //Finally put the Duration value
+                        parameterValues[parameterIndexMap.get(DURATION)] = methodData.get(DURATION).toString();
                         writableData.add(parameterValues);
                     }
 
@@ -288,16 +285,42 @@ public class CSVDataLoader implements Loader {
                 if (isKeyRow) {
                     dataRowIndex = 0;
                     List<Map<String, Object>> currentMethodData = actualData.get(currentMethodName);
+                    int length = splitValues.length;
                     if (currentMethodData != null && !currentMethodData.isEmpty()) {
-                        if (currentMethodData.get(0).keySet().contains(Loader.ACTUAL_RESULT)) {
-                            int length = splitValues.length;
-                            newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), length + 1);
+                        
+                        if (currentMethodData.get(0).keySet().contains(Loader.TEST_STATUS)) {
+                            //This means we have to write 3 extra fields to the CSV file: ActualResult, TestStatus and Duration
+                            
+                            newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), length + 3);
                             System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
                             newSplitValues[length] = Loader.ACTUAL_RESULT;
-                            dataKeys = newSplitValues;
+                            newSplitValues[length + 1] = TEST_STATUS;
+                            newSplitValues[length + 2] = DURATION;
+                        }else if(currentMethodData.get(0).keySet().contains(ACTUAL_RESULT)){
+                            //This means that method is returning data but user has not specified expected result param.
+                            //Thus we only write back actual result and duration
+                            newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), length + 2);
+                            System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
+                            newSplitValues[length] = Loader.ACTUAL_RESULT;
+                            newSplitValues[length + 1] = DURATION;
+                        }else{
+                            //Write only the Duration of the method
+                            newSplitValues = (String[])Array.newInstance(String[].class.getComponentType(), length + 1);
+                            System.arraycopy(splitValues, 0, newSplitValues, 0, Math.min(splitValues.length, newSplitValues.length));
+                            newSplitValues[length] = DURATION;
                         }
+                        dataKeys = newSplitValues;
                     }
                     writableData.add(newSplitValues);
+                    if(length == 1){
+                        //implies that the test method does not take any input parameters
+                        //We should then handle writing the output data specific to easyTest here and now.
+                        Map<String, Object> currentRowData = currentMethodData.get(dataRowIndex++);
+                        String[] finalValues = new String[dataKeys.length];
+                        finalValues[0] = EMPTY_STRING;
+                        writeOutputData(currentRowData, finalValues, dataKeys);
+                        writableData.add(finalValues);
+                    }
                 } else {
                     if (!writeDataForMethod(currentMethodName, methodNames)) {
                         writableData.add(splitValues);
@@ -310,6 +333,7 @@ public class CSVDataLoader implements Loader {
                     for(int i=1 ;i<dataKeys.length ; i++){
                         finalValues[i] = (currentRowData.get(dataKeys[i]) == null ? "null" :currentRowData.get(dataKeys[i]).toString());
                     }
+                    writeOutputData(currentRowData, finalValues, dataKeys);
                     writableData.add(finalValues);
                 }
 
@@ -331,6 +355,22 @@ public class CSVDataLoader implements Loader {
 
     }
     
+    
+    private void writeOutputData(Map<String, Object> currentRowData, String[] finalValues , String[] dataKeys ){
+        if(currentRowData.get(TEST_STATUS) != null){
+            //Write Actual Result, Test Status and Duration fields
+            finalValues[dataKeys.length - 3] = currentRowData.get(ACTUAL_RESULT).toString();
+            finalValues[dataKeys.length - 2] = currentRowData.get(TEST_STATUS).toString();
+            finalValues[dataKeys.length - 1] = currentRowData.get(DURATION).toString();
+        }else if(currentRowData.get(ACTUAL_RESULT) != null){
+            //Write Actual Result and Duration
+            finalValues[dataKeys.length - 2] = currentRowData.get(ACTUAL_RESULT).toString();
+            finalValues[dataKeys.length - 1] = currentRowData.get(DURATION).toString();
+        }else{
+            //Write Only Duration
+            finalValues[dataKeys.length - 1] = currentRowData.get(DURATION).toString();
+        }
+    }
     /**
      * Method determining whether the data for a given method should be written or not
      * @param currentMethod

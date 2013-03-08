@@ -34,12 +34,6 @@ public class TestConditionsSupportedByDataDrivenTest {
         System.out.println("Class Name :" + name + " DateDebut : " + dateDebut + " dateFin :" + dateFin);
     }
 
-    /**
-     * A Junit annotated({@link Rule}) expected Exception rule that gives us the ability to specify what exception is
-     * expected to be be thrown by the test case.
-     */
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     /**
      * Example showing the usage of propertyEditors for getting custom object.
@@ -73,16 +67,6 @@ public class TestConditionsSupportedByDataDrivenTest {
 
     }
 
-    /**
-     * Test DDT with no parameter and Rule annotation
-     */
-    @Test
-    public void testDDTGetItemsWithoutFileTypeWithStrongParameters() {
-        System.out.print("Executing testDDTGetItemsWithoutFileTypeWithStrongParameters :");
-        thrown.expect(RuntimeException.class);
-        throw new RuntimeException("ExceptionTest");
-
-    }
 
     /**
      * Test case showing the use of {@link DataLoader} annotation. This example can also be used as a test to using
@@ -116,47 +100,10 @@ public class TestConditionsSupportedByDataDrivenTest {
 
     }
     
-//    @Test
-//    public void testDDTConverter(@Param(name="items")HashSet<ItemId> items) {
-//        System.out.print("Executing testDDTConverter :");
-//        for(ItemId itemId : items){
-//            System.out.println("Item Id is:" + itemId);
-//        }
-////        Assert.assertNotNull(item);
-////        System.out.println(item.getDescription() + item.getItemId() + item.getItemType());
-//
-//    }
-//    
-//    @Test
-//    public void testDDTConverter(@Param(name="items")Queue<ItemId> items) {
-//        System.out.print("Executing testDDTConverter :");
-//        for(ItemId itemId : items){
-//            System.out.println("Item Id is:" + itemId);
-//        }
-////        Assert.assertNotNull(item);
-////        System.out.println(item.getDescription() + item.getItemId() + item.getItemType());
-//
-//    }
-//    
-//    @Test
-//    public void testDDTConverter(@Param(name="items")Set<ItemId> items) {
-//        System.out.print("Executing testDDTConverter :");
-//        for(ItemId itemId : items){
-//            System.out.println("Item Id is:" + itemId);
-//        }
-////        Assert.assertNotNull(item);
-////        System.out.println(item.getDescription() + item.getItemId() + item.getItemType());
-//
-//    }
+    @Test
+    public String testMethodWithNoParameter(){
+        return "Empty Value";
+    }
     
-//    @Test
-//    public void testDDTConverter(@Param(name="items")List<ItemId> items) {
-//        System.out.print("Executing testDDTConverter :");
-//        for(ItemId itemId : items){
-//            System.out.println("Item Id is:" + itemId);
-//        }
-////        Assert.assertNotNull(item);
-////        System.out.println(item.getDescription() + item.getItemId() + item.getItemType());
-//
-//    }
+
 }
