@@ -288,7 +288,19 @@ public class XMLDataLoader implements Loader {
                                 Entry outputEntry = new Entry();
                                 outputEntry.setKey(ACTUAL_RESULT);
                                 outputEntry.setValue(testRecord.get(ACTUAL_RESULT).toString());
+                                Entry durationEntry = new Entry();
+                                durationEntry.setKey(DURATION);
+                                durationEntry.setValue(testRecord.get(DURATION).toString());
                                 outputData.getEntry().add(outputEntry);
+                                outputData.getEntry().add(durationEntry);
+                                if(testRecord.get(TEST_STATUS) != null){
+                                    Entry statusEntry = new Entry();
+                                    statusEntry.setKey(TEST_STATUS);
+                                    statusEntry.setValue(testRecord.get(TEST_STATUS).toString());
+                                    outputData.getEntry().add(statusEntry);
+                                }
+                                
+                                
                                 originalTestRecord.setOutputData(outputData);
                                 outputDataAdded = true;
                                 break;
@@ -298,6 +310,25 @@ public class XMLDataLoader implements Loader {
                             break;
                         }
                     }
+                }else{
+                    //Method did not return any data. So only write the duration as output
+                    for (TestMethod testMethod : inputTestData.getTestMethod()) {
+                        List<TestRecord> originalTestRecords = testMethod.getTestRecord();
+                        for (TestRecord originalTestRecord : originalTestRecords) {
+                            if (originalTestRecord.getId().equals(testRecord.get(RECORD_POSITION))) {
+                                OutputData outputData = new OutputData();
+                                Entry durationEntry = new Entry();
+                                durationEntry.setKey(DURATION);
+                                durationEntry.setValue(testRecord.get(DURATION).toString());
+                                outputData.getEntry().add(durationEntry);
+                                originalTestRecord.setOutputData(outputData);
+                                outputDataAdded = true;
+                                break;
+                            }
+                        }
+                        
+                    }
+                    
                 }
             }
         }

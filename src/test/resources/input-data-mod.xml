@@ -53,4 +53,89 @@
   </TestRecord>
  </TestMethod>
 
+<TestMethod name="getDataWithExpectedResultSet">
+  <Description>The method with name GetItemsData will be executed 3
+   times by the EasyTest framework,
+   once each for the given TestRecord.
+  </Description>
+  <TestRecord id="4">
+   <Description>This test tries to capture the scenario when the data is
+    available in the DB
+    for the given set of input parameters. In this
+    case the expectedItems
+    should be 2.
+   </Description>
+   <InputData>
+    <Entry key="libraryId" value="91477" />
+    <Entry key="itemId" value="27" />
+    <Entry key="itemType" value="book" />
+    <Entry key="ExpectedResult" value="27" />
+   </InputData>
+  </TestRecord>
+  <TestRecord id="5">
+   <Description>This test tries to capture the scenario when the data is
+    available in the DB
+    for the given set of input parameters. In this
+    case the expectedItems
+    should be 1.
+   </Description>
+   <InputData>
+    <Entry key="libraryId" value="91475" />
+    <Entry key="itemId" value="36" />
+    <Entry key="itemType" value="journal" />
+    <Entry key="ExpectedResult" value="9145" />
+   </InputData>
+  </TestRecord>
+  <TestRecord id="6">
+   <Description>This test tries to capture the scenario when the data is
+    available in the DB
+    for the given set of input parameters. In this
+    case the expectedItems
+    should be 0.
+   </Description>
+   <InputData>
+    <Entry key="libraryId" value="91475" />
+    <Entry key="itemId" value="40" />
+    <Entry key="itemType" value="ebook" />
+    <Entry key="ExpectedResult" value="91475" />
+   </InputData>
+  </TestRecord>
+ </TestMethod>
+ 
+ <TestMethod name="methodReturningNoData">
+   <Description>The method with name GetItemsData will be executed 3
+    times by the EasyTest framework,
+    once each for the given TestRecord.
+   </Description>
+   <TestRecord id="7">
+    <Description>This test tries to capture the scenario when the data is
+     available in the DB
+     for the given set of input parameters. In this
+     case the expectedItems
+     should be 2.
+    </Description>
+    <InputData>
+     <Entry key="libraryId" value="91477" />
+     <Entry key="itemId" value="27" />
+     <Entry key="itemType" value="book" />
+    </InputData>
+   </TestRecord>  
+ </TestMethod>
+ 
+ <TestMethod name="methodTakingNoData">
+    <Description>The method with name GetItemsData will be executed 3
+     times by the EasyTest framework,
+     once each for the given TestRecord.
+    </Description>
+    <TestRecord id="8">
+     <Description>This test tries to capture the scenario when the data is
+      available in the DB
+      for the given set of input parameters. In this
+      case the expectedItems
+      should be 2.
+     </Description>
+     <InputData>
+     </InputData>
+    </TestRecord>  
+ </TestMethod>
 </easytest:InputTestData>
