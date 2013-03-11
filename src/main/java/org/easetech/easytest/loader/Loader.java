@@ -38,6 +38,25 @@ public interface Loader {
     String EMPTY_STRING = " ";
     
     /**
+     * Double Quote String
+     */
+    String DOUBLE_QUOTE = "\"";
+    
+    /**
+     * Single Quote
+     */
+    String SINGLE_QUOTE = "'";
+    
+    /**
+     * The ampersand sign
+     */
+    String AMPERSAND = "&";
+    
+    /**
+     * Comma
+     */
+    String COMMA = ",";
+    /**
      * The key identifying the Test Status either PASSED/FAILED 
      * determined after comparing expected and actual results, and written to the file.
      */

@@ -143,7 +143,8 @@ public class CSVDataLoader implements Loader {
                 data.put(tempData.get(0), dataValues);
             } else {
                 for (int i = 1; i < splitValues.length; i++) {
-                    actualData.put(tempData.get(i), splitValues[i]);
+                    
+                    actualData.put(tempData.get(i), normalize(splitValues[i]));
                     logBuffer.append(":" + splitValues[i]);
                 }
             }
@@ -154,6 +155,15 @@ public class CSVDataLoader implements Loader {
         }
         return data;
 
+    }
+    
+    /**
+     * Normalize the string that is read from a CSV file for JSON conversion if required
+     * @param value the string to normalize
+     * @return the normalized string
+     */
+    private static String normalize(String value){
+        return value.replaceAll(SINGLE_QUOTE, DOUBLE_QUOTE).replaceAll(AMPERSAND, COMMA);
     }
     
     /**

@@ -1,2 +1,2 @@
 testJSONObjectCSV,Item,LibraryId
-, {itemType:BOOK}, 34
+,{'itemId':{'id':23}&'itemType':'BOOK'&'description':'batMAN'}, 34
