@@ -57,6 +57,7 @@ public class TestXMLDataLoader {
     }
 
     @Test
+    @DataLoader(filePaths = { "input-data-mod.xml" })
     public Long getDataWithExpectedResultSet(@Param(name = "libraryId")
     String libraryId, @Param(name = "itemId")
     Long itemId, @Param(name = "itemType")
