@@ -56,14 +56,14 @@ public class TestXMLDataLoader {
         return item;
     }
 
-    @Test
-    @DataLoader(filePaths = { "input-data-mod.xml" })
-    public Long getDataWithExpectedResultSet(@Param(name = "libraryId")
-    String libraryId, @Param(name = "itemId")
-    Long itemId, @Param(name = "itemType")
-    String itemType) {
-        return itemId;
-    }
+//    @Test
+//    @DataLoader(filePaths = { "input-data-mod.xml" })
+//    public Long getDataWithExpectedResultSet(@Param(name = "libraryId")
+//    String libraryId, @Param(name = "itemId")
+//    Long itemId, @Param(name = "itemType")
+//    String itemType) {
+//        return itemId;
+//    }
     
     @Test
     @DataLoader(filePaths = { "input-data-mod.xml" })

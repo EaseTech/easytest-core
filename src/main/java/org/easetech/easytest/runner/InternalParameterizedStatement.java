@@ -381,7 +381,7 @@ public class InternalParameterizedStatement extends Statement {
                 testReportContainer.addTestResult(testResult);
                 //The test should fail in case the Actual Result returned by the test method did
                 //not match the Expected result specified for the method in the test data file.
-                if (writableRow.get(Loader.TEST_STATUS) != null
+                if (writableRow != null && writableRow.get(Loader.TEST_STATUS) != null
                     && writableRow.get(Loader.TEST_STATUS).equals(Loader.TEST_FAILED)) {
                     Assert.fail("Actual Result returned by the method : [" + returnObj
                         + "] did not match the expected result : [" + writableRow.get(Loader.EXPECTED_RESULT) + "]");
