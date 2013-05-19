@@ -6,7 +6,7 @@ Download EasyTest simply by including the latest version of easytest-core and ea
         
         <artifactId>easytest-core</artifactId>
         
-        <version>0.8.1</version>
+        <version>1.1</version>
         
 And for Spring module simply include :
 
@@ -14,7 +14,7 @@ And for Spring module simply include :
         
         <artifactId>easytest-spring</artifactId>
         
-        <version>0.8.1</version>
+        <version>1.1</version>
         
 EasyTest is a framework that lets you write Data Driven Tests using simple and intuitive annotations.
 But it does not just provide you the ability to write Data Driven Tests. 
