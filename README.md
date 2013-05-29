@@ -34,7 +34,7 @@ Here are some quick links:
 #### [@Param annotation and passing parameters to test method](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-@Param-annotation)
 #### [Complex objects as parameters and Converters support](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-Converters-Support)
 #### [Property Editors Support](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-Property-Editor-Support)
-
+####[JSON Support in EasyTest](https://github.com/EaseTech/easytest-core/wiki/Passing-JSON-Object-in-test-data)
 
 Introduction:
 -------------
