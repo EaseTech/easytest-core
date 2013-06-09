@@ -11,6 +11,7 @@ import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -25,7 +26,7 @@ import org.junit.runner.RunWith;
  * method level as well.
  * 
  */
-@RunWith(DataDrivenTestRunner.class)
+@RunWith(TransactionalTestRunner.class)
 @DataLoader(filePaths = { "getDDTData.csv" })
 public class TestConditionsSupportedByDataDrivenTest {
     

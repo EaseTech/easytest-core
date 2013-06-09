@@ -27,6 +27,9 @@ import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.ejb.TransactionAttribute;
+
 import org.easetech.easytest.internal.EasyAssignments;
 import org.junit.experimental.theories.internal.Assignments;
 import org.junit.internal.AssumptionViolatedException;
@@ -63,7 +66,7 @@ public class InternalParameterizedStatement extends Statement {
     private FrameworkMethod fTestMethod;
 
     /**
-     * Instance of {@link TestResultBean} containg result for a single execution of test method
+     * Instance of {@link TestResultBean} containing result for a single execution of test method
      */
     TestResultBean testResult;
 
@@ -287,9 +290,9 @@ public class InternalParameterizedStatement extends Statement {
 
             public void evaluate() throws Throwable {
                 String currentMethodName = method.getMethod().getName();
-                testResult = new TestResultBean();
-                testResult.setMethod(currentMethodName);
-                testResult.setDate(new Date());
+                TransactionAttribute transactionAnnotation = method.getMethod().getAnnotation(TransactionAttribute.class);
+                if(transactionAnnotation != null )
+                testResult = new TestResultBean(currentMethodName , new Date());
                 Object returnObj = null;
                 Map<String, Object> writableRow = null;
                 try {

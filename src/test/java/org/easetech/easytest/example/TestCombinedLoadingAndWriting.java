@@ -2,10 +2,11 @@ package org.easetech.easytest.example;
 
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(org.easetech.easytest.runner.DataDrivenTestRunner.class)
+@RunWith(TransactionalTestRunner.class)
 public class TestCombinedLoadingAndWriting {
 
     @Test

@@ -12,6 +12,7 @@ import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@RunWith(DataDrivenTestRunner.class)
+@RunWith(TransactionalTestRunner.class)
 @DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
 //@Report
 @TestConfigProvider({TestConfigProviderClass.class})

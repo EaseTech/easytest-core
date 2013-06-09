@@ -155,8 +155,8 @@ public final class TestConfigUtil {
     }
 
     /**
-     * Load the test configurations for the test class and associated the bean instance with the fields annotated with
-     * {@link Provided} annotation
+     * Load the test configurations for the test class and associate the bean instance with the fields annotated with
+     * {@link Provided} or {@link Inject} and/or {@link Named} annotation
      * 
      * @param testClass the test class on which the fields needs to be set
      * @param testInstance a test instance of the test class

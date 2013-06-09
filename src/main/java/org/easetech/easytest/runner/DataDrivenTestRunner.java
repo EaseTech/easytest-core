@@ -25,8 +25,10 @@ import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.RunAftersWithOutputData;
 import org.easetech.easytest.util.TestInfo;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.Suite;
@@ -151,23 +153,23 @@ public class DataDrivenTestRunner extends BaseSuite {
         /**
          * Convenient class member to get the list of {@link FrameworkMethod} that this runner will execute.
          */
-        List<FrameworkMethod> frameworkMethods;
+        private List<FrameworkMethod> frameworkMethods;
 
         /**
          * The actual instance of the test class. This is extremely handy in cases where we want to reflectively set
          * instance fields on a test class.
          */
-        Object testInstance;
+        private final Object testInstance;
        
         /**
          * The report container which holds all the reporting data
          */
-        private ReportDataContainer testReportContainer = null;
+        private final ReportDataContainer testReportContainer;
 
         /**
          * Instance of {@link TestResultBean} containing result for a single execution of test method
          */
-        TestResultBean testResult;
+        private TestResultBean testResult;
 
         /**
          * 
@@ -370,6 +372,23 @@ public class DataDrivenTestRunner extends BaseSuite {
         protected void validateConstructor(List<Throwable> errors) {
             validateOnlyOneConstructor(errors);
         }
+        
+        /**
+    	 * Adds to {@code errors} for each method annotated with {@code @Test},
+    	 * {@code @Before}, or {@code @After} that is not a public, void instance
+    	 * method with no arguments.
+    	 * 
+    	 * @deprecated unused API, will go away in future version
+    	 */
+    	@Deprecated
+    	protected void validateInstanceMethods(List<Throwable> errors) {
+    		validatePublicVoidNoArgMethods(After.class, false, errors);
+    		validatePublicVoidNoArgMethods(Before.class, false, errors);
+    		validateTestMethods(errors);
+
+    		if (getTestClass().getAnnotatedMethods(Test.class).size() == 0)
+    			errors.add(new Exception("No runnable methods"));
+    	}
 
         /**
          * Validate the test methods.

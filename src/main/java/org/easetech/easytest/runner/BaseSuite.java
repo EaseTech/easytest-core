@@ -34,7 +34,7 @@ public class BaseSuite extends Suite {
     /**
      * An instance of {@link Map} that contains the data to be written to the File
      */
-    protected static Map<String, List<Map<String, Object>>> writableData = new HashMap<String, List<Map<String, Object>>>();
+    protected Map<String, List<Map<String, Object>>> writableData = new HashMap<String, List<Map<String, Object>>>();
 
     /**
      * A List of {@link DataDrivenTestRunner.EasyTestRunner}s.
@@ -50,6 +50,13 @@ public class BaseSuite extends Suite {
      * List of {@link FrameworkMethod} that does have any external test data associated with them.
      */
     protected List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
+    
+    /**
+     * Boolean indicating whether the Runner supports enabling transactions for each test method.
+     * This boolean is needed so that EasyTest's ORM module can
+     * reuse the BaseSuite. 
+     */
+    private boolean supportsTransaction;
 
     /**
      * Get the children Runners
@@ -79,6 +86,8 @@ public class BaseSuite extends Suite {
         DataLoaderUtil.loadData(klass, null, getTestClass(), writableData);
         // Registering Converters based on @Converters annotation
         registerConverter(testClass.getAnnotation(org.easetech.easytest.annotation.Converters.class));
+        
+        //-----------------------------------------
         List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
         List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
@@ -154,5 +163,21 @@ public class BaseSuite extends Suite {
     protected Statement withAfterClasses(Statement statement) {
         return statement;
     }
+
+	/**
+	 * Set whether the Runner supports enabling Transactions for each test method
+	 * @return the supportsTransaction
+	 */
+	public boolean isSupportsTransaction() {
+		return supportsTransaction;
+	}
+
+	/**
+	 * @param supportsTransaction the supportsTransaction to set
+	 */
+	public void setSupportsTransaction(boolean supportsTransaction) {
+		this.supportsTransaction = supportsTransaction;
+	}
+    
 
 }

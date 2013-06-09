@@ -7,13 +7,14 @@ import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(DataDrivenTestRunner.class)
+@RunWith(TransactionalTestRunner.class)
 @TestConfigProvider({TestConfigProviderClass.class})
 public class TestBeanProviderFunctionality {
     

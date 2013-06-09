@@ -8,10 +8,12 @@ import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.easetech.easytest.runner.TransactionalTestRunner;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(DataDrivenTestRunner.class)
+@RunWith(TransactionalTestRunner.class)
 @DataLoader(filePaths = { "input-data.xml" })
 @TestProperties({ "config.properties" })
 public class TestXMLDataLoader {

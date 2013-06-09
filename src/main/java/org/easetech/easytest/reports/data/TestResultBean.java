@@ -75,6 +75,11 @@ public class TestResultBean implements Serializable {
 		this.testItemDurations = new ArrayList<DurationBean>();
 		this.testItemDurationsMap = new HashMap<String, DurationBean>();
 	}
+	
+	public TestResultBean(String method , Date date) {
+		this.method = method;
+		this.date = date;
+	}
 
 	public TestResultBean(String method, Map<String, Object> input,
 			Object output, Boolean passed, String result, Boolean exception,
