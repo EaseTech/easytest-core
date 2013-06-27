@@ -290,8 +290,6 @@ public class InternalParameterizedStatement extends Statement {
 
             public void evaluate() throws Throwable {
                 String currentMethodName = method.getMethod().getName();
-                TransactionAttribute transactionAnnotation = method.getMethod().getAnnotation(TransactionAttribute.class);
-                if(transactionAnnotation != null )
                 testResult = new TestResultBean(currentMethodName , new Date());
                 Object returnObj = null;
                 Map<String, Object> writableRow = null;

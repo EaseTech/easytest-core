@@ -77,6 +77,7 @@ public class TestResultBean implements Serializable {
 	}
 	
 	public TestResultBean(String method , Date date) {
+	    this();
 		this.method = method;
 		this.date = date;
 	}
