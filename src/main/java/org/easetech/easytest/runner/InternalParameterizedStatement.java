@@ -233,10 +233,12 @@ public class InternalParameterizedStatement extends Statement {
                                 testResult.setPassed(Boolean.FALSE);
                                 testResult.setResult(e.getMessage());
                                 testReportContainer.addTestResult(testResult);
+                                rowNum++;
                             } else { // Exception
                                 testResult.setException(Boolean.TRUE);
                                 testResult.setExceptionResult(e.toString());
                                 testReportContainer.addTestResult(testResult);
+                                rowNum++;
                             }
                             eachNotifier.addFailure(e);
                             reportParameterizedError(e, complete.getArgumentStrings(true));
@@ -299,18 +301,6 @@ public class InternalParameterizedStatement extends Statement {
                     boolean testContainsInputParams = (values.length != 0);
                     Map<String, Object> inputData = null;
 
-                    // invoke test method
-                    eachRunNotifier.fireTestStarted();
-                    LOG.debug("Calling method {} with values {}", method.getName(), values);
-                    returnObj = method.invokeExplosively(freshInstance, values);
-                    eachRunNotifier.fireTestFinished();
-
-                    DurationBean testItemDurationBean = new DurationBean(currentMethodName,
-                        testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
-                    testResult.addTestItemDurationBean(testItemDurationBean);
-
-                    testResult.setOutput((returnObj == null) ? "void" : returnObj);
-                    testResult.setPassed(Boolean.TRUE);
                     if (!mapMethodName.equals(method.getMethod().getName())) {
                         // if mapMethodName is not same as the current executing method name
                         // then assign that to mapMethodName to write to writableData
@@ -318,7 +308,6 @@ public class InternalParameterizedStatement extends Statement {
                         // initialize the row number.
                         rowNum = 0;
                     }
-                    // if (writableData.get(mapMethodName) != null && writableData.get(mapMethodName).size() > 0) {
                     if (writableData.get(mapMethodName) != null) {
                         if (writableData.get(mapMethodName).size() > 0) {
                             inputData = writableData.get(mapMethodName).get(rowNum);
@@ -329,12 +318,23 @@ public class InternalParameterizedStatement extends Statement {
                             writableRow = writableData.get(mapMethodName).get(rowNum);
                         }
                         LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
-
                         testResult.setInput(inputData);
                     } else {
                         testResult.setInput(null);
                     }
+                    
+                    // invoke test method
+                    eachRunNotifier.fireTestStarted();
+                    LOG.debug("Calling method {} with values {}", method.getName(), values);
+                    returnObj = method.invokeExplosively(freshInstance, values);
+                    eachRunNotifier.fireTestFinished();
 
+                    DurationBean testItemDurationBean = new DurationBean(currentMethodName,
+                        testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
+                    testResult.addTestItemDurationBean(testItemDurationBean);
+                    testResult.setOutput((returnObj == null) ? "void" : returnObj);
+                    testResult.setPassed(Boolean.TRUE);
+                    
                     if (writableRow != null) {
 
                         if (returnObj != null) {
@@ -373,9 +373,9 @@ public class InternalParameterizedStatement extends Statement {
                             LOG.debug("testItemDurationBean.getRoundedMsDifference():" + testDuration);
                             writableRow.put(Loader.DURATION, testDuration);
                         }
-                        LOG.debug("rowNum:" + rowNum);
-                        rowNum++;
                     }
+                    LOG.debug("rowNum:" + rowNum);
+                    rowNum++;
                 } catch (CouldNotGenerateValueException e) {
                     throw new RuntimeException(e);
                 }
