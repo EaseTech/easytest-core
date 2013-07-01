@@ -1,43 +1,29 @@
 
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
-
-import org.easetech.easytest.loader.DataConverter;
-import org.easetech.easytest.util.CommonUtils;
-import org.easetech.easytest.util.DataContext;
-
-import java.util.HashMap;
-
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.exceptions.ParamAssertionError;
+import org.easetech.easytest.internal.EasyAssignments;
+import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.reports.data.DurationBean;
+import org.easetech.easytest.reports.data.ReportDataContainer;
+import org.easetech.easytest.reports.data.TestResultBean;
+import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
+import org.easetech.easytest.util.CommonUtils;
+import org.junit.Assert;
+import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.PotentialAssignment.CouldNotGenerateValueException;
-
-import java.lang.reflect.InvocationTargetException;
+import org.junit.experimental.theories.internal.Assignments;
+import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
-
-import org.junit.experimental.theories.PotentialAssignment;
-
-import org.junit.Assert;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ejb.TransactionAttribute;
-
-import org.easetech.easytest.internal.EasyAssignments;
-import org.junit.experimental.theories.internal.Assignments;
-import org.junit.internal.AssumptionViolatedException;
-
-import org.easetech.easytest.reports.data.ReportDataContainer;
-
-import org.easetech.easytest.reports.data.TestResultBean;
-
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
@@ -79,13 +65,13 @@ public class InternalParameterizedStatement extends Statement {
      * The name of the method currently being executed. Used for populating the {@link #writableData} map. Note this is
      * a static field and therefore the state is maintained across the test executions
      */
-    private static String mapMethodName = "";
+    private static volatile String mapMethodName = "";
 
     /**
      * The default rowNum within the {@link #writableData}'s particular method data. Note this is a static field and
      * therefore the state is maintained across the test executions
      */
-    private static int rowNum = 0;
+    private static volatile int rowNum = 0;
 
     /**
      * An instance of {@link Map} that contains the data to be written to the File
@@ -124,18 +110,16 @@ public class InternalParameterizedStatement extends Statement {
      */
     Object testInstance;
 
-    public InternalParameterizedStatement(FrameworkMethod fTestMethod, TestResultBean testResult,
+    public InternalParameterizedStatement(FrameworkMethod fTestMethod,
         ReportDataContainer testReportContainer, Map<String, List<Map<String, Object>>> writableData,
         TestClass testClass, Object testInstance) {
         this.fTestMethod = fTestMethod;
-        this.testResult = testResult == null ? new TestResultBean() : testResult;
+        this.testResult = new TestResultBean();
         this.testReportContainer = testReportContainer;
         this.writableData = writableData;
         this.listOfAssignments = new ArrayList<EasyAssignments>();
         this.fTestClass = testClass;
         this.testInstance = testInstance;
-        DataContext.setMethodName(DataConverter.getFullyQualifiedTestName(fTestMethod.getName(),
-            testClass.getJavaClass()));
 
     }
 
@@ -163,7 +147,8 @@ public class InternalParameterizedStatement extends Statement {
      */
     protected void runWithAssignment(EasyAssignments parameterAssignment) throws Throwable {
         while (!parameterAssignment.isComplete()) {
-            List<PotentialAssignment> potentialAssignments = parameterAssignment.potentialsForNextUnassigned();
+            List<PotentialAssignment> potentialAssignments = parameterAssignment.potentialsForNextUnassigned(DataConverter.getFullyQualifiedTestName(fTestMethod.getName(),
+                getTestClass().getJavaClass()));
             boolean isFirstSetOfArguments = listOfAssignments.isEmpty();
             for (int i = 0; i < potentialAssignments.size(); i++) {
                 if (isFirstSetOfArguments) {

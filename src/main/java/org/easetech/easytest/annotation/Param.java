@@ -148,36 +148,37 @@ public @interface Param {
          * Method to return the list of data for the given Test method
          * 
          * @param signature the {@link ParameterSignature}
+         * @param testMethodName the name of the currently executing test method
          * @return the list of {@link PotentialAssignment}
          */
 
-        public List<PotentialAssignment> getValueSources(EasyParamSignature signature) {
+        public List<PotentialAssignment> getValueSources(String testMethodName, EasyParamSignature signature) {
             Param provider = signature.getAnnotation(Param.class);
-            String value = DataContext.getMethodName();
-            if (value == null) {
+
+            if (testMethodName == null) {
                 Assert
                     .fail("The framework could not locate the test data for the test method. If you are using TestData annotation, make sure you specify the test method name in the data file. "
                         + "In case you are using ParametersSuppliedBy annotation, make sure you are using the right ParameterSupplier subclass.");
             }
             List<PotentialAssignment> listOfData = null;
             Map<String, List<Map<String, Object>>> data = DataContext.getConvertedData();
-            List<Map<String, Object>> methodData = data.get(value);
+            List<Map<String, Object>> methodData = data.get(testMethodName);
             if (methodData == null) {
                 Assert
                     .fail("Data does not exist for the specified method with name :"
-                        + value
+                        + testMethodName
                         + " .Please check "
                         + "that the Data file contains the data for the given method name. A possible cause could be spelling mismatch.");
             }
             Class<?> parameterType = signature.getParameterType();
             if (Map.class.isAssignableFrom(parameterType)) {
-                listOfData = convert(data.get(value), parameterType);
+                listOfData = convert(data.get(testMethodName), parameterType);
             } else if (Collection.class.isAssignableFrom(parameterType)) {
-                listOfData = convertCollection(signature, provider != null ? provider.name() : null, data.get(value),
+                listOfData = convertCollection(signature, provider != null ? provider.name() : null, data.get(testMethodName),
                     parameterType);
             } else {
                 listOfData = convert(signature.getParameterType(), provider != null ? provider.name() : null,
-                    data.get(value));
+                    data.get(testMethodName));
             }
             return listOfData;
         }

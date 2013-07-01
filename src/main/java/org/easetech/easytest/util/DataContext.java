@@ -34,11 +34,7 @@ public final class DataContext {
      * Look at {@link #setData(Map)} for details.
      */
     public static final ThreadLocal<Map<String, List<Map<String , Object>>>> dataContextThreadLocal = new ThreadLocal<Map<String, List<Map<String , Object>>>>();
-    
-    /**
-     * Test Method Name Context thread local variable that will hold the name of the test method currently executing.
-     */
-    public static final ThreadLocal<String> nameContextThreadLocal = new ThreadLocal<String>();
+
     
     /**
      * Sets the Data.
@@ -156,25 +152,6 @@ public final class DataContext {
     public static void clearConvertedData() {
     	convertedDataThreadLocal.remove();
     }
-    
-    public static String getMethodName(){
-        return nameContextThreadLocal.get();
-    }
 
-    /**
-     * Sets the data
-     * 
-     * @param  name to set
-     */
-    public static void setMethodName(String name) {
-        nameContextThreadLocal.set(name);
-    }
-    
-    /**
-     * Clears the data
-     */
-    public static void clearNameData() {
-        nameContextThreadLocal.remove();
-    }
 
 }

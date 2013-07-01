@@ -410,7 +410,7 @@ public class DataDrivenTestRunner extends BaseSuite {
         public Statement methodBlock(final FrameworkMethod method) {
             //An example of Composition or whole-part relationship.Information flows only in one direction.
             //An instance of InternalParameterizedStatement will be destroyed if an instance of DataDrivenTestRunner is destroyed. 
-            return new InternalParameterizedStatement(method, testResult, testReportContainer, writableData, getTestClass(), testInstance);
+            return new InternalParameterizedStatement(method, testReportContainer, writableData, getTestClass(), testInstance);
         }
 
         /**
