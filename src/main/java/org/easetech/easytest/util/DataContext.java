@@ -27,13 +27,13 @@ public final class DataContext {
      * DataContext thread local variable that will hold the data for easy consumption by the test cases.
      * Look at {@link #setConvertedData(Map)} for details.
      */
-    public static final ThreadLocal<Map<String, List<Map<String , Object>>>> convertedDataThreadLocal = new ThreadLocal<Map<String, List<Map<String , Object>>>>();
+    public static final InheritableThreadLocal<Map<String, List<Map<String , Object>>>> convertedDataThreadLocal = new InheritableThreadLocal<Map<String, List<Map<String , Object>>>>();
     
     /**
      * DataContext thread local variable that will hold the data for easy consumption by the test cases.
      * Look at {@link #setData(Map)} for details.
      */
-    public static final ThreadLocal<Map<String, List<Map<String , Object>>>> dataContextThreadLocal = new ThreadLocal<Map<String, List<Map<String , Object>>>>();
+    public static final InheritableThreadLocal<Map<String, List<Map<String , Object>>>> dataContextThreadLocal = new InheritableThreadLocal<Map<String, List<Map<String , Object>>>>();
 
     
     /**
