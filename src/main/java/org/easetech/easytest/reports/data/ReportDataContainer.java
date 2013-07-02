@@ -64,7 +64,7 @@ public class ReportDataContainer {
 	 * @param exception
 	 * @param exceptionResult
 	 */
-	public void addTestResult(String method, Map<String, Object> input,
+	public synchronized void addTestResult(String method, Map<String, Object> input,
 			Object output, Boolean passed, String result, Boolean exception,
 			String exceptionResult) {
 		TestResultBean testResultBean = new TestResultBean(method, input,

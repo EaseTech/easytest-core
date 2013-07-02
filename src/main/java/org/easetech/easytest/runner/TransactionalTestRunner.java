@@ -81,7 +81,7 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
     /**
      * Convenient class member to get the list of {@link FrameworkMethod} that this runner will execute.
      */
-    private List<FrameworkMethod> frameworkMethods;
+    private final List<FrameworkMethod> frameworkMethods;
     
     /**
      * The actual instance of the test class. This is extremely handy in cases where we want to reflectively set
@@ -120,6 +120,7 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
             testReportContainer = new ReportDataContainer(getTestClass().getJavaClass());
+            frameworkMethods = computeMethodsForTest();
 
         } catch (Exception e) {
             LOG.error("Exception occured while instantiating the EasyTestRunner. Exception is : ", e);
@@ -127,6 +128,11 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
         }
 
 	}
+	
+	protected List<FrameworkMethod> computeTestMethods() {
+	    return frameworkMethods;
+	}
+        
 	
 	/**
      * Overridden the compute test method to make it save the method list as class instance, so that the method does
@@ -139,10 +145,8 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
      * @return list of {@link FrameworkMethod}
      */
 
-    protected List<FrameworkMethod> computeTestMethods() {
-        if (frameworkMethods != null && !frameworkMethods.isEmpty()) {
-            return frameworkMethods;
-        }
+    protected List<FrameworkMethod> computeMethodsForTest() {
+
         List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
         // Iterator<FrameworkMethod> testMethodsItr = super.computeTestMethods().iterator();
         Class<?> testClass = getTestClass().getJavaClass();
@@ -196,10 +200,11 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                     }
                     for (Map<String, Object> testData : methodData) {
                         // Create a new FrameworkMethod for each set of test data
-                        EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod());
+                        EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod() , testData);
                         easyMethod.setName(method.getName().concat(testData.toString()));
                         finalList.add(easyMethod);
                     }
+                    
                     // Since the runner only ever handles a single method, we break out of the loop as soon as we
                     // have
                     // found our method.
@@ -207,11 +212,13 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                 }
             }
         }
-        finalList.addAll(methodsWithNoData);
+        for(FrameworkMethod fMethod : methodsWithNoData) {
+            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod() , null);
+            finalList.add(easyMethod);
+        }
         if (finalList.isEmpty()) {
             Assert.fail("No method exists for the Test Runner");
         }
-        frameworkMethods = finalList;
         return finalList;
     }
 	
@@ -379,7 +386,7 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
     public Statement methodBlock(final FrameworkMethod method) {
         //An example of Composition or whole-part relationship.Information flows only in one direction.
         //An instance of InternalParameterizedStatement will be destroyed if an instance of DataDrivenTestRunner is destroyed. 
-        return new InternalParameterizedStatement(method, testReportContainer, writableData, getTestClass(), testInstance);
+        return new InternalParameterizedStatement((EasyFrameworkMethod)method, testReportContainer, getTestClass(), testInstance);
     }
     
     /**

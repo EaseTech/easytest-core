@@ -4,7 +4,6 @@ package org.easetech.easytest.runner;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.exceptions.ParamAssertionError;
@@ -18,7 +17,6 @@ import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
 import org.easetech.easytest.util.CommonUtils;
 import org.junit.Assert;
 import org.junit.experimental.theories.PotentialAssignment;
-import org.junit.experimental.theories.PotentialAssignment.CouldNotGenerateValueException;
 import org.junit.experimental.theories.internal.Assignments;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
@@ -44,39 +42,16 @@ public class InternalParameterizedStatement extends Statement {
      */
     protected final Logger LOG = LoggerFactory.getLogger(InternalParameterizedStatement.class);
 
-    private int successes = 0;
 
     /**
      * an instance of {@link FrameworkMethod} identifying the method to be tested.
      */
-    private FrameworkMethod fTestMethod;
-
-    /**
-     * Instance of {@link TestResultBean} containing result for a single execution of test method
-     */
-    TestResultBean testResult;
+    private EasyFrameworkMethod fTestMethod;
 
     /**
      * The report container which holds all the reporting data
      */
     private ReportDataContainer testReportContainer = null;
-
-    /**
-     * The name of the method currently being executed. Used for populating the {@link #writableData} map. Note this is
-     * a static field and therefore the state is maintained across the test executions
-     */
-    private static volatile String mapMethodName = "";
-
-    /**
-     * The default rowNum within the {@link #writableData}'s particular method data. Note this is a static field and
-     * therefore the state is maintained across the test executions
-     */
-    private static volatile int rowNum = 0;
-
-    /**
-     * An instance of {@link Map} that contains the data to be written to the File
-     */
-    private Map<String, List<Map<String, Object>>> writableData = new HashMap<String, List<Map<String, Object>>>();
 
     /**
      * A List of {@link Assignments}. Each member in the list corresponds to a single set of test data to be passed to
@@ -108,15 +83,13 @@ public class InternalParameterizedStatement extends Statement {
      * The actual instance of the test class. This is extremely handy in cases where we want to reflectively set
      * instance fields on a test class.
      */
-    Object testInstance;
+    private Object testInstance;
 
-    public InternalParameterizedStatement(FrameworkMethod fTestMethod,
-        ReportDataContainer testReportContainer, Map<String, List<Map<String, Object>>> writableData,
+    public InternalParameterizedStatement(EasyFrameworkMethod fTestMethod,
+        ReportDataContainer testReportContainer,
         TestClass testClass, Object testInstance) {
         this.fTestMethod = fTestMethod;
-        this.testResult = new TestResultBean();
         this.testReportContainer = testReportContainer;
-        this.writableData = writableData;
         this.listOfAssignments = new ArrayList<EasyAssignments>();
         this.fTestClass = testClass;
         this.testInstance = testInstance;
@@ -129,10 +102,7 @@ public class InternalParameterizedStatement extends Statement {
 
     public void evaluate() throws Throwable {
         runWithAssignment(EasyAssignments.allUnassigned(fTestMethod.getMethod(), getTestClass()));
-        LOG.debug("ParamAnchor evaluate");
-        if (successes == 0)
-            Assert.fail("Never found parameters that satisfied method assumptions.  Violated assumptions: "
-                + fInvalidParameters);
+        
     }
 
     /**
@@ -195,48 +165,12 @@ public class InternalParameterizedStatement extends Statement {
                 // do nothing
             }
 
-            public Statement methodBlock(FrameworkMethod method) {
-                final Statement statement = super.methodBlock(method);
-                // Sample Run Notifier to catch any runnable events for a test and do something.
-                final RunNotifier notifier = new RunNotifier();
-                notifier.addListener(new EasyTestRunListener());
-                final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, null);
-                eachNotifier.fireTestStarted();
-
-                return new Statement() {
-
-                    public void evaluate() throws Throwable {
-                        try {
-                            statement.evaluate();
-                            handleDataPointSuccess();
-                        } catch (AssumptionViolatedException e) {
-                            eachNotifier.addFailedAssumption(e);
-                            handleAssumptionViolation(e);
-                        } catch (Throwable e) {
-
-                            if (e instanceof AssertionError) { // Assertion error
-                                testResult.setPassed(Boolean.FALSE);
-                                testResult.setResult(e.getMessage());
-                                testReportContainer.addTestResult(testResult);
-                                rowNum++;
-                            } else { // Exception
-                                testResult.setException(Boolean.TRUE);
-                                testResult.setExceptionResult(e.toString());
-                                testReportContainer.addTestResult(testResult);
-                                rowNum++;
-                            }
-                            eachNotifier.addFailure(e);
-                            reportParameterizedError(e, complete.getArgumentStrings(true));
-                        } finally {
-                            eachNotifier.fireTestFinished();
-                        }
-                    }
-
-                };
+            public Statement methodBlock(EasyFrameworkMethod method) {
+                return super.methodBlock(method);
             }
 
             protected Statement methodInvoker(FrameworkMethod method, Object test) {
-                return methodCompletesWithParameters(method, complete, test);
+                return methodCompletesWithParameters((EasyFrameworkMethod)method, complete, test);
             }
 
             public Object createTest() throws Exception {
@@ -265,7 +199,7 @@ public class InternalParameterizedStatement extends Statement {
      * @param freshInstance a fresh instance of the class for which the method needs to be invoked.
      * @return an instance of {@link Statement}
      */
-    private Statement methodCompletesWithParameters(final FrameworkMethod method, final EasyAssignments complete,
+    private Statement methodCompletesWithParameters(final EasyFrameworkMethod method, final EasyAssignments complete,
         final Object freshInstance) {
 
         final RunNotifier testRunNotifier = new RunNotifier();
@@ -277,43 +211,18 @@ public class InternalParameterizedStatement extends Statement {
 
             public void evaluate() throws Throwable {
                 String currentMethodName = method.getMethod().getName();
-                testResult = new TestResultBean(currentMethodName , new Date());
+                TestResultBean testResult = new TestResultBean(currentMethodName , new Date());
                 Object returnObj = null;
-                Map<String, Object> writableRow = null;
+                Map<String, Object> writableRow = method.getTestData();
                 try {
                     final Object[] values = complete.getMethodArguments(true);
-                    // Log Statistics about the test method as well as the actual testSubject, if required.
-                    boolean testContainsInputParams = (values.length != 0);
-                    Map<String, Object> inputData = null;
 
-                    if (!mapMethodName.equals(method.getMethod().getName())) {
-                        // if mapMethodName is not same as the current executing method name
-                        // then assign that to mapMethodName to write to writableData
-                        mapMethodName = method.getMethod().getName();
-                        // initialize the row number.
-                        rowNum = 0;
-                    }
-                    if (writableData.get(mapMethodName) != null) {
-                        if (writableData.get(mapMethodName).size() > 0) {
-                            inputData = writableData.get(mapMethodName).get(rowNum);
-                            writableRow = writableData.get(mapMethodName).get(rowNum);
-                        } else {
-                            inputData = null;
-                            writableData.get(mapMethodName).add(new HashMap<String, Object>());
-                            writableRow = writableData.get(mapMethodName).get(rowNum);
-                        }
-                        LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
-                        testResult.setInput(inputData);
-                    } else {
-                        testResult.setInput(null);
-                    }
-                    
+                    testResult.setInput(method.getTestData());
                     // invoke test method
                     eachRunNotifier.fireTestStarted();
                     LOG.debug("Calling method {} with values {}", method.getName(), values);
                     returnObj = method.invokeExplosively(freshInstance, values);
                     eachRunNotifier.fireTestFinished();
-
                     DurationBean testItemDurationBean = new DurationBean(currentMethodName,
                         testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
                     testResult.addTestItemDurationBean(testItemDurationBean);
@@ -321,19 +230,9 @@ public class InternalParameterizedStatement extends Statement {
                     testResult.setPassed(Boolean.TRUE);
                     
                     if (writableRow != null) {
-
                         if (returnObj != null) {
                             LOG.debug("Data returned by method {} is {} :", method.getName(), returnObj);
-                            // checking and assigning the map method name.
-
-                            LOG.debug("mapMethodName:" + mapMethodName + " ,rowNum:" + rowNum);
-
-                            writableRow.put(Loader.ACTUAL_RESULT, returnObj);
-                            if (testContainsInputParams) {
-                                LOG.debug("writableData.get({}) is {} ", mapMethodName, writableData.get(mapMethodName));
-                                inputData.put(Loader.ACTUAL_RESULT, returnObj);
-                            }
-
+                            writableRow.put(Loader.ACTUAL_RESULT, returnObj); 
                             Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);
                             // if expected result exist in user input test data,
                             // then compare that with actual output result
@@ -341,10 +240,8 @@ public class InternalParameterizedStatement extends Statement {
                             if (expectedResult != null) {
                                 LOG.debug("Expected result exists");
                                 if (expectedResult.toString().equals(returnObj.toString())) {
-
                                     writableRow.put(Loader.TEST_STATUS, Loader.TEST_PASSED);
                                 } else {
-
                                     writableRow.put(Loader.TEST_STATUS, Loader.TEST_FAILED);
 
                                 }
@@ -359,10 +256,25 @@ public class InternalParameterizedStatement extends Statement {
                             writableRow.put(Loader.DURATION, testDuration);
                         }
                     }
-                    LOG.debug("rowNum:" + rowNum);
-                    rowNum++;
-                } catch (CouldNotGenerateValueException e) {
-                    throw new RuntimeException(e);
+                } catch (AssumptionViolatedException e) {
+                    eachRunNotifier.addFailedAssumption(e);
+                    handleAssumptionViolation(e);
+                } catch (Throwable e) {
+
+                    if (e instanceof AssertionError) { // Assertion error
+                        testResult.setPassed(Boolean.FALSE);
+                        testResult.setResult(e.getMessage());                       
+
+                    } else { // Exception
+                        testResult.setException(Boolean.TRUE);
+                        testResult.setExceptionResult(e.toString());
+
+                    }
+                    testReportContainer.addTestResult(testResult);
+                    eachRunNotifier.addFailure(e);
+                    reportParameterizedError(e, complete.getArgumentStrings(true));
+                } finally {
+                    eachRunNotifier.fireTestFinished();
                 }
                 testReportContainer.addTestResult(testResult);
                 //The test should fail in case the Actual Result returned by the test method did
@@ -386,8 +298,5 @@ public class InternalParameterizedStatement extends Statement {
         throw new ParamAssertionError(e, fTestMethod.getName(), params);
     }
 
-    protected void handleDataPointSuccess() {
-        successes++;
-    }
-
+    
 }
