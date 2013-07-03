@@ -344,7 +344,7 @@ public class DataDrivenTestRunner extends BaseSuite {
                         }
                         for (Map<String, Object> testData : methodData) {
                             // Create a new FrameworkMethod for each set of test data
-                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod());
+                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod() , testData);
                             easyMethod.setName(method.getName().concat(testData.toString()));
                             finalList.add(easyMethod);
                         }
@@ -407,11 +407,11 @@ public class DataDrivenTestRunner extends BaseSuite {
          * @return a compiled {@link Statement} object to be evaluated
          */
 
-        public Statement methodBlock(final FrameworkMethod method) {
-            //An example of Composition or whole-part relationship.Information flows only in one direction.
-            //An instance of InternalParameterizedStatement will be destroyed if an instance of DataDrivenTestRunner is destroyed. 
-            return new InternalParameterizedStatement(method, testResult, testReportContainer, writableData, getTestClass(), testInstance);
-        }
+//        public Statement methodBlock(final FrameworkMethod method) {
+//            //An example of Composition or whole-part relationship.Information flows only in one direction.
+//            //An instance of InternalParameterizedStatement will be destroyed if an instance of DataDrivenTestRunner is destroyed. 
+//            //return new InternalParameterizedStatement(method, testReportContainer, writableData, getTestClass(), testInstance);
+//        }
 
         /**
          * Returns a {@link Statement}: run all non-overridden {@code @AfterClass} methods on this class and

@@ -1,5 +1,7 @@
 package org.easetech.easytest.runner;
 
+import java.util.Map;
+
 import java.lang.reflect.Method;
 
 import org.junit.runners.model.FrameworkMethod;
@@ -14,16 +16,19 @@ public class EasyFrameworkMethod extends FrameworkMethod {
     /**
      * The name of the method
      */
-    private String methodName = "";
+    private String methodName;
+    
+    private final Map<String, Object> testData; 
     
     /**
      * 
      * Construct a new EasyFrameworkMethod
      * @param method the method
      */
-    public EasyFrameworkMethod(Method method) {
+    public EasyFrameworkMethod(Method method , Map<String, Object> testData) {
         super(method);
-        methodName = method.getName();
+        this.methodName = method.getName();
+        this.testData = testData;
         
     }
     
@@ -42,5 +47,14 @@ public class EasyFrameworkMethod extends FrameworkMethod {
     public void setName(String name){
         this.methodName = name;
     }
+
+    /**
+     * @return the testData
+     */
+    public Map<String, Object> getTestData() {
+        return testData;
+    }
+    
+    
 
 }

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(TransactionalTestRunner.class)
 @DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
-//@Report
+@Report
 @TestConfigProvider({TestConfigProviderClass.class})
 public class TestExcelDataLoader {
     
@@ -108,7 +108,7 @@ public class TestExcelDataLoader {
         if(libId.getId() != null){
             Assert.fail("libId should be NULL");
         }else if(itemId.getId() != null){
-            Assert.fail("libId should be NULL");
+            Assert.fail("itemId should be NULL");
         }
         
     }
