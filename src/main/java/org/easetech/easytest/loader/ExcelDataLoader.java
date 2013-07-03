@@ -493,7 +493,7 @@ public class ExcelDataLoader implements Loader {
         // Sheet sheet = workbook.getSheetAt(0);
 
         // LOG.debug("workbook.getActiveSheetIndex()" + workbook.getActiveSheetIndex());
-        sheet = workbook.getSheetAt(workbook.getActiveSheetIndex());
+        //sheet = workbook.getSheetAt(workbook.getActiveSheetIndex());
         int rowNum = sheet.getLastRowNum();
         LOG.debug("sheet.getLastRowNum()" + sheet.getLastRowNum());
 

@@ -23,13 +23,13 @@ public class ReportDataContainer {
 	/**
 	 * Holds all the test results
 	 */
-	private List<TestResultBean> testResults;
+	private volatile List<TestResultBean> testResults;
 
 	/**
 	 * Holds the test results for method. Key is test method name, value is a
 	 * list of test results
 	 */
-	private Map<String, List<TestResultBean>> methodTestResults;
+	private volatile Map<String, List<TestResultBean>> methodTestResults;
 
 	// TODO map method, list duration ??? This can also be obtained from the
 	// testresultbean list
@@ -72,7 +72,7 @@ public class ReportDataContainer {
 		this.addTestResult(testResultBean);
 	}
 
-	public void addTestResult(TestResultBean testResult) {
+	public synchronized void addTestResult(TestResultBean testResult) {
 		String key = testResult.getMethod();
 		List<TestResultBean> list = this.methodTestResults.get(key);
 		if (list == null) {

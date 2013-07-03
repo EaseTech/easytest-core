@@ -1,17 +1,14 @@
 
 package org.easetech.easytest.example;
 
-import junit.framework.Assert;
-
 import javax.inject.Inject;
-
+import junit.framework.Assert;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
+import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Param;
-import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.TestConfigProvider;
-import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +21,7 @@ import org.slf4j.LoggerFactory;
 @DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
 @Report
 @TestConfigProvider({TestConfigProviderClass.class})
+@Parallel
 public class TestExcelDataLoader {
     
     @Intercept
@@ -37,7 +35,7 @@ public class TestExcelDataLoader {
     
     @Before
     public void before(){
-        System.out.println("IS THIS GETTING CALLEDDDDDDDDDDDDDDDDD");
+        System.out.println("BEFORE");
     }
     
    
@@ -46,8 +44,8 @@ public class TestExcelDataLoader {
     public void getExcelTestData(@Param(name="libraryId")
     Float libraryId, @Param(name="itemId")
     Float itemId) {
-        System.out.print("Executing getExcelTestData :");
-        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
+        System.out.println("Executing getExcelTestData :");
+        
     }
 
     @Test
@@ -55,11 +53,11 @@ public class TestExcelDataLoader {
     public Item getExcelTestDataWithDouble(@Param(name="libraryId")
     Double libraryId, @Param(name="itemId")
     Double itemId) {
-        System.out.print("Executing getExcelTestDataWithDouble :");
+        System.out.println("Executing getExcelTestDataWithDouble :");
         // if(itemId.equals(11568.0D)){
         // Assert.fail("ItemId is 11568 but should be 2");
         // }
-        System.out.println("LibraryId Anuj is :" + libraryId + " and Item Id is :" + itemId);
+        
         //itemService.testString = "String";
         Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
             new ItemId(Long.valueOf(itemId.longValue())));
@@ -69,14 +67,14 @@ public class TestExcelDataLoader {
     @Test
     public void getExcelTestDataWithString(@Param(name="libraryId")
     String libraryId, @Param(name="itemId")String itemId, @Param(name="expected") String expectedItems) {
-        System.out.print("Executing getExcelTestDataWithString :");
-        System.out.println("LibraryId is :" + libraryId + " and Item Id is :" + itemId + " and ExpectedItems is :" + expectedItems);
+        System.out.println("Executing getExcelTestDataWithString :");
+        
     }
 
     @Test
     public void getExcelTestDataNumberFormat() {
-        System.out.print("Executing getExcelTestDataNumberFormat :");
-        System.out.println("This is a simple test");
+        System.out.println("Executing getExcelTestDataNumberFormat :");
+        
         //throw new RuntimeException("testqwe");
     }
 
@@ -105,6 +103,7 @@ public class TestExcelDataLoader {
     
     @Test
     public void testEmptyCellData(LibraryId libId , ItemId itemId){
+        System.out.println("Executing testEmptyCellData");
         if(libId.getId() != null){
             Assert.fail("libId should be NULL");
         }else if(itemId.getId() != null){
@@ -116,7 +115,7 @@ public class TestExcelDataLoader {
     
     @Test
     public String testNoData(){
-        System.out.println("ANUJ TEST NO DATA");
+        System.out.println("Executing testNoData");
         return "Anuj";
     }
    
