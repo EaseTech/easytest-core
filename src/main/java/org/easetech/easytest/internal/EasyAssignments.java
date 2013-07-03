@@ -23,7 +23,7 @@ public class EasyAssignments {
     /**
      * A list of {@link PotentialAssignment} that have already been used by the test framework
      */
-    private List<PotentialAssignment> fAssigned;
+    private final List<PotentialAssignment> fAssigned;
 
     /**
      * A list of unassigned {@link EasyParamSignature}.
@@ -88,10 +88,10 @@ public class EasyAssignments {
         return values;
     }
 
-    public List<PotentialAssignment> potentialsForNextUnassigned() throws InstantiationException,
+    public List<PotentialAssignment> potentialsForNextUnassigned(String testMethodName) throws InstantiationException,
         IllegalAccessException {
         EasyParamSignature unassigned = nextUnassigned();
-        return getSupplier(unassigned).getValueSources(unassigned);
+        return getSupplier(unassigned).getValueSources(testMethodName , unassigned);
     }
 
     /**

@@ -27,18 +27,14 @@ public final class DataContext {
      * DataContext thread local variable that will hold the data for easy consumption by the test cases.
      * Look at {@link #setConvertedData(Map)} for details.
      */
-    public static final ThreadLocal<Map<String, List<Map<String , Object>>>> convertedDataThreadLocal = new ThreadLocal<Map<String, List<Map<String , Object>>>>();
+    public static final InheritableThreadLocal<Map<String, List<Map<String , Object>>>> convertedDataThreadLocal = new InheritableThreadLocal<Map<String, List<Map<String , Object>>>>();
     
     /**
      * DataContext thread local variable that will hold the data for easy consumption by the test cases.
      * Look at {@link #setData(Map)} for details.
      */
-    public static final ThreadLocal<Map<String, List<Map<String , Object>>>> dataContextThreadLocal = new ThreadLocal<Map<String, List<Map<String , Object>>>>();
-    
-    /**
-     * Test Method Name Context thread local variable that will hold the name of the test method currently executing.
-     */
-    public static final ThreadLocal<String> nameContextThreadLocal = new ThreadLocal<String>();
+    public static final InheritableThreadLocal<Map<String, List<Map<String , Object>>>> dataContextThreadLocal = new InheritableThreadLocal<Map<String, List<Map<String , Object>>>>();
+
     
     /**
      * Sets the Data.
@@ -156,25 +152,6 @@ public final class DataContext {
     public static void clearConvertedData() {
     	convertedDataThreadLocal.remove();
     }
-    
-    public static String getMethodName(){
-        return nameContextThreadLocal.get();
-    }
 
-    /**
-     * Sets the data
-     * 
-     * @param  name to set
-     */
-    public static void setMethodName(String name) {
-        nameContextThreadLocal.set(name);
-    }
-    
-    /**
-     * Clears the data
-     */
-    public static void clearNameData() {
-        nameContextThreadLocal.remove();
-    }
 
 }
