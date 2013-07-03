@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
 @Report
 @TestConfigProvider({TestConfigProviderClass.class})
-@Parallel
+@Parallel(threads=8)
 public class TestExcelDataLoader {
     
     @Intercept
@@ -37,8 +37,6 @@ public class TestExcelDataLoader {
     public void before(){
         System.out.println("BEFORE");
     }
-    
-   
 
     @Test
     public void getExcelTestData(@Param(name="libraryId")
