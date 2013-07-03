@@ -1,5 +1,7 @@
 package org.easetech.easytest.util;
 
+import org.easetech.easytest.converter.ConverterManager;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +141,9 @@ public class RunAftersWithOutputData extends Statement {
         	long end = (System.nanoTime() - start) / 1000000;
         	LOG.debug("Writing reports took: {} ms.", end);
         }
+        ConverterManager.cleanConverters();
+        ConfigContext.cleanConfigContext();
+        DataContext.cleanData();
     }
     
     private Future<Boolean> processReports(ReportDataContainer testReportContainer) {

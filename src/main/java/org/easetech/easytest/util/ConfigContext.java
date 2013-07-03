@@ -88,5 +88,10 @@ public final class ConfigContext {
         }
         return beanTypesMap.get(beanType);
     }
+    
+    public static void cleanConfigContext() {
+        beansByName.remove();
+        beansByType.remove();
+    }
 
 }

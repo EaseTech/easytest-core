@@ -268,6 +268,7 @@ public @interface Param {
                     // Try to find the Converter
                     Converter<?> converter = ConverterManager.findConverter(idClass);
                     if (converter != null) {
+                        System.out.println("Converter found for class " + idClass);
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Converter for class " + idClass + "  found. ");
                         }

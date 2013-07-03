@@ -13,6 +13,7 @@ public class ItemConverter extends AbstractConverter<Item> {
         if (convertFrom != null) {
             item = new Item();
             item.setDescription((String) convertFrom.get("itemDescription"));
+            System.out.println(convertFrom.get("itemId"));
             item.setItemId(new ItemId(Long.valueOf((String) convertFrom.get("itemId"))));
             item.setItemType((String) convertFrom.get("itemType"));
         }
