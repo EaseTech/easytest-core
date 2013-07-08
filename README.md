@@ -1,5 +1,6 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
+
 Download EasyTest simply by including the latest version of easytest-core and easytest-spring modules from Maven in your pom file.
    
         <groupId>org.easetech</groupId>

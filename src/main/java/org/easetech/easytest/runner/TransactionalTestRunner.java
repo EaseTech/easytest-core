@@ -3,11 +3,6 @@
  */
 package org.easetech.easytest.runner;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import org.junit.runners.model.RunnerScheduler;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -15,14 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.inject.Inject;
-
 import net.sf.cglib.proxy.Enhancer;
-
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
+import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.annotation.TestProperties;
@@ -34,6 +27,7 @@ import org.easetech.easytest.interceptor.MethodIntercepter;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.DataLoaderUtil;
 import org.easetech.easytest.reports.data.ReportDataContainer;
+import org.easetech.easytest.strategy.SchedulerStrategy;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.RunAftersWithOutputData;
 import org.easetech.easytest.util.TestInfo;
@@ -109,23 +103,15 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
 	public TransactionalTestRunner(Class<?> klass) throws InitializationError {
 
 		super(klass);
-		super.setScheduler(new RunnerScheduler() {
-                private final ExecutorService fService = Executors.newCachedThreadPool();
-
-                public void schedule(Runnable childStatement) {
-                    fService.submit(childStatement);
-                }
-
-                public void finished() {
-                    try {
-                        fService.shutdown();
-                        fService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace(System.err);
-                    }
-                }
-            });
 		Class<?> testClass = getTestClass().getJavaClass();
+		//PENDING: This is not a nice way to define scheduler
+		//but it is required at the moment because JUnit tests can run in parallel,
+		//from either command line or from Maven plugins.
+		//Have to look at a more robust solution.
+		if(testClass.getAnnotation(Parallel.class) != null) {
+		    super.setScheduler(SchedulerStrategy.getScheduler(testClass));
+		}
+				
 		/*STEP 1: Load the Test Config beans */ 				
         TestConfigUtil.loadTestBeanConfig(testClass);
         // Load the data at the class level, if any.

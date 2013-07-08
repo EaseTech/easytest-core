@@ -1,5 +1,4 @@
-
-package org.easetech.easytest.example;
+package org.easetech.easytest.conditions;
 
 
 
@@ -10,13 +9,14 @@ import java.util.TreeMap;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.converter.ConverterManager;
+import org.easetech.easytest.example.CustomObjectDataLoader;
+import org.easetech.easytest.example.ItemConverter;
+import org.easetech.easytest.example.ItemId;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 /**

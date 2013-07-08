@@ -325,11 +325,14 @@ public class CSVDataLoader implements Loader {
                     if(length == 1){
                         //implies that the test method does not take any input parameters
                         //We should then handle writing the output data specific to easyTest here and now.
-                        Map<String, Object> currentRowData = currentMethodData.get(dataRowIndex++);
-                        String[] finalValues = new String[dataKeys.length];
-                        finalValues[0] = EMPTY_STRING;
-                        writeOutputData(currentRowData, finalValues, dataKeys);
-                        writableData.add(finalValues);
+                        if(! currentMethodData.isEmpty()) {
+                            Map<String, Object> currentRowData = currentMethodData.get(dataRowIndex++);
+                            String[] finalValues = new String[dataKeys.length];
+                            finalValues[0] = EMPTY_STRING;
+                            writeOutputData(currentRowData, finalValues, dataKeys);
+                            writableData.add(finalValues);
+                        }
+                        
                     }
                 } else {
                     if (!writeDataForMethod(currentMethodName, methodNames)) {

@@ -153,5 +153,9 @@ public final class DataContext {
     	convertedDataThreadLocal.remove();
     }
 
+    public static void cleanData() {
+        clearData();
+        clearConvertedData();
+    }
 
 }
