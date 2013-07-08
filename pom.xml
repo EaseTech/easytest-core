@@ -71,7 +71,7 @@
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
 				<artifactId>maven-jaxb2-plugin</artifactId>
-				<version>0.8.3</version>
+				<version>0.6.2</version>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>
@@ -91,12 +91,12 @@
 								<plugin>
 									<groupId>org.jvnet.jaxb2_commons</groupId>
 									<artifactId>jaxb2-basics-annotate</artifactId>
-									<version>0.6.4</version>
+									<version>0.6.2</version>
 								</plugin>
 								<plugin>
 									<groupId>org.jvnet.jaxb2_commons</groupId>
 									<artifactId>jaxb2-basics</artifactId>
-									<version>0.6.4</version>
+									<version>0.6.2</version>
 								</plugin>
 							</plugins>
 						</configuration>
