@@ -1,17 +1,20 @@
 /**
  * 
  */
+
 package org.easetech.easytest.runner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 import net.sf.cglib.proxy.Enhancer;
+import org.apache.poi.ss.formula.functions.Value;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
@@ -21,12 +24,14 @@ import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
+import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
 import org.easetech.easytest.interceptor.MethodIntercepter;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.DataLoaderUtil;
 import org.easetech.easytest.reports.data.ReportDataContainer;
+import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.strategy.SchedulerStrategy;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.RunAftersWithOutputData;
@@ -35,7 +40,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.runners.model.ReflectiveCallable;
+import org.junit.internal.runners.statements.Fail;
+import org.junit.rules.RunRules;
+import org.junit.rules.TestRule;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -46,80 +56,83 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * Construct a new DataDrivenTestRunner. The algorithm of constructing and making the runner ready for execution is as follows:<br>
+ * Construct a new DataDrivenTestRunner. The algorithm of constructing and making the runner ready for execution is as
+ * follows:<br>
  * <ul>
- * <li> Load the Test Bean Configurations that are defined at the class level using the {@link TestConfigProvider} annotation.<br>
- * (For details on how he test bean is loaded look at {@link TestConfigUtil#loadTestBeanConfig(Class)}) method. </li>
- * <li> Next, load the input test data, if any, at the class level. We mention if any because the input test data can be loaded
- * per method as well instead of loading it at the class level.<br>
+ * <li>Load the Test Bean Configurations that are defined at the class level using the {@link TestConfigProvider}
+ * annotation.<br>
+ * (For details on how he test bean is loaded look at {@link TestConfigUtil#loadTestBeanConfig(Class)}) method.</li>
+ * <li>Next, load the input test data, if any, at the class level. We mention if any because the input test data can be
+ * loaded per method as well instead of loading it at the class level.<br>
  * (For details on how the input test data is loaded, look at {@link DataLoaderUtil#loadData}) method.</li>
- * <li> Next, we registers the converters, if any, declared at the class level using {@link Converters} annotation </li>
- * <li> We then move to inject the fields in the test class marked with {@link Provided} or {@link Inject} annotation with the test beans
- * that were loaded in step 1 above. </li>
- * <li> Next, we try to resolve any test properties that are specified on the test class using the {@link TestProperties} annotation.<br>
- * Note that {@link TestProperties} annotation requires a filed of type {@link Properties} be defined at the class level.
- * Look at {@link TestConfigUtil#loadResourceProperties(Class, Object)} method for details.</li>
- * <li> We finally create a proxy for the class under test, if it is marked with {@link Intercept} annotation. 
- * This helps in intercepting the method calls to the class under test and perform any initialization/destruction logic
+ * <li>Next, we registers the converters, if any, declared at the class level using {@link Converters} annotation</li>
+ * <li>We then move to inject the fields in the test class marked with {@link Provided} or {@link Inject} annotation
+ * with the test beans that were loaded in step 1 above.</li>
+ * <li>Next, we try to resolve any test properties that are specified on the test class using the {@link TestProperties}
+ * annotation.<br>
+ * Note that {@link TestProperties} annotation requires a filed of type {@link Properties} be defined at the class
+ * level. Look at {@link TestConfigUtil#loadResourceProperties(Class, Object)} method for details.</li>
+ * <li>We finally create a proxy for the class under test, if it is marked with {@link Intercept} annotation. This helps
+ * in intercepting the method calls to the class under test and perform any initialization/destruction logic
  * before/after the method execution.</li>
  * 
  * @author Anuj Kumar
  */
 public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
-	
-	/**
+
+    /**
      * An instance of logger associated with the test framework.
      */
     private final Logger LOG = LoggerFactory.getLogger(TransactionalTestRunner.class);
-	
-	/**
+
+    /**
      * An instance of {@link Map} that contains the data to be written to the File
      */
     private Map<String, List<Map<String, Object>>> writableData = new HashMap<String, List<Map<String, Object>>>();
-    
+
     /**
      * Convenient class member to get the list of {@link FrameworkMethod} that this runner will execute.
      */
     private final List<FrameworkMethod> frameworkMethods;
-    
+
     /**
      * The actual instance of the test class. This is extremely handy in cases where we want to reflectively set
      * instance fields on a test class.
      */
     private final Object testInstance;
-    
+
     /**
      * The report container which holds all the reporting data
      */
     private final ReportDataContainer testReportContainer;
 
-
     /**
      * Look at {@link TransactionalTestRunner} for details.
+     * 
      * @see TransactionalTestRunner
      * @param klass
      * @throws InitializationError
      */
-	public TransactionalTestRunner(Class<?> klass) throws InitializationError {
+    public TransactionalTestRunner(Class<?> klass) throws InitializationError {
 
-		super(klass);
-		Class<?> testClass = getTestClass().getJavaClass();
-		//PENDING: This is not a nice way to define scheduler
-		//but it is required at the moment because JUnit tests can run in parallel,
-		//from either command line or from Maven plugins.
-		//Have to look at a more robust solution.
-		if(testClass.getAnnotation(Parallel.class) != null) {
-		    super.setScheduler(SchedulerStrategy.getScheduler(testClass));
-		}
-				
-		/*STEP 1: Load the Test Config beans */ 				
+        super(klass);
+        Class<?> testClass = getTestClass().getJavaClass();
+        // PENDING: This is not a nice way to define scheduler
+        // but it is required at the moment because JUnit tests can run in parallel,
+        // from either command line or from Maven plugins.
+        // Have to look at a more robust solution.
+        if (testClass.getAnnotation(Parallel.class) != null) {
+            super.setScheduler(SchedulerStrategy.getScheduler(testClass));
+        }
+
+        /* Load the Test Config beans */
         TestConfigUtil.loadTestBeanConfig(testClass);
         // Load the data at the class level, if any.
         DataLoaderUtil.loadData(klass, null, getTestClass(), writableData);
-        
-        /* Register Converters declared by @Converters annotation at the class level*/
+
+        /* Register Converters declared by @Converters annotation at the class level */
         registerConverter(testClass.getAnnotation(org.easetech.easytest.annotation.Converters.class));
-        
+
         try {
             testInstance = getTestClass().getOnlyConstructor().newInstance();
             TestConfigUtil.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
@@ -135,20 +148,19 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
             throw new RuntimeException(e);
         }
 
-	}
-	
-	protected List<FrameworkMethod> computeTestMethods() {
-	    return frameworkMethods;
-	}
-        
-	
-	/**
-     * Overridden the compute test method to make it save the method list as class instance, so that the method does
-     * not run multiple times. Also, this method now is responsible for creating multiple {@link FrameworkMethod}
-     * instances for a given method with multiple test data. So, if a given test method needs to run three times
-     * with three set of input test data, then this method will actually create three instances of
-     * {@link FrameworkMethod}. In order to allow the user to override the default name, {@link FrameworkMethod} is
-     * extended with {@link EasyFrameworkMethod} and {@link EasyFrameworkMethod#setName(String)} method introduced.
+    }
+
+    protected List<FrameworkMethod> computeTestMethods() {
+        return frameworkMethods;
+    }
+
+    /**
+     * Overridden the compute test method to make it save the method list as class instance, so that the method does not
+     * run multiple times. Also, this method now is responsible for creating multiple {@link FrameworkMethod} instances
+     * for a given method with multiple test data. So, if a given test method needs to run three times with three set of
+     * input test data, then this method will actually create three instances of {@link FrameworkMethod}. In order to
+     * allow the user to override the default name, {@link FrameworkMethod} is extended with {@link EasyFrameworkMethod}
+     * and {@link EasyFrameworkMethod#setName(String)} method introduced.
      * 
      * @return list of {@link FrameworkMethod}
      */
@@ -158,11 +170,11 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
         List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
         // Iterator<FrameworkMethod> testMethodsItr = super.computeTestMethods().iterator();
         Class<?> testClass = getTestClass().getJavaClass();
-        
+
         List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
         List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
-        
+
         for (FrameworkMethod method : availableMethods) {
             // Try loading the data if any at the method level
             if (method.getAnnotation(DataLoader.class) != null) {
@@ -170,14 +182,13 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                 methodsWithData.add(method);
             } else {
                 // Method does not have its own dataloader annotation
-                 //Does method need input data ??
-                if(method.getMethod().getParameterTypes().length == 0){
+                // Does method need input data ??
+                if (method.getMethod().getParameterTypes().length == 0) {
                     methodsWithNoData.add(method);
-                }
-                else{
-                 // Does method have data already loaded?
-                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
-                        method.getName(), testClass));
+                } else {
+                    // Does method have data already loaded?
+                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter
+                        .getFullyQualifiedTestName(method.getName(), testClass));
                     if (methodDataLoaded) {
                         methodsWithData.add(method);
                     } else {
@@ -185,11 +196,11 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                     }
                 }
             }
-            //Next Try registering the converters, if any at the method level
+            // Next Try registering the converters, if any at the method level
             registerConverter(method.getAnnotation(Converters.class));
 
         }
-        
+
         for (FrameworkMethod methodWithData : methodsWithData) {
             String superMethodName = DataConverter.getFullyQualifiedTestName(methodWithData.getName(), testClass);
             for (FrameworkMethod method : availableMethods) {
@@ -207,12 +218,16 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                             + "or a spelling mismatch in the method name. Check logs for more details.");
                     }
                     for (Map<String, Object> testData : methodData) {
+                        TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod().getName(),
+                            new Date());
+                        testReportContainer.addTestResult(testResultBean);
                         // Create a new FrameworkMethod for each set of test data
-                        EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod() , testData);
+                        EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
+                            testResultBean);
                         easyMethod.setName(method.getName().concat(testData.toString()));
                         finalList.add(easyMethod);
                     }
-                    
+
                     // Since the runner only ever handles a single method, we break out of the loop as soon as we
                     // have
                     // found our method.
@@ -220,8 +235,10 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                 }
             }
         }
-        for(FrameworkMethod fMethod : methodsWithNoData) {
-            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod() , null);
+        for (FrameworkMethod fMethod : methodsWithNoData) {
+            TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
+            testReportContainer.addTestResult(testResultBean);
+            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod(), null, testResultBean);
             finalList.add(easyMethod);
         }
         if (finalList.isEmpty()) {
@@ -229,8 +246,8 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
         }
         return finalList;
     }
-	
-	/**
+
+    /**
      * Instrument the class's field that are marked with {@link Intercept} annotation
      * 
      * @param testClass the class under test
@@ -248,27 +265,23 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                 Class<? extends MethodIntercepter> interceptorClass = interceptor.interceptor();
                 // This is the field we want to enhance
                 Class<?> fieldType = field.getType();
-                
+
                 Object fieldInstance = field.get(testInstance);
                 Object proxiedObject = null;
                 if (fieldType.isInterface()) {
-                    LOG
-                    .debug("The field of type :"
-                        + fieldType + " will be proxied using JDK dynamic proxies.");
-                    
-                    ClassLoader classLoader = determineClassLoader(fieldType , testClass);
-                    
-                    Class<?>[] interfaces = {fieldType};
-                    //use JDK dynamic proxy
+                    LOG.debug("The field of type :" + fieldType + " will be proxied using JDK dynamic proxies.");
+
+                    ClassLoader classLoader = determineClassLoader(fieldType, testClass);
+
+                    Class<?>[] interfaces = { fieldType };
+                    // use JDK dynamic proxy
                     InternalInvocationhandler handler = new InternalInvocationhandler();
                     handler.setUserIntercepter(interceptorClass.newInstance());
                     handler.setTargetInstance(fieldInstance);
                     proxiedObject = Proxy.newProxyInstance(classLoader, interfaces, handler);
-                    
+
                 } else {
-                    LOG
-                    .debug("The field of type :"
-                        + fieldType + " will be proxied using CGLIB proxies.");
+                    LOG.debug("The field of type :" + fieldType + " will be proxied using CGLIB proxies.");
                     Enhancer enhancer = new Enhancer();
                     enhancer.setSuperclass(fieldType);
                     InternalInterceptor cglibInterceptor = new InternalInterceptor();
@@ -284,7 +297,8 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
                     }
 
                 } catch (Exception e) {
-                    LOG.error("Failed while trying to instrument the class for Intercept annotation with exception : ", e);
+                    LOG.error("Failed while trying to instrument the class for Intercept annotation with exception : ",
+                        e);
                     Assert
                         .fail("Failed while trying to instrument the class for Intercept annotation with exception : "
                             + e);
@@ -292,21 +306,22 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
             }
         }
     }
-    
+
     /**
      * Determine the right class loader to use to load the class
+     * 
      * @param fieldType
      * @param testClass
      * @return the classLoader or null if none found
      */
-    protected ClassLoader determineClassLoader(Class<?> fieldType , Class<?> testClass){
+    protected ClassLoader determineClassLoader(Class<?> fieldType, Class<?> testClass) {
         ClassLoader cl = testClass.getClassLoader();
         try {
-            if(Class.forName(fieldType.getName(), false, cl) == fieldType){
+            if (Class.forName(fieldType.getName(), false, cl) == fieldType) {
                 return cl;
-            }else{
+            } else {
                 cl = Thread.currentThread().getContextClassLoader();
-                if(Class.forName(fieldType.getName(), false, cl) == fieldType){
+                if (Class.forName(fieldType.getName(), false, cl) == fieldType) {
                     return cl;
                 }
             }
@@ -316,14 +331,14 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
         }
         return null;
     }
-	
-	/**
+
+    /**
      * Method responsible for registering the converters with the EasyTest framework
      * 
      * @param converter the annotation {@link Converters}
      */
     @SuppressWarnings("rawtypes")
-	public void registerConverter(Converters converter) {
+    public void registerConverter(Converters converter) {
         if (converter != null) {
             Class<? extends Converter>[] convertersToRegister = converter.value();
             if (convertersToRegister != null && convertersToRegister.length != 0) {
@@ -334,10 +349,10 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
         }
 
     }
-	
-	/**
-     * Override the name of the test. In case of EasyTest, it will be the name of the test method concatenated with
-     * the input test data that the method will run with.
+
+    /**
+     * Override the name of the test. In case of EasyTest, it will be the name of the test method concatenated with the
+     * input test data that the method will run with.
      * 
      * @param method the {@link FrameworkMethod}
      * @return an overridden test method Name
@@ -346,7 +361,7 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
     protected String testName(final FrameworkMethod method) {
         return String.format("%s", method.getName());
     }
-    
+
     /**
      * Validate that there could ever be only one constructor.
      * 
@@ -356,23 +371,22 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
     protected void validateConstructor(List<Throwable> errors) {
         validateOnlyOneConstructor(errors);
     }
-    
-    /**
-	 * Adds to {@code errors} for each method annotated with {@code @Test},
-	 * {@code @Before}, or {@code @After} that is not a public, void instance
-	 * method with no arguments.
-	 * 
-	 * @deprecated unused API, will go away in future version
-	 */
-	@Deprecated
-	protected void validateInstanceMethods(List<Throwable> errors) {
-		validatePublicVoidNoArgMethods(After.class, false, errors);
-		validatePublicVoidNoArgMethods(Before.class, false, errors);
-		validateTestMethods(errors);
 
-		if (getTestClass().getAnnotatedMethods(Test.class).size() == 0)
-			errors.add(new Exception("No runnable methods"));
-	}
+    /**
+     * Adds to {@code errors} for each method annotated with {@code @Test}, {@code @Before}, or {@code @After} that is
+     * not a public, void instance method with no arguments.
+     * 
+     * @deprecated unused API, will go away in future version
+     */
+    @Deprecated
+    protected void validateInstanceMethods(List<Throwable> errors) {
+        validatePublicVoidNoArgMethods(After.class, false, errors);
+        validatePublicVoidNoArgMethods(Before.class, false, errors);
+        validateTestMethods(errors);
+
+        if (getTestClass().getAnnotatedMethods(Test.class).size() == 0)
+            errors.add(new Exception("No runnable methods"));
+    }
 
     /**
      * Validate the test methods.
@@ -383,7 +397,7 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
     protected void validateTestMethods(List<Throwable> errors) {
         // Do Nothing as we now support public non void arg test methods
     }
-    
+
     /**
      * Override the methodBlock to return custom {@link ParamAnchor}
      * 
@@ -391,21 +405,140 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
      * @return a compiled {@link Statement} object to be evaluated
      */
 
-    public Statement methodBlock(final FrameworkMethod method) {
-        //An example of Composition or whole-part relationship.Information flows only in one direction.
-        //An instance of InternalParameterizedStatement will be destroyed if an instance of DataDrivenTestRunner is destroyed. 
-        return new InternalParameterizedStatement((EasyFrameworkMethod)method, testReportContainer, getTestClass(), testInstance);
+    // public Statement methodBlock(final FrameworkMethod method) {
+    // //This is the NEW ALGO:
+    // //1. For each test method created using computeTestMethod, create a new instance of TestResultBean. - DONE
+    // //2. Give this instance to the test method. - DONE
+    // //3. Override the methodInvoker method to create a new instance similar to InvokeMethod class.
+    // //3.1 This new Class will be responsible for the actual processing of test method and EasyTest related
+    // functionality
+    // //3.2 This class will also be responsible for updating the instance of TestResultBean class with the appropriate
+    // data.
+    // //4. Add the same logic of applying before , after and rules to the actual method.
+    // //5. Add an extra processor/statement/rule that will update the the TestResultBean with the final SUCCESS/FAILURE
+    // message.
+    // //6. Create ReportDataContainer instance during initialization and inside computeTestMethod, while creating an
+    // instance of
+    // // each test method, also create an instance of TestResultBean and add it to the ReportDataContainer.
+    // //With the above logic, things will become more streamlined and less complicated. Also, hopefully we can remove
+    // //some dependency on ThreadLocal variables.
+    //
+    // //An example of Composition or whole-part relationship.Information flows only in one direction.
+    // //An instance of InternalParameterizedStatement will be destroyed if an instance of DataDrivenTestRunner is
+    // destroyed.
+    // return new InternalParameterizedStatement((EasyFrameworkMethod)method, getTestClass(), testInstance);
+    // }
+
+    protected Statement methodBlock(FrameworkMethod method) {
+        Object test;
+        try {
+            test = new ReflectiveCallable() {
+                @Override
+                protected Object runReflectiveCall() throws Throwable {
+                    return createTest();
+                }
+            }.run();
+        } catch (Throwable e) {
+            return new Fail(e);
+        }
+
+        Statement statement = methodInvoker(method, test);
+        statement = possiblyExpectingExceptions(method, test, statement);
+        statement = withPotentialTimeout(method, test, statement);
+        statement = withBefores(method, test, statement);
+        statement = withAfters(method, test, statement);
+        statement = withRules(method, test, statement);
+        statement = withTestResult((EasyFrameworkMethod)method, test, statement);
+        return statement;
     }
     
+    protected Statement withTestResult(final EasyFrameworkMethod method, Object target, final Statement statement) {
+        return new Statement() {
+            
+            @Override
+            public void evaluate() throws Throwable {
+                TestResultBean testResult = method.getTestResult();
+                try {
+                    statement.evaluate();
+                    testResult.setPassed(Boolean.TRUE);
+                } catch (Throwable e) {
+
+                    if (e instanceof AssertionError) { // Assertion error
+                        testResult.setPassed(Boolean.FALSE);
+                        testResult.setResult(e.getMessage());                       
+
+                    } else { // Exception
+                        testResult.setException(Boolean.TRUE);
+                        testResult.setExceptionResult(e.toString());
+
+                    }
+                    throw new ParamAssertionError(e, method.getName());
+                }
+                
+            }
+        };
+    }
+
+
+    private Statement withRules(FrameworkMethod method, Object target, Statement statement) {
+        Statement result = statement;
+        result = withMethodRules(method, target, result);
+        result = withTestRules(method, target, result);
+        return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private Statement withMethodRules(FrameworkMethod method, Object target, Statement result) {
+        List<TestRule> testRules = getTestRules(target);
+        for (org.junit.rules.MethodRule each : getMethodRules(target))
+            if (!testRules.contains(each))
+                result = each.apply(result, method, target);
+        return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private List<org.junit.rules.MethodRule> getMethodRules(Object target) {
+        return rules(target);
+    }
+
     /**
-     * Returns a {@link Statement}: run all non-overridden {@code @AfterClass} methods on this class and
-     * superclasses before executing {@code statement}; all AfterClass methods are always executed: exceptions
-     * thrown by previous steps are combined, if necessary, with exceptions from AfterClass methods into a
-     * {@link MultipleFailureException}.
+     * @param target the test case instance
+     * @return a list of MethodRules that should be applied when executing this test
+     * @deprecated {@link org.junit.rules.MethodRule} is a deprecated interface. Port to {@link TestRule} and
+     *             {@link BlockJUnit4ClassRunner#getTestRules(Object)}
+     */
+    @Deprecated
+    protected List<org.junit.rules.MethodRule> rules(Object target) {
+        return getTestClass().getAnnotatedFieldValues(target, Rule.class, org.junit.rules.MethodRule.class);
+    }
+
+    /**
+     * Returns a {@link Statement}: apply all non-static {@link Value} fields annotated with {@link Rule}.
      * 
-     * This method is also responsible for writing the data to the output file in case the user is returning test
-     * data from the test method. This method will make sure that the data is written to the output file once after
-     * the Runner has completed and not for every instance of the test method.
+     * @param statement The base statement
+     * @return a RunRules statement if any class-level {@link Rule}s are found, or the base statement
+     */
+    private Statement withTestRules(FrameworkMethod method, Object target, Statement statement) {
+        List<TestRule> testRules = getTestRules(target);
+        return testRules.isEmpty() ? statement : new RunRules(statement, testRules, describeChild(method));
+    }
+
+    /**
+     * Returns a {@link Statement} that invokes {@code method} on {@code test}
+     */
+    protected Statement methodInvoker(FrameworkMethod method, Object test) {
+        return new InternalParameterizedStatement((EasyFrameworkMethod) method, getTestClass(), testInstance);
+    }
+
+    /**
+     * Returns a {@link Statement}: run all non-overridden {@code @AfterClass} methods on this class and superclasses
+     * before executing {@code statement}; all AfterClass methods are always executed: exceptions thrown by previous
+     * steps are combined, if necessary, with exceptions from AfterClass methods into a {@link MultipleFailureException}
+     * .
+     * 
+     * This method is also responsible for writing the data to the output file in case the user is returning test data
+     * from the test method. This method will make sure that the data is written to the output file once after the
+     * Runner has completed and not for every instance of the test method.
      */
 
     protected Statement withAfterClasses(Statement statement) {
