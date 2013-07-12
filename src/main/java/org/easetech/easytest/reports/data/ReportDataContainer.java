@@ -64,7 +64,7 @@ public class ReportDataContainer {
 	 * @param exception
 	 * @param exceptionResult
 	 */
-	public synchronized void addTestResult(String method, Map<String, Object> input,
+	public void addTestResult(String method, Map<String, Object> input,
 			Object output, Boolean passed, String result, Boolean exception,
 			String exceptionResult) {
 		TestResultBean testResultBean = new TestResultBean(method, input,
@@ -72,16 +72,20 @@ public class ReportDataContainer {
 		this.addTestResult(testResultBean);
 	}
 
-	public synchronized void addTestResult(TestResultBean testResult) {
-		String key = testResult.getMethod();
-		List<TestResultBean> list = this.methodTestResults.get(key);
-		if (list == null) {
-			list = new ArrayList<TestResultBean>();
-			this.methodTestResults.put(key, list);
-		}
-		list.add(testResult);
+	public void addTestResult(TestResultBean testResult) {
+	    synchronized (this) {
+	        String key = testResult.getMethod();
+	        List<TestResultBean> list = this.methodTestResults.get(key);
+	        
+	        if (list == null) {
+	            list = new ArrayList<TestResultBean>();
+	            this.methodTestResults.put(key, list);
+	        }
+	        list.add(testResult);
 
-		this.testResults.add(testResult);
+	        this.testResults.add(testResult);
+        }
+		
 	}
 
 	public List<TestResultBean> getTestResults() {
