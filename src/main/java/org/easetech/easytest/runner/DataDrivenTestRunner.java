@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
  * @author Anuj Kumar
  * 
  */
+@Deprecated
 public class DataDrivenTestRunner extends BaseSuite {
 
     /**
@@ -344,7 +345,7 @@ public class DataDrivenTestRunner extends BaseSuite {
                         }
                         for (Map<String, Object> testData : methodData) {
                             // Create a new FrameworkMethod for each set of test data
-                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod() , testData);
+                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod() , testData , null);
                             easyMethod.setName(method.getName().concat(testData.toString()));
                             finalList.add(easyMethod);
                         }

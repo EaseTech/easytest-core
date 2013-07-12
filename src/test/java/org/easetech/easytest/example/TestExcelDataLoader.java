@@ -37,6 +37,12 @@ public class TestExcelDataLoader {
     public void before(){
         System.out.println("BEFORE");
     }
+    
+    @Test
+    public String testNoData(){
+        System.out.println("Executing testNoData");
+        return "Anuj";
+    }
 
     @Test
     public void getExcelTestData(@Param(name="libraryId")
@@ -69,9 +75,10 @@ public class TestExcelDataLoader {
         
     }
 
-    @Test
+    @Test(expected=NumberFormatException.class)
     public void getExcelTestDataNumberFormat() {
         System.out.println("Executing getExcelTestDataNumberFormat :");
+        throw new NumberFormatException();
         
         //throw new RuntimeException("testqwe");
     }
@@ -111,11 +118,7 @@ public class TestExcelDataLoader {
     }
     
     
-    @Test
-    public String testNoData(){
-        System.out.println("Executing testNoData");
-        return "Anuj";
-    }
+    
    
 
 }

@@ -3,7 +3,6 @@ package org.easetech.easytest.runner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.exceptions.ParamAssertionError;
@@ -11,7 +10,6 @@ import org.easetech.easytest.internal.EasyAssignments;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.reports.data.DurationBean;
-import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
 import org.easetech.easytest.util.CommonUtils;
@@ -21,7 +19,6 @@ import org.junit.experimental.theories.internal.Assignments;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
@@ -47,11 +44,6 @@ public class InternalParameterizedStatement extends Statement {
      * an instance of {@link FrameworkMethod} identifying the method to be tested.
      */
     private EasyFrameworkMethod fTestMethod;
-
-    /**
-     * The report container which holds all the reporting data
-     */
-    private ReportDataContainer testReportContainer = null;
 
     /**
      * A List of {@link Assignments}. Each member in the list corresponds to a single set of test data to be passed to
@@ -86,10 +78,9 @@ public class InternalParameterizedStatement extends Statement {
     private Object testInstance;
 
     public InternalParameterizedStatement(EasyFrameworkMethod fTestMethod,
-        ReportDataContainer testReportContainer,
+        
         TestClass testClass, Object testInstance) {
         this.fTestMethod = fTestMethod;
-        this.testReportContainer = testReportContainer;
         this.listOfAssignments = new ArrayList<EasyAssignments>();
         this.fTestClass = testClass;
         this.testInstance = testInstance;
@@ -159,24 +150,8 @@ public class InternalParameterizedStatement extends Statement {
      */
     protected void runWithCompleteAssignment(final EasyAssignments complete) throws InstantiationException,
         IllegalAccessException, InvocationTargetException, NoSuchMethodException, Throwable {
-        new BlockJUnit4ClassRunner(getTestClass().getJavaClass()) {
-
-            protected void collectInitializationErrors(List<Throwable> errors) {
-                // do nothing
-            }
-
-            public Statement methodBlock(EasyFrameworkMethod method) {
-                return super.methodBlock(method);
-            }
-
-            protected Statement methodInvoker(FrameworkMethod method, Object test) {
-                return methodCompletesWithParameters((EasyFrameworkMethod)method, complete, test);
-            }
-
-            public Object createTest() throws Exception {
-                return testInstance;
-            }
-        }.methodBlock(fTestMethod).evaluate();
+        
+        methodCompletesWithParameters(fTestMethod, complete, testInstance);
     }
 
     /**
@@ -197,95 +172,90 @@ public class InternalParameterizedStatement extends Statement {
      * @param method an instance of {@link FrameworkMethod} that needs to be executed
      * @param complete an instance of {@link Assignments} that contains the input test data values
      * @param freshInstance a fresh instance of the class for which the method needs to be invoked.
-     * @return an instance of {@link Statement}
+     * @throws Throwable 
      */
-    private Statement methodCompletesWithParameters(final EasyFrameworkMethod method, final EasyAssignments complete,
-        final Object freshInstance) {
+    private void methodCompletesWithParameters(final EasyFrameworkMethod method, final EasyAssignments complete,
+        final Object freshInstance) throws Throwable{
 
         final RunNotifier testRunNotifier = new RunNotifier();
         final TestRunDurationListener testRunDurationListener = new TestRunDurationListener();
         testRunNotifier.addListener(testRunDurationListener);
         final EachTestNotifier eachRunNotifier = new EachTestNotifier(testRunNotifier, null);
+        
+        String currentMethodName = method.getMethod().getName();
+        TestResultBean testResult = method.getTestResult();
+        Map<String, Object> writableRow = method.getTestData();
+        Object returnObj = null;
+        try {
+            final Object[] values = complete.getMethodArguments(true);
 
-        return new Statement() {
-
-            public void evaluate() throws Throwable {
-                String currentMethodName = method.getMethod().getName();
-                TestResultBean testResult = new TestResultBean(currentMethodName , new Date());
-                Object returnObj = null;
-                Map<String, Object> writableRow = method.getTestData();
-                try {
-                    final Object[] values = complete.getMethodArguments(true);
-
-                    testResult.setInput(method.getTestData());
-                    // invoke test method
-                    eachRunNotifier.fireTestStarted();
-                    LOG.debug("Calling method {} with values {}", method.getName(), values);
-                    returnObj = method.invokeExplosively(freshInstance, values);
-                    eachRunNotifier.fireTestFinished();
-                    DurationBean testItemDurationBean = new DurationBean(currentMethodName,
-                        testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
-                    testResult.addTestItemDurationBean(testItemDurationBean);
-                    testResult.setOutput((returnObj == null) ? "void" : returnObj);
-                    testResult.setPassed(Boolean.TRUE);
-                    
-                    if (writableRow != null) {
-                        if (returnObj != null) {
-                            LOG.debug("Data returned by method {} is {} :", method.getName(), returnObj);
-                            writableRow.put(Loader.ACTUAL_RESULT, returnObj); 
-                            Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);
-                            // if expected result exist in user input test data,
-                            // then compare that with actual output result
-                            // and write the status back to writable map data.
-                            if (expectedResult != null) {
-                                LOG.debug("Expected result exists");
-                                if (expectedResult.toString().equals(returnObj.toString())) {
-                                    writableRow.put(Loader.TEST_STATUS, Loader.TEST_PASSED);
-                                } else {
-                                    writableRow.put(Loader.TEST_STATUS, Loader.TEST_FAILED);
-
-                                }
-                            }
+            testResult.setInput(method.getTestData());
+            // invoke test method
+            eachRunNotifier.fireTestStarted();
+            LOG.debug("Calling method {} with values {}", method.getName(), values);
+            returnObj = method.invokeExplosively(freshInstance, values);
+            eachRunNotifier.fireTestFinished();
+            
+            DurationBean testItemDurationBean = new DurationBean(currentMethodName,
+                testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
+            testResult.addTestItemDurationBean(testItemDurationBean);
+            testResult.setOutput((returnObj == null) ? "void" : returnObj);
+            testResult.setPassed(Boolean.TRUE);
+            
+            if (writableRow != null) {
+                if (returnObj != null) {
+                    LOG.debug("Data returned by method {} is {} :", method.getName(), returnObj);
+                    writableRow.put(Loader.ACTUAL_RESULT, returnObj); 
+                    Object expectedResult = writableRow.get(Loader.EXPECTED_RESULT);
+                    // if expected result exist in user input test data,
+                    // then compare that with actual output result
+                    // and write the status back to writable map data.
+                    if (expectedResult != null) {
+                        LOG.debug("Expected result exists");
+                        if (expectedResult.toString().equals(returnObj.toString())) {
+                            writableRow.put(Loader.TEST_STATUS, Loader.TEST_PASSED);
+                        } else {
+                            writableRow.put(Loader.TEST_STATUS, Loader.TEST_FAILED);
 
                         }
-                        LOG.debug("testItemDurationBean:" + testItemDurationBean);
-                        if (testItemDurationBean != null) {
-                            Double testDuration = CommonUtils.getRounded(testItemDurationBean.getRoundedMsDifference()
-                                .doubleValue(), 3);
-                            LOG.debug("testItemDurationBean.getRoundedMsDifference():" + testDuration);
-                            writableRow.put(Loader.DURATION, testDuration);
-                        }
                     }
-                } catch (AssumptionViolatedException e) {
-                    eachRunNotifier.addFailedAssumption(e);
-                    handleAssumptionViolation(e);
-                } catch (Throwable e) {
 
-                    if (e instanceof AssertionError) { // Assertion error
-                        testResult.setPassed(Boolean.FALSE);
-                        testResult.setResult(e.getMessage());                       
-
-                    } else { // Exception
-                        testResult.setException(Boolean.TRUE);
-                        testResult.setExceptionResult(e.toString());
-
-                    }
-                    testReportContainer.addTestResult(testResult);
-                    eachRunNotifier.addFailure(e);
-                    reportParameterizedError(e, complete.getArgumentStrings(true));
-                } finally {
-                    eachRunNotifier.fireTestFinished();
                 }
-                testReportContainer.addTestResult(testResult);
-                //The test should fail in case the Actual Result returned by the test method did
-                //not match the Expected result specified for the method in the test data file.
-                if (writableRow != null && writableRow.get(Loader.TEST_STATUS) != null
-                    && writableRow.get(Loader.TEST_STATUS).equals(Loader.TEST_FAILED)) {
-                    Assert.fail("Actual Result returned by the method : [" + returnObj
-                        + "] did not match the expected result : [" + writableRow.get(Loader.EXPECTED_RESULT) + "]");
+                LOG.debug("testItemDurationBean:" + testItemDurationBean);
+                if (testItemDurationBean != null) {
+                    Double testDuration = CommonUtils.getRounded(testItemDurationBean.getRoundedMsDifference()
+                        .doubleValue(), 3);
+                    LOG.debug("testItemDurationBean.getRoundedMsDifference():" + testDuration);
+                    writableRow.put(Loader.DURATION, testDuration);
                 }
             }
-        };
+        } catch (AssumptionViolatedException e) {
+            eachRunNotifier.addFailedAssumption(e);
+            handleAssumptionViolation(e);
+        } catch (Throwable e) {
+
+            if (e instanceof AssertionError) { // Assertion error
+                testResult.setPassed(Boolean.FALSE);
+                testResult.setResult(e.getMessage());                       
+
+            } else { // Exception
+                testResult.setException(Boolean.TRUE);
+                testResult.setExceptionResult(e.toString());
+
+            }
+            eachRunNotifier.addFailure(e);
+            reportParameterizedError(e, complete.getArgumentStrings(true));
+        } finally {
+            eachRunNotifier.fireTestFinished();
+        }
+        //The test should fail in case the Actual Result returned by the test method did
+        //not match the Expected result specified for the method in the test data file.
+        if (writableRow != null && writableRow.get(Loader.TEST_STATUS) != null
+            && writableRow.get(Loader.TEST_STATUS).equals(Loader.TEST_FAILED)) {
+            Assert.fail("Actual Result returned by the method : [" + returnObj
+                + "] did not match the expected result : [" + writableRow.get(Loader.EXPECTED_RESULT) + "]");
+        }
+
     }
 
     protected void handleAssumptionViolation(AssumptionViolatedException e) {
