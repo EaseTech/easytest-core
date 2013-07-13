@@ -1,16 +1,16 @@
 package org.easetech.easytest.io;
 
-import org.jfree.util.Log;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import org.easetech.easytest.util.CommonUtils;
+import org.jfree.util.Log;
 import org.junit.Assert;
 
 /**
@@ -37,8 +37,8 @@ public class UrlResource implements Resource {
      * @param path
      * @throws MalformedURLException
      */
-    public UrlResource(String path) throws MalformedURLException{
-        if(path == null || path.length() <= 0){
+    public UrlResource(String path) throws MalformedURLException {
+        if (path == null || path.length() <= 0) {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
@@ -51,7 +51,7 @@ public class UrlResource implements Resource {
      * @param url
      */
     public UrlResource(URL url) {
-        if(path == null || path.length() <= 0){
+        if (url == null || url.toString().length() <= 0) {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = url.getPath();
@@ -70,15 +70,19 @@ public class UrlResource implements Resource {
 
     /**
      * Checks whether the URL resource exists or not.
-     * @return
+     * 
+     * @return true if exists, false otherwise
      */
-    public boolean exists(){
-       try {
-        return getFile().exists();
-    } catch (Exception e) {
-        Log.debug("Exception occured while trying to find whether the resource exists or not ", e);
-        return false;
-    }
+    public boolean exists() {
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            HttpURLConnection con = (HttpURLConnection) URL.openConnection();
+            con.setRequestMethod("HEAD");
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            Log.debug("Exception occured while trying to find whether the resource exists or not ", e);
+            return false;
+        }
     }
 
     /**
@@ -109,32 +113,14 @@ public class UrlResource implements Resource {
     public File getFile() throws Exception {
         URI uri = CommonUtils.toURI(getURL());
         File file;
-        if(uri != null){
-            file = CommonUtils.getFile(uri, getResourceName());
-        }else{
-            file = CommonUtils.getFile(getURL(), getResourceName());
+        if (uri != null) {
+            file = CommonUtils.getFile(uri, uri.toString());
+        } else {
+            file = CommonUtils.getFile(getURL(), null);
         }
         return file;
     }
     
-    /**
-     * Determine a cleaned URL for the given original URL.
-     * @param originalUrl the original URL
-     * @param originalPath the original URL path
-     * @return the cleaned URL
-     * @see CommonUtils#cleanPath
-     */
-    private URL getCleanedUrl(URL originalUrl, String originalPath) {
-        try {
-            return new URL(CommonUtils.cleanPath(originalPath));
-        }
-        catch (MalformedURLException ex) {
-            // Cleaned URL path cannot be converted to URL
-            // -> take original URL.
-            return originalUrl;
-        }
-    }
-
     /**
      * Get the resource name
      * @return
@@ -163,7 +149,5 @@ public class UrlResource implements Resource {
     public String toString() {
         return "UrlResource [path=" + path + ", URL=" + URL + "]";
     }
-    
-    
 
 }
