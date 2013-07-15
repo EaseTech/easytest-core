@@ -9,6 +9,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,9 @@ import org.junit.internal.runners.model.ReflectiveCallable;
 import org.junit.internal.runners.statements.Fail;
 import org.junit.rules.RunRules;
 import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -245,6 +249,33 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
             Assert.fail("No method exists for the Test Runner");
         }
         return finalList;
+    }
+    
+    public void filter(Filter filter) throws NoTestsRemainException {
+
+        for (Iterator<FrameworkMethod> iter = frameworkMethods.iterator(); iter.hasNext(); ) {
+            FrameworkMethod each = iter.next();
+            if (shouldRun(filter, each))
+                try {
+                    filter.apply(each);
+                } catch (NoTestsRemainException e) {
+                    iter.remove();
+                }
+            else
+                iter.remove();
+        }
+        if (frameworkMethods.isEmpty()) {
+            throw new NoTestsRemainException();
+        }
+    }
+    
+    private boolean shouldRun(Filter filter, FrameworkMethod each) {
+        return filter.shouldRun(describeFiltarableChild(each));
+    }
+    
+    private Description describeFiltarableChild(FrameworkMethod each) {
+        return Description.createTestDescription(getTestClass().getJavaClass(),
+            each.getMethod().getName(), each.getAnnotations());
     }
 
     /**
@@ -573,5 +604,7 @@ public class TransactionalTestRunner extends BlockJUnit4ClassRunner {
             testInfoList, writableData, testReportContainer);
         return runAftersWithOutputData;
     }
+    
+    
 
 }

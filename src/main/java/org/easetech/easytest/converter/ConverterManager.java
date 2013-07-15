@@ -18,7 +18,7 @@ public class ConverterManager {
     /**
      * A thread local variable that will hold the set of {@link Converter} for easy consumption by the test cases.
      */
-    public static final ThreadLocal<Set<Converter>> converters = new ThreadLocal<Set<Converter>>();
+    public static final InheritableThreadLocal<Set<Converter>> converters = new InheritableThreadLocal<Set<Converter>>();
 
     /**
      * Find the registered Converter for the given class type

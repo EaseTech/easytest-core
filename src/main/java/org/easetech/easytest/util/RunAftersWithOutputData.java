@@ -143,7 +143,7 @@ public class RunAftersWithOutputData extends Statement {
         }
         ConverterManager.cleanConverters();
         ConfigContext.cleanConfigContext();
-        DataContext.cleanData();
+        //DataContext.cleanData();
     }
     
     private Future<Boolean> processReports(ReportDataContainer testReportContainer) {
