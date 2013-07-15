@@ -13,7 +13,6 @@ import org.easetech.easytest.example.CustomObjectDataLoader;
 import org.easetech.easytest.example.ItemConverter;
 import org.easetech.easytest.example.ItemId;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,7 +25,7 @@ import org.junit.runner.RunWith;
  * method level as well.
  * 
  */
-@RunWith(TransactionalTestRunner.class)
+@RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "getDDTData.csv" })
 public class TestConditionsSupportedByDataDrivenTest {
     

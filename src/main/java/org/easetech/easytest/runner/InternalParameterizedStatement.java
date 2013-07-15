@@ -11,7 +11,6 @@ import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.reports.data.DurationBean;
 import org.easetech.easytest.reports.data.TestResultBean;
-import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
 import org.easetech.easytest.util.CommonUtils;
 import org.junit.Assert;
 import org.junit.experimental.theories.PotentialAssignment;
@@ -27,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An internal class that holds the logic of running a given Test method. This class contains the common code for both
- * {@link EasyTestRunner} and SpringTestRunner that is present in the easytest-spring module.
+ * {@link DataDrivenTestRunner} and SpringTestRunner that is present in the easytest-spring module.
  * 
  * @author Anuj Kumar
  * 
