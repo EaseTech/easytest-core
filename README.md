@@ -17,21 +17,21 @@ Whats new in Version 1.2
      * @param inputData a generic map of input test data that contains all the required parameters for the test data.
      */
     @Test
-    public void testGetItems(@Param(name="inputData") //@Param annotation is optional and can be omitted when the class name of the parameter is the same as the input parameter name
-    Map<String, String> inputData) {
-        System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
-            + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
+    public void testGetItems(@Param(name="inputData")
+        Map<String, String> inputData) {
+            System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
+                + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
 
-    }
+       }
     
-    @Test
-    public void testAnotherItem(@Param(name="inputData") 
-    Map<String, String> inputData) {
-        // your test condition
+        @Test
+        public void testAnotherItem(@Param(name="inputData") 
+          Map<String, String> inputData) {
+              // your test condition
 
-    }
+       }
     
-    }
+       }
     
 * The code is a lot cleaner and is known to support all the known features of JUnit.
 
