@@ -1,41 +1,36 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
+New version of EasyTest Core(1.2) module is now available.
 
-Version 1.2 of EasyTest Core is now released.
+Whats new in Version 1.2
+------------------------
+* Run Your tests in Parallel using @Parallel annotation. Heres an example :
 
-Whats New
-----------
-* Run you tests in Parallel
-* Select and Run a single test written with EasyTest annotations.
+        @RunWith(DataDrivenTestRunner.class)
+        @DataLoader(filePaths = { "getItemsData.csv" })
+        @Parallel(threads=2)
+        public class TestConditionsSupportedByEasyTestRunner {
 
-Details
--------
-* Running EasyTests in Parallel
-  You can now use a simple annotation based approach to run your tests in Parallel. Simply use @Parallel annotation with the attribute "threads" to supply the number of threads you want to start for aprallel processing.
+        
+         @Test
+         public void testGetItems(@Param(name="inputData")
+        Map<String, String> inputData) {
+            System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
+                + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
 
-Here is a simple example of how you can run your tests in parallel:
+         }
+    
+        @Test
+        public void testAnotherItem(@Param(name="inputData") 
+          Map<String, String> inputData) {
+               // your test condition
 
-    @RunWith(DataDrivenTestRunner.class)
-    @DataLoader(filePaths = { "getItemsData.csv" })
-    @Parallel(threads=5)
-    public class TestConditionsSupportedByEasyTestRunner {
+          }
+         }
+    
+Note the annotation @Parallel at the class level. This annotation is all you need to run your tests in Parallel.
 
-
-    /**
-     * A Simple test that uses data provided by TestData annotation present at the Class level
-     * @param inputData a generic map of input test data that contains all the required parameters for the test data.
-     */
-    @Test
-    public void testGetItems(@Param(name="inputData") //@Param annotation is optional and can be omitted when the class name of the parameter is the same as the input parameter name
-    Map<String, String> inputData) {
-        System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
-            + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
-
-    }
-
-Notice the use of @Parallel annotation in the example above. What this annotation does is, it simply provides JUnit with a Parallel Scheduler that schedules running each test in parallel.
-
-You can also use JUnit's already provided mechanism of running you tests in Parallel from either command line or from Maven profiles.
+* The code is a lot cleaner and is known to support all the known features of JUnit.
 
 Download EasyTest simply by including the latest version of easytest-core and easytest-spring modules from Maven in your pom file.
    
