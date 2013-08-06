@@ -3,7 +3,7 @@ EasyTest Core Module: A Data Driven Testing approach to JUnit
 New version of EasyTest Core(1.2) module is now available.
 
 Whats new in Version 1.2
-=========================
+------------------------
 * Run Your tests in Parallel using @Parallel annotation. Heres an example :
 
     @RunWith(DataDrivenTestRunner.class)
