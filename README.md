@@ -1,5 +1,39 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
+New version of EasyTest Core(1.2) module is now available.
+
+Whats new in Version 1.2
+=========================
+* Run Your tests in Parallel using @Parallel annotation. Heres an example :
+
+    @RunWith(DataDrivenTestRunner.class)
+    @DataLoader(filePaths = { "getItemsData.csv" })
+    @Parallel(threads=2)
+    public class TestConditionsSupportedByEasyTestRunner {
+
+
+    /**
+     * A Simple test that uses data provided by TestData annotation present at the Class level
+     * @param inputData a generic map of input test data that contains all the required parameters for the test data.
+     */
+    @Test
+    public void testGetItems(@Param(name="inputData") //@Param annotation is optional and can be omitted when the class name of the parameter is the same as the input parameter name
+    Map<String, String> inputData) {
+        System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
+            + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
+
+    }
+    
+    @Test
+    public void testAnotherItem(@Param(name="inputData") 
+    Map<String, String> inputData) {
+        // your test condition
+
+    }
+    
+    }
+    
+* The code is a lot cleaner and is known to support all the known features of JUnit.
 
 Download EasyTest simply by including the latest version of easytest-core and easytest-spring modules from Maven in your pom file.
    
@@ -7,7 +41,7 @@ Download EasyTest simply by including the latest version of easytest-core and ea
         
         <artifactId>easytest-core</artifactId>
         
-        <version>1.1</version>
+        <version>1.2</version>
         
 And for Spring module simply include :
 
