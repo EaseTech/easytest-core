@@ -1,7 +1,3 @@
-/**
- * 
- */
-
 package org.easetech.easytest.runner;
 
 import org.junit.runners.ParentRunner;
@@ -106,12 +102,6 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
     private final List<FrameworkMethod> frameworkMethods;
 
     /**
-     * The actual instance of the test class. This is extremely handy in cases where we want to reflectively set
-     * instance fields on a test class.
-     */
-    private final Object testInstance;
-
-    /**
      * The report container which holds all the reporting data
      */
     private final ReportDataContainer testReportContainer;
@@ -136,10 +126,6 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         loadClassLevelData(klass);
         registerConverter(testClass.getAnnotation(org.easetech.easytest.annotation.Converters.class));
         try {
-            testInstance = getTestInstance();
-            loadTestConfigurations();
-            loadResourceProperties();
-            instrumentClass(getTestClass().getJavaClass());
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
             testReportContainer = new ReportDataContainer(getTestClass().getJavaClass());
@@ -167,14 +153,14 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
     /**
      * @see TestConfigUtil#loadTestConfigurations(Class, Object)
      */
-    protected void loadTestConfigurations() {
+    protected void loadTestConfigurations(Object testInstance) {
         TestConfigUtil.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
     }
     
     /**
      * @see TestConfigUtil#loadResourceProperties
      */
-    protected void loadResourceProperties() {
+    protected void loadResourceProperties(Object testInstance) {
         TestConfigUtil.loadResourceProperties(getTestClass().getJavaClass(), testInstance);
     }
     
@@ -347,7 +333,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      * @throws IllegalAccessException if an exception occurred
      * @throws InstantiationException if an exception occurred
      */
-    protected void instrumentClass(Class<?> testClass) throws IllegalArgumentException, IllegalAccessException,
+    protected void instrumentClass(Class<?> testClass , Object testInstance) throws IllegalArgumentException, IllegalAccessException,
         InstantiationException {
         Field[] fields = testClass.getDeclaredFields();
         for (Field field : fields) {
@@ -507,25 +493,40 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
                     if (e instanceof AssertionError) { // Assertion error
                         testResult.setPassed(Boolean.FALSE);
-                        testResult.setResult(e.getMessage());                       
+                        testResult.setResult(e.getMessage()); 
+                        throw new ParamAssertionError(e, method.getName());
 
                     } else { // Exception
                         testResult.setException(Boolean.TRUE);
                         testResult.setExceptionResult(e.toString());
+                        throw e;
 
                     }
-                    throw new ParamAssertionError(e, method.getName());
+                   
                 }
                 
             }
         };
     }
 
+    /**
+     * Returns a new fixture for running a test. Default implementation executes
+     * the test class's no-argument constructor (validation should have ensured
+     * one exists).
+     */
+    protected Object createTest() throws Exception {
+        Object testInstance =  getTestClass().getOnlyConstructor().newInstance();
+        loadTestConfigurations(testInstance);
+        loadResourceProperties(testInstance);
+        instrumentClass(getTestClass().getJavaClass() , testInstance);
+        return testInstance;
+        
+    }
 
     /**
      * Returns a {@link Statement} that invokes {@code method} on {@code test}
      */
-    protected Statement methodInvoker(FrameworkMethod method, Object test) {
+    protected Statement methodInvoker(FrameworkMethod method, Object testInstance) {
         return new InternalParameterizedStatement((EasyFrameworkMethod) method, getTestClass(), testInstance);
     }
 
