@@ -6,33 +6,30 @@ Whats new in Version 1.2
 ------------------------
 * Run Your tests in Parallel using @Parallel annotation. Heres an example :
 
-    @RunWith(DataDrivenTestRunner.class)
-    @DataLoader(filePaths = { "getItemsData.csv" })
-    @Parallel(threads=2)
-    public class TestConditionsSupportedByEasyTestRunner {
+        @RunWith(DataDrivenTestRunner.class)
+        @DataLoader(filePaths = { "getItemsData.csv" })
+        @Parallel(threads=2)
+        public class TestConditionsSupportedByEasyTestRunner {
 
-
-    /**
-     * A Simple test that uses data provided by TestData annotation present at the Class level
-     * @param inputData a generic map of input test data that contains all the required parameters for the test data.
-     */
-    @Test
-    public void testGetItems(@Param(name="inputData")
+        
+         @Test
+         public void testGetItems(@Param(name="inputData")
         Map<String, String> inputData) {
             System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
                 + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
 
-       }
+         }
     
         @Test
         public void testAnotherItem(@Param(name="inputData") 
           Map<String, String> inputData) {
-              // your test condition
+               // your test condition
 
-       }
+          }
+         }
     
-       }
-    
+Note the annotation @Parallel at the class level. This annotation is all you need to run your tests in Parallel.
+
 * The code is a lot cleaner and is known to support all the known features of JUnit.
 
 Download EasyTest simply by including the latest version of easytest-core and easytest-spring modules from Maven in your pom file.
