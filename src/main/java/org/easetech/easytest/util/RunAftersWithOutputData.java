@@ -142,7 +142,7 @@ public class RunAftersWithOutputData extends Statement {
         	LOG.debug("Writing reports took: {} ms.", end);
         }
         ConverterManager.cleanConverters();
-        ConfigContext.cleanConfigContext();
+        //ConfigContext.cleanConfigContext();
         //DataContext.cleanData();
     }
     
