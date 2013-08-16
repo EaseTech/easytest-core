@@ -1,6 +1,15 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-New version of EasyTest Core(1.2) module is now available.
+An updated version of EasyTest Core(1.2.1) module is now available.
+
+What's changed in Version 1.2.1
+------------------------------
+Besides regular clean up stuff, one of the important things that changed in 1.2.1 is the way Test methods are now instantiated and their data handled.
+Until version 1.2, all the test methods were running in a single test class instance, which, normally was not a problem, but caused
+some concern with JUnit Rules, especially with Rules that depended on a new instance for each test method (ErrorCollector for eg.)
+With 1.2.1 that has changed and each test method now runs in its own test instance.
+
+You can download the latest version of EasyTest Core from [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)  
 
 Whats new in Version 1.2
 ------------------------
