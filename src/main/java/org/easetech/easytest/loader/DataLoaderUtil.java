@@ -117,7 +117,7 @@ public final class DataLoaderUtil {
     private static String[] handleEmptyPaths() {
         String[] result = null;
         String datafiles = System.getProperty(TEST_DATA_FILES);
-        if (datafiles == null || datafiles.isEmpty()) {
+        if (datafiles == null || datafiles.length() == 0) {
             LOG.warn("Input Test data not provided. Assuming that user has a custom Data Loader.");
         } else {
             result = datafiles.split(",");

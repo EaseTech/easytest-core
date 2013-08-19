@@ -1,6 +1,22 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-An updated version of EasyTest Core(1.2.1) module is now available.
+An updated version of EasyTest Core(1.2.2) module is now available.
+
+What's changed in Version 1.2.2
+-------------------------------
+* A user can now specify a variable value as part of the DataLoader's filePaths attribute.
+Thus it is now possible to use DataLoader annotation like this :
+
+    @DataLoader(filePaths = {"${my.data.file}" , "${my.second.data.file}"})
+    
+Using the above way, a user can specify properties of the above variables "my.data.file" and "my.second.data.file" as System property using -D option of Java System Properties.
+
+* A new System Property "testDataFiles" to provide a comma separated list of input test data files at runtime.
+In order to use this option simply specify @DataLoader annotation at the top of your class without any input data. Thus in such a case DataLoader annotation acts as a marker annotation telling the EasyTest 
+system that it has to fetch the value of filePaths attribute from the system property "testDataFiles".
+
+* NOTE If a user has specified both "testDataFiles" System Property AND a value for "dataFiles" attribute, then the System Property files(specified using testDataFiles System Property) 
+will override the files specified using the "dataFiles" attribute of DataLoader annotation.
 
 What's changed in Version 1.2.1
 ------------------------------
