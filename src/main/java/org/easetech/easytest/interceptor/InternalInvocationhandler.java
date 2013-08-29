@@ -1,10 +1,8 @@
 package org.easetech.easytest.interceptor;
 
-import org.easetech.easytest.annotation.Provided;
-
-import java.lang.reflect.Method;
-
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import org.easetech.easytest.annotation.Provided;
 
 /**
  * implementation of the {@link InvocationHandler} interface for internal usage.
@@ -15,21 +13,13 @@ import java.lang.reflect.InvocationHandler;
  * @author Anuj Kumar
  *
  */
-public class InternalInvocationhandler implements InvocationHandler {
+public class InternalInvocationhandler extends CommonProxyInterceptor implements InvocationHandler {
     
-    /**
-     * User provided {@link MethodIntercepter}
-     */
-    MethodIntercepter userIntercepter;
     
-    /**
-     * The instance on which to call teh Method
-     */
-    Object targetInstance;
 
     /**
-     * Invoke the method on the provided {@link #targetInstance}.
-     * {@link #userIntercepter}'s intercept method is invoked with the right arguments.
+     * Invoke the method on the provided {@link #getTargetInstance}.
+     * {@link #getUserIntercepter}'s intercept method is invoked with the right arguments.
      * Note that this implementation does not use the proxy instance passed to this method.
      * @param proxy NOT USED
      * @param method the method to invoke
@@ -38,36 +28,10 @@ public class InternalInvocationhandler implements InvocationHandler {
      * @throws Throwable if any exception occurs
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return userIntercepter.intercept(method, targetInstance, args);
+        return intercept(method, args);
     }
 
-    /**
-     * @return the userIntercepter
-     */
-    public MethodIntercepter getUserIntercepter() {
-        return userIntercepter;
-    }
-
-    /**
-     * @param userIntercepter the userIntercepter to set
-     */
-    public void setUserIntercepter(MethodIntercepter userIntercepter) {
-        this.userIntercepter = userIntercepter;
-    }
-
-    /**
-     * @return the targetInstance
-     */
-    public Object getTargetInstance() {
-        return targetInstance;
-    }
-
-    /**
-     * @param targetInstance the targetInstance to set
-     */
-    public void setTargetInstance(Object targetInstance) {
-        this.targetInstance = targetInstance;
-    }
+    
     
     
     

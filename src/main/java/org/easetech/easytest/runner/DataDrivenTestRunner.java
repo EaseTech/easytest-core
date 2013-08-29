@@ -1,4 +1,13 @@
+
 package org.easetech.easytest.runner;
+
+import net.sf.cglib.proxy.Factory;
+
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
+
+import org.easetech.easytest.interceptor.Empty;
+
+import org.easetech.easytest.annotation.Duration;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -52,11 +61,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * Construct a new DataDrivenTestRunner. This runner is an extension of {@link BlockJUnit4ClassRunner}.
- * The algorithm of constructing and making the runner ready for execution is as
- * follows:<br>
+ * Construct a new DataDrivenTestRunner. This runner is an extension of {@link BlockJUnit4ClassRunner}. The algorithm of
+ * constructing and making the runner ready for execution is as follows:<br>
  * <ul>
- * <li> Set the Scheduling Strategy. The {@link SchedulerStrategy} can be <b>PARALLEL</b> or <b>SERIAL</b> and is decided based on {@link Parallel} annotation</li>
+ * <li>Set the Scheduling Strategy. The {@link SchedulerStrategy} can be <b>PARALLEL</b> or <b>SERIAL</b> and is decided
+ * based on {@link Parallel} annotation</li>
  * <li>Load the Test Bean Configurations that are defined at the class level using the {@link TestConfigProvider}
  * annotation.<br>
  * (For details on how he test bean is loaded look at {@link TestConfigUtil#loadTestBeanConfig(Class)}) method.</li>
@@ -129,33 +138,35 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
 
     }
-    
+
     /**
      * Get the instance of the class under test
+     * 
      * @return the instance of class under test
      * @throws InstantiationException
      * @throws IllegalAccessException
      * @throws IllegalArgumentException
      * @throws InvocationTargetException
      */
-    protected Object getTestInstance() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    protected Object getTestInstance() throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+        InvocationTargetException {
         return getTestClass().getOnlyConstructor().newInstance();
     }
-    
+
     /**
      * @see TestConfigUtil#loadTestConfigurations(Class, Object)
      */
     protected void loadTestConfigurations(Object testInstance) {
         TestConfigUtil.loadTestConfigurations(getTestClass().getJavaClass(), testInstance);
     }
-    
+
     /**
      * @see TestConfigUtil#loadResourceProperties
      */
     protected void loadResourceProperties(Object testInstance) {
         TestConfigUtil.loadResourceProperties(getTestClass().getJavaClass(), testInstance);
     }
-    
+
     /**
      * Set whether the tests should be run in parallel or serial.
      */
@@ -165,7 +176,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             super.setScheduler(SchedulerStrategy.getScheduler(testClass));
         }
     }
-    
+
     /**
      * @see TestConfigUtil#loadTestBeanConfig(Class)
      */
@@ -173,9 +184,10 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         Class<?> testClass = getTestClass().getJavaClass();
         TestConfigUtil.loadTestBeanConfig(testClass);
     }
-    
+
     /**
      * Load any class level test data
+     * 
      * @see DataLoaderUtil#loadData(Class, FrameworkMethod, org.junit.runners.model.TestClass, Map)
      * @param klass
      */
@@ -185,6 +197,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
     /**
      * Compute any test methods
+     * 
      * @return a list of {@link FrameworkMethod}s
      */
     protected List<FrameworkMethod> computeTestMethods() {
@@ -283,16 +296,16 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
         return finalList;
     }
-    
+
     /**
-     * Override the filter method from {@link ParentRunner} so that individual 
-     * tests can be run using EasyTest
+     * Override the filter method from {@link ParentRunner} so that individual tests can be run using EasyTest
+     * 
      * @param filter
      * @throws NoTestsRemainException
      */
     public void filter(Filter filter) throws NoTestsRemainException {
 
-        for (Iterator<FrameworkMethod> iter = frameworkMethods.iterator(); iter.hasNext(); ) {
+        for (Iterator<FrameworkMethod> iter = frameworkMethods.iterator(); iter.hasNext();) {
             FrameworkMethod each = iter.next();
             if (shouldRun(filter, each))
                 try {
@@ -307,14 +320,14 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             throw new NoTestsRemainException();
         }
     }
-    
+
     private boolean shouldRun(Filter filter, FrameworkMethod each) {
         return filter.shouldRun(describeFiltarableChild(each));
     }
-    
+
     private Description describeFiltarableChild(FrameworkMethod each) {
-        return Description.createTestDescription(getTestClass().getJavaClass(),
-            each.getMethod().getName(), each.getAnnotations());
+        return Description.createTestDescription(getTestClass().getJavaClass(), each.getMethod().getName(),
+            each.getAnnotations());
     }
 
     /**
@@ -325,55 +338,22 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      * @throws IllegalAccessException if an exception occurred
      * @throws InstantiationException if an exception occurred
      */
-    protected void instrumentClass(Class<?> testClass , Object testInstance) throws IllegalArgumentException, IllegalAccessException,
-        InstantiationException {
+    protected void instrumentClass(Class<?> testClass, Object testInstance) throws IllegalArgumentException,
+        IllegalAccessException, InstantiationException {
         Field[] fields = testClass.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             Intercept interceptor = field.getAnnotation(Intercept.class);
             if (interceptor != null) {
-                Class<? extends MethodIntercepter> interceptorClass = interceptor.interceptor();
-                // This is the field we want to enhance
-                Class<?> fieldType = field.getType();
-
-                Object fieldInstance = field.get(testInstance);
-                Object proxiedObject = null;
-                if (fieldType.isInterface()) {
-                    LOG.debug("The field of type :" + fieldType + " will be proxied using JDK dynamic proxies.");
-
-                    ClassLoader classLoader = determineClassLoader(fieldType, testClass);
-
-                    Class<?>[] interfaces = { fieldType };
-                    // use JDK dynamic proxy
-                    InternalInvocationhandler handler = new InternalInvocationhandler();
-                    handler.setUserIntercepter(interceptorClass.newInstance());
-                    handler.setTargetInstance(fieldInstance);
-                    proxiedObject = Proxy.newProxyInstance(classLoader, interfaces, handler);
-
-                } else {
-                    LOG.debug("The field of type :" + fieldType + " will be proxied using CGLIB proxies.");
-                    Enhancer enhancer = new Enhancer();
-                    enhancer.setSuperclass(fieldType);
-                    InternalInterceptor cglibInterceptor = new InternalInterceptor();
-                    cglibInterceptor.setTargetInstance(fieldInstance);
-                    cglibInterceptor.setUserIntercepter(interceptorClass.newInstance());
-                    enhancer.setCallback(cglibInterceptor);
-                    proxiedObject = enhancer.create();
-                }
-
-                try {
-                    if (proxiedObject != null) {
-                        field.set(testInstance, proxiedObject);
-                    }
-
-                } catch (Exception e) {
-                    LOG.error("Failed while trying to instrument the class for Intercept annotation with exception : ",
-                        e);
-                    Assert
-                        .fail("Failed while trying to instrument the class for Intercept annotation with exception : "
-                            + e);
+                provideProxyWrapperFor(interceptor.interceptor(), null, field, testInstance);
+            } else {
+                Duration duration = field.getAnnotation(Duration.class);
+                if (duration != null) {
+                    provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field,
+                        testInstance);
                 }
             }
+
         }
     }
 
@@ -469,12 +449,12 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
     }
 
     protected Statement methodBlock(FrameworkMethod method) {
-        return withTestResult((EasyFrameworkMethod)method, super.methodBlock(method));
+        return withTestResult((EasyFrameworkMethod) method, super.methodBlock(method));
     }
-    
+
     protected Statement withTestResult(final EasyFrameworkMethod method, final Statement statement) {
         return new Statement() {
-            
+
             @Override
             public void evaluate() throws Throwable {
                 TestResultBean testResult = method.getTestResult();
@@ -485,7 +465,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
                     if (e instanceof AssertionError) { // Assertion error
                         testResult.setPassed(Boolean.FALSE);
-                        testResult.setResult(e.getMessage()); 
+                        testResult.setResult(e.getMessage());
                         throw new ParamAssertionError(e, method.getName());
 
                     } else { // Exception
@@ -494,32 +474,136 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                         throw e;
 
                     }
-                   
+
                 }
-                
+
             }
         };
     }
 
     /**
-     * Returns a new fixture for running a test. Default implementation executes
-     * the test class's no-argument constructor (validation should have ensured
-     * one exists).
+     * Returns a new fixture for running a test. Default implementation executes the test class's no-argument
+     * constructor (validation should have ensured one exists).
      */
     protected Object createTest() throws Exception {
-        Object testInstance =  getTestClass().getOnlyConstructor().newInstance();
+        Object testInstance = getTestClass().getOnlyConstructor().newInstance();
         loadTestConfigurations(testInstance);
         loadResourceProperties(testInstance);
-        instrumentClass(getTestClass().getJavaClass() , testInstance);
+        instrumentClass(getTestClass().getJavaClass(), testInstance);
         return testInstance;
-        
+
     }
 
     /**
      * Returns a {@link Statement} that invokes {@code method} on {@code test}
      */
     protected Statement methodInvoker(FrameworkMethod method, Object testInstance) {
+        if (method.getAnnotation(Duration.class) != null) {
+            try {
+                handleDuration(method, testInstance);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return new InternalParameterizedStatement((EasyFrameworkMethod) method, getTestClass(), testInstance);
+    }
+
+    private void handleDuration(FrameworkMethod method, Object testInstance) throws IllegalArgumentException,
+        IllegalAccessException, InstantiationException {
+        Duration duration = method.getAnnotation(Duration.class);
+        if (duration != null) {
+            if (!duration.forClass().isAssignableFrom(Empty.class)) {
+                interceptField(duration, getTestClass().getJavaClass(), testInstance);
+            } else {
+                Assert.fail("Duration annotation at the method level should have value for the 'forClass' attribute.");
+            }
+
+        }
+    }
+
+    private void interceptField(Duration duration, Class<?> testClass, Object testInstance)
+        throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+        Field[] fields = testClass.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.getType().isAssignableFrom(duration.forClass())) {
+                provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field,
+                    testInstance);
+                
+            }
+        }
+    }
+
+    private void provideProxyWrapperFor(Class<? extends MethodIntercepter> interceptor, Long timeInMillies,
+        Field field, Object testInstance) throws IllegalArgumentException, IllegalAccessException,
+        InstantiationException {
+        Object fieldInstance = field.get(testInstance);
+        Object targetInstance = null;
+
+        Object proxiedObject = null;
+        Class<?> fieldType = field.getType();
+        Class<? extends MethodIntercepter> interceptorClass = interceptor;
+        if (fieldType.isInterface()) {
+            if (Proxy.isProxyClass(fieldInstance.getClass())) {
+                InternalInvocationhandler handler = (InternalInvocationhandler) Proxy
+                    .getInvocationHandler(fieldInstance);
+                targetInstance = handler.getTargetInstance();
+            } else {
+                targetInstance = fieldInstance;
+            }
+            proxiedObject = getJDKProxy(interceptorClass, timeInMillies, fieldType, targetInstance);
+        } else {
+            if (fieldInstance instanceof Factory) {
+                Factory cglibFactory = (Factory) fieldInstance;
+                InternalInterceptor internalInterceptor = (InternalInterceptor) cglibFactory.getCallback(0);
+                targetInstance = internalInterceptor.getTargetInstance();
+            } else {
+                targetInstance = fieldInstance;
+            }
+            proxiedObject = getCGLIBProxy(interceptorClass, timeInMillies, fieldType, targetInstance);
+
+        }
+        try {
+            if (proxiedObject != null) {
+                field.set(testInstance, proxiedObject);
+            }
+
+        } catch (Exception e) {
+            LOG.error("Failed while trying to instrument the class for Intercept annotation with exception : ", e);
+            Assert.fail("Failed while trying to instrument the class for Intercept annotation with exception : " + e);
+        }
+    }
+
+    private Object getJDKProxy(Class<? extends MethodIntercepter> interceptorClass, Long timeInMillis,
+        Class<?> fieldType, Object fieldInstance) throws InstantiationException, IllegalAccessException {
+        LOG.debug("The field of type :" + fieldType + " will be proxied using JDK dynamic proxies.");
+
+        ClassLoader classLoader = determineClassLoader(fieldType, getTestClass().getJavaClass());
+
+        Class<?>[] interfaces = { fieldType };
+        // use JDK dynamic proxy
+        InternalInvocationhandler handler = new InternalInvocationhandler();
+        handler.setUserIntercepter(interceptorClass.newInstance());
+        handler.setTargetInstance(fieldInstance);
+        handler.setExpectedRunTime(timeInMillis);
+        return Proxy.newProxyInstance(classLoader, interfaces, handler);
+    }
+
+    private Object getCGLIBProxy(Class<? extends MethodIntercepter> interceptorClass, Long timeInMillis,
+        Class<?> fieldType, Object fieldInstance) throws InstantiationException, IllegalAccessException {
+        LOG.debug("The field of type :" + fieldType + " will be proxied using CGLIB proxies.");
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(fieldType);
+        InternalInterceptor cglibInterceptor = new InternalInterceptor();
+        cglibInterceptor.setTargetInstance(fieldInstance);
+        cglibInterceptor.setUserIntercepter(interceptorClass.newInstance());
+        cglibInterceptor.setExpectedRunTime(timeInMillis);
+        enhancer.setCallback(cglibInterceptor);
+        return enhancer.create();
     }
 
     /**
@@ -565,7 +649,5 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             testInfoList, writableData, testReportContainer);
         return runAftersWithOutputData;
     }
-    
-    
 
 }

@@ -24,13 +24,8 @@ public class DefaultMethodIntercepter implements MethodIntercepter {
      * @return the object that is returned after method invocation
      * @throws Throwable if any exception occurs
      */
-    public Object intercept(Method methodToIntercept, Object targetInstance, Object[] methodArgs) throws Throwable{
-        long startTime = System.nanoTime();
-        Object result = methodToIntercept.invoke(targetInstance, methodArgs);
-        long duration = System.nanoTime() - startTime;
-        System.out.println("Method " + methodToIntercept.getName() + " on class " + targetInstance.getClass()+ " took " + duration + " nanoseconds" );
-        LOG.debug("Method {} on class {} took " + duration +" nanoseconds", methodToIntercept.getName(), targetInstance.getClass());
-        return result;
+    public Object intercept(Method methodToIntercept, Object targetInstance, Object[] methodArgs) throws Throwable{        
+        return methodToIntercept.invoke(targetInstance, methodArgs);
     }
 
 }
