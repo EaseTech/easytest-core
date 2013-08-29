@@ -26,7 +26,7 @@ public class CommonProxyInterceptor {
     private MethodIntercepter userIntercepter;
     
     /**
-     * The instance on which to call teh Method
+     * The instance on which to call the Method
      */
     private Object targetInstance;
     
@@ -36,13 +36,17 @@ public class CommonProxyInterceptor {
     private Long expectedRunTime;
     
     /**
-     * @return the userIntercepter
+     * Get the User supplied {@link MethodIntercepter} implementation.
+     * Defaults to {@link DefaultMethodIntercepter}
+     * @return the userIntercepter user supplied method interceptor
      */
     public MethodIntercepter getUserIntercepter() {
         return userIntercepter;
     }
 
     /**
+     * the User supplied {@link MethodIntercepter} implementation.
+     * Defaults to {@link DefaultMethodIntercepter} 
      * @param userIntercepter the userIntercepter to set
      */
     public void setUserIntercepter(MethodIntercepter userIntercepter) {
@@ -50,13 +54,15 @@ public class CommonProxyInterceptor {
     }
 
     /**
-     * @return the targetInstance
+     * The actual instance of the class that is being proxied
+     * @return the targetInstance instance of the class that is being proxied
      */
     public Object getTargetInstance() {
         return targetInstance;
     }
 
     /**
+     * Set instance of the class that is being proxied
      * @param targetInstance the targetInstance to set
      */
     public void setTargetInstance(Object targetInstance) {
@@ -64,6 +70,8 @@ public class CommonProxyInterceptor {
     }
 
     /**
+     * Get the maximum time in milliseconds that a method under test should take to run.
+     * 
      * @return the expectedRunTime
      */
     public Long getExpectedRunTime() {
@@ -71,6 +79,7 @@ public class CommonProxyInterceptor {
     }
 
     /**
+     * Set the maximum time in milliseconds that a method under test should take to run.
      * @param expectedRunTime the expectedRunTime to set
      */
     public void setExpectedRunTime(Long expectedRunTime) {

@@ -1,14 +1,6 @@
 
 package org.easetech.easytest.runner;
 
-import net.sf.cglib.proxy.Factory;
-
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
-
-import org.easetech.easytest.interceptor.Empty;
-
-import org.easetech.easytest.annotation.Duration;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
@@ -21,8 +13,10 @@ import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Provided;
@@ -31,6 +25,7 @@ import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.exceptions.ParamAssertionError;
+import org.easetech.easytest.interceptor.Empty;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
 import org.easetech.easytest.interceptor.MethodIntercepter;
@@ -61,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * Construct a new DataDrivenTestRunner. This runner is an extension of {@link BlockJUnit4ClassRunner}. The algorithm of
+ * Construct a new DataDrivenTestRunner. This runner is an extension of {@link BlockJUnit4ClassRunner}. The algorithm for
  * constructing and making the runner ready for execution is as follows:<br>
  * <ul>
  * <li>Set the Scheduling Strategy. The {@link SchedulerStrategy} can be <b>PARALLEL</b> or <b>SERIAL</b> and is decided
@@ -73,15 +68,16 @@ import org.slf4j.LoggerFactory;
  * loaded per method as well instead of loading it at the class level.<br>
  * (For details on how the input test data is loaded, look at {@link DataLoaderUtil#loadData}) method.</li>
  * <li>Next, we registers the converters, if any, declared at the class level using {@link Converters} annotation</li>
- * <li>We then move to inject the fields in the test class marked with {@link Provided} or {@link Inject} annotation
- * with the test beans that were loaded in step 1 above.</li>
- * <li>Next, we try to resolve any test properties that are specified on the test class using the {@link TestProperties}
- * annotation.<br>
- * Note that {@link TestProperties} annotation requires a filed of type {@link Properties} be defined at the class
+ * <li> Finally the {@link ReportDataContainer} is initialized to handle the report specific data at the later stage.
+ * <br>
+ * 
+ * <br>
+ * All the above happens inside {@link DataDrivenTestRunner}'s constructor. Rest all of the major logic happens inside
+ * {@link #createTest()} method. For example creating Proxy around fields annotated with {@link Intercept} or {@link Duration}
+ * annotation, loading method level test data, loading test properties etc.
+ *
+ * Note that {@link TestProperties} annotation requires a field of type {@link Properties} be defined at the class
  * level. Look at {@link TestConfigUtil#loadResourceProperties(Class, Object)} method for details.</li>
- * <li>We finally create a proxy for the class under test, if it is marked with {@link Intercept} annotation. This helps
- * in intercepting the method calls to the class under test and perform any initialization/destruction logic
- * before/after the method execution.</li>
  * 
  * @author Anuj Kumar
  */
@@ -345,11 +341,11 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             field.setAccessible(true);
             Intercept interceptor = field.getAnnotation(Intercept.class);
             if (interceptor != null) {
-                provideProxyWrapperFor(interceptor.interceptor(), null, field, testInstance);
+                provideProxyWrapper(interceptor.interceptor(), null, field, testInstance);
             } else {
                 Duration duration = field.getAnnotation(Duration.class);
                 if (duration != null) {
-                    provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field,
+                    provideProxyWrapper(duration.interceptor(), duration.timeInMillis(), field,
                         testInstance);
                 }
             }
@@ -512,6 +508,14 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         return new InternalParameterizedStatement((EasyFrameworkMethod) method, getTestClass(), testInstance);
     }
 
+    /**
+     * Handle the {@link Duration} annotation that is specified at the method level
+     * @param method
+     * @param testInstance
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
     private void handleDuration(FrameworkMethod method, Object testInstance) throws IllegalArgumentException,
         IllegalAccessException, InstantiationException {
         Duration duration = method.getAnnotation(Duration.class);
@@ -525,20 +529,39 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
     }
 
+    /**
+     * Provide a Proxy wrapper for the field identified by the {@link Duration} annotation
+     * @param duration 
+     * @param testClass
+     * @param testInstance
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
     private void interceptField(Duration duration, Class<?> testClass, Object testInstance)
         throws IllegalArgumentException, IllegalAccessException, InstantiationException {
         Field[] fields = testClass.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             if (field.getType().isAssignableFrom(duration.forClass())) {
-                provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field,
+                provideProxyWrapper(duration.interceptor(), duration.timeInMillis(), field,
                     testInstance);
                 
             }
         }
     }
 
-    private void provideProxyWrapperFor(Class<? extends MethodIntercepter> interceptor, Long timeInMillies,
+    /**
+     * Provide the Proxy wrapper for the field that is identified by the {@link Duration} annotation
+     * @param interceptor
+     * @param timeInMillies
+     * @param field
+     * @param testInstance
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    private void provideProxyWrapper(Class<? extends MethodIntercepter> interceptor, Long timeInMillies,
         Field field, Object testInstance) throws IllegalArgumentException, IllegalAccessException,
         InstantiationException {
         Object fieldInstance = field.get(testInstance);
@@ -578,6 +601,16 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
     }
 
+    /**
+     * Get an instance of JDK Proxy for the given Field
+     * @param interceptorClass
+     * @param timeInMillis
+     * @param fieldType
+     * @param fieldInstance
+     * @return
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
     private Object getJDKProxy(Class<? extends MethodIntercepter> interceptorClass, Long timeInMillis,
         Class<?> fieldType, Object fieldInstance) throws InstantiationException, IllegalAccessException {
         LOG.debug("The field of type :" + fieldType + " will be proxied using JDK dynamic proxies.");
@@ -593,6 +626,16 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         return Proxy.newProxyInstance(classLoader, interfaces, handler);
     }
 
+    /**
+     * Get an instance of CGLib Proxy for the given Field
+     * @param interceptorClass
+     * @param timeInMillis
+     * @param fieldType
+     * @param fieldInstance
+     * @return
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
     private Object getCGLIBProxy(Class<? extends MethodIntercepter> interceptorClass, Long timeInMillis,
         Class<?> fieldType, Object fieldInstance) throws InstantiationException, IllegalAccessException {
         LOG.debug("The field of type :" + fieldType + " will be proxied using CGLIB proxies.");
@@ -622,7 +665,6 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         List<FrameworkMethod> testMethods = getTestClass().getAnnotatedMethods(Test.class);
         List<TestInfo> testInfoList = new ArrayList<TestInfo>();
 
-        // populateTestInfo(testInfo);
         // THere would always be atleast one method associated with the Runner, else validation would fail.
         for (FrameworkMethod method : testMethods) {
             TestInfo testInfo = null;
