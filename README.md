@@ -1,6 +1,56 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-An updated version of EasyTest Core(1.2.2) module is now available.
+An updated version of EasyTest Core(1.2.3) module is now available.
+
+What's new in Version 1.2.3
+---------------------------
+A new annotation [Duration](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Duration.java) is introduced.
+This annotation is introduced to capture the time taken by the method under test and assert it with the user specified maximum time.
+Thus a user can now say that the test should fail if the method it is trying to test takes more than "x"milliseconds.
+<br>Let's look at an example
+
+        public class TestDuration {
+        
+        @Duration(timeInMillis=20)
+        ItemService testSubject;
+        
+        @Test
+        public Item findItemTest(@Param(name='itemId')String itemId) {
+        Item result = testSubject.findItem(itemId)
+          Assert.notNull(result);
+          return result;
+        }
+        
+In the above case, if the method <B>findItem</B> of class <B>ItemService</B> took more than 20 milli seconds, then the test method 
+will fail specifying that the method took more time than expected.
+
+A second use of this annotation is if a user wants to override the value of <B>timeInMillis</B> attribute of Duration annotation for a specific Test. In such a case,
+he can specify the Duration annotation at the Test Method level and EasyTest will override the value of timeInMillis only for that test.
+Lets look at an example :
+   
+        public class TestDuration {
+        
+        @Duration(timeInMillis=20)
+        ItemService testSubject;
+        
+        @Test
+        public Item findItemTest(@Param(name='itemId')String itemId) {
+        Item result = testSubject.findItem(itemId)
+          Assert.notNull(result);
+          return result;
+          
+        @Test
+        @Duration(timeInMillis=50 , forClass=ItemService.class)
+        public List<Item> getItemsTest(@Param(name='itemType')String itemType) {
+        List<Item> result = testSubject.getItems(itemType)
+          Assert.notNull(result);
+          return result;
+        }
+        
+In the above case, we are telling EasyTest that method <B>getItems</B> of class <B>ItemService</B> should not take more than 50 milliseconds
+when run inside the test method with name <B>getItemsTest</B>. 
+
+In order to get the complete picture, have a look at the Java docs of [Duration](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Duration.java) annotation.
 
 What's changed in Version 1.2.2
 -------------------------------
