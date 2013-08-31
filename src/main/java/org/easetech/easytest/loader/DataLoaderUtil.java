@@ -1,13 +1,13 @@
 
 package org.easetech.easytest.loader;
 
-import java.util.regex.Matcher;
-
-import java.util.regex.Pattern;
+import org.easetech.easytest.internal.SystemProperties;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.io.EmptyResource;
 import org.easetech.easytest.io.Resource;
@@ -38,10 +38,6 @@ public final class DataLoaderUtil {
     /** Pattern for runtime expression */
     private static final Pattern RUNTIME_EXPR_PATTERN = Pattern.compile("\\$\\{.*\\}");
 
-    /**
-     * System Property that a user can set at runtime using the -D option, to provide test data at runtime.
-     */
-    private static final String TEST_DATA_FILES = "testDataFiles";
 
     /**
      * Method that determines the right Loader and the right Data Files for the "write output data" functionality
@@ -116,7 +112,7 @@ public final class DataLoaderUtil {
 
     private static String[] handleSystemProperty() {
         String[] result = null;
-        String datafiles = System.getProperty(TEST_DATA_FILES);
+        String datafiles = System.getProperty(SystemProperties.TEST_DATA_FILES.getValue());
         if (datafiles == null || datafiles.length() == 0) {
             LOG.warn("Input Test data not provided. Assuming that user has a custom Data Loader.");
         } else {

@@ -1,6 +1,6 @@
 package org.easetech.easytest.util;
 
-import org.easetech.easytest.converter.ConverterManager;
+import org.easetech.easytest.internal.SystemProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.io.ResourceLoader;
 import org.easetech.easytest.io.ResourceLoaderStrategy;
 import org.easetech.easytest.reports.data.ReportDataContainer;
@@ -153,8 +153,11 @@ public class RunAftersWithOutputData extends Statement {
         	
         	ReportParametersBean reportParameters = null;
         	
-        	if (System.getProperty("reports.generate") != null) {
-        		reportParameters = new ReportParametersBean(System.getProperty("reports.format"), System.getProperty("reports.location"), System.getProperty("reports.package"));
+        	if (System.getProperty(SystemProperties.GENERATE_REPORT.getValue()) != null) {
+        		reportParameters = new ReportParametersBean(
+        		    System.getProperty(SystemProperties.REPORT_FORMAT.getValue()), 
+        		    System.getProperty(SystemProperties.REPORT_LOCATION.getValue()), 
+        		    System.getProperty(SystemProperties.REPORT_PACKAGES.getValue()));
         	} else if (annotation != null) {
                 reportParameters = new ReportParametersBean(annotation.outputFormats(), annotation.outputLocation());
         	} else {
