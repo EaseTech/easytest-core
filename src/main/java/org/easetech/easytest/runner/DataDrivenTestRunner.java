@@ -1,13 +1,7 @@
 
 package org.easetech.easytest.runner;
 
-import net.sf.cglib.proxy.Factory;
-
-import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
-
-import org.easetech.easytest.interceptor.Empty;
-
-import org.easetech.easytest.annotation.Duration;
+import org.easetech.easytest.annotation.Repeat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -21,8 +15,10 @@ import java.util.Map;
 import java.util.Properties;
 import javax.inject.Inject;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Provided;
@@ -31,6 +27,7 @@ import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.exceptions.ParamAssertionError;
+import org.easetech.easytest.interceptor.Empty;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
 import org.easetech.easytest.interceptor.MethodIntercepter;
@@ -204,27 +201,10 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         return frameworkMethods;
     }
 
-    /**
-     * Overridden the compute test method to make it save the method list as class instance, so that the method does not
-     * run multiple times. Also, this method now is responsible for creating multiple {@link FrameworkMethod} instances
-     * for a given method with multiple test data. So, if a given test method needs to run three times with three set of
-     * input test data, then this method will actually create three instances of {@link FrameworkMethod}. In order to
-     * allow the user to override the default name, {@link FrameworkMethod} is extended with {@link EasyFrameworkMethod}
-     * and {@link EasyFrameworkMethod#setName(String)} method introduced.
-     * 
-     * @return list of {@link FrameworkMethod}
-     */
-
-    protected List<FrameworkMethod> computeMethodsForTest() {
-
-        List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
-        // Iterator<FrameworkMethod> testMethodsItr = super.computeTestMethods().iterator();
-        Class<?> testClass = getTestClass().getJavaClass();
-
+    protected void categorizeTestMethods(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> methodsWithData) {
         List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
-        List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
-        List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
 
+        Class<?> testClass = getTestClass().getJavaClass();
         for (FrameworkMethod method : availableMethods) {
             // Try loading the data if any at the method level
             if (method.getAnnotation(DataLoader.class) != null) {
@@ -246,11 +226,15 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                     }
                 }
             }
-            // Next Try registering the converters, if any at the method level
+            // Piggyback to register converters if any for the given method
             registerConverter(method.getAnnotation(Converters.class));
 
         }
+    }
 
+    protected void handleMethodsWithData(List<FrameworkMethod> methodsWithData, List<FrameworkMethod> finalList) {
+        Class<?> testClass = getTestClass().getJavaClass();
+        List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
         for (FrameworkMethod methodWithData : methodsWithData) {
             String superMethodName = DataConverter.getFullyQualifiedTestName(methodWithData.getName(), testClass);
             for (FrameworkMethod method : availableMethods) {
@@ -268,14 +252,30 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                             + "or a spelling mismatch in the method name. Check logs for more details.");
                     }
                     for (Map<String, Object> testData : methodData) {
-                        TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod().getName(),
-                            new Date());
-                        testReportContainer.addTestResult(testResultBean);
-                        // Create a new FrameworkMethod for each set of test data
-                        EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
-                            testResultBean);
-                        easyMethod.setName(method.getName().concat(testData.toString()));
-                        finalList.add(easyMethod);
+                        Repeat repeatTests = method.getAnnotation(Repeat.class);
+                        if (repeatTests != null) {
+                            for (int count = 0; count < repeatTests.times(); count++) {
+                                TestResultBean testResultBean = new TestResultBean(
+                                    methodWithData.getMethod().getName(), new Date());
+                                testReportContainer.addTestResult(testResultBean);
+                                // Create a new FrameworkMethod for each set of test data
+                                EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
+                                    testResultBean, method.getName().concat(testData.toString()));
+                                easyMethod.setName(method.getName().concat("_").concat(String.valueOf(count))
+                                    .concat(testData.toString()));
+                                finalList.add(easyMethod);
+                            }
+                        } else {
+                            TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod().getName(),
+                                new Date());
+                            testReportContainer.addTestResult(testResultBean);
+                            // Create a new FrameworkMethod for each set of test data
+                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
+                                testResultBean, method.getName().concat(testData.toString()));
+                            easyMethod.setName(method.getName().concat(testData.toString()));
+                            finalList.add(easyMethod);
+                        }
+
                     }
 
                     // Since the runner only ever handles a single method, we break out of the loop as soon as we
@@ -285,12 +285,53 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                 }
             }
         }
+    }
+    
+
+    protected void HandleMethodsWithNoData(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> finalList) {
         for (FrameworkMethod fMethod : methodsWithNoData) {
-            TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
-            testReportContainer.addTestResult(testResultBean);
-            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod(), null, testResultBean);
-            finalList.add(easyMethod);
+
+            Repeat repeatTests = fMethod.getAnnotation(Repeat.class);
+            if (repeatTests != null) {
+                for (int count = 0; count < repeatTests.times(); count++) {
+                    TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
+                    testReportContainer.addTestResult(testResultBean);
+                    // Create a new FrameworkMethod for each set of test data
+                    EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod(), null, testResultBean,
+                        fMethod.getName());
+                    easyMethod.setName(fMethod.getName().concat("_").concat(String.valueOf(count)));
+                    finalList.add(easyMethod);
+                }
+            } else {
+                TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
+                testReportContainer.addTestResult(testResultBean);
+                EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod(), null, testResultBean,
+                    fMethod.getName());
+                finalList.add(easyMethod);
+            }
+
         }
+    }
+
+    /**
+     * Overridden the compute test method to make it save the method list as class instance, so that the method does not
+     * run multiple times. Also, this method now is responsible for creating multiple {@link FrameworkMethod} instances
+     * for a given method with multiple test data. So, if a given test method needs to run three times with three set of
+     * input test data, then this method will actually create three instances of {@link FrameworkMethod}. In order to
+     * allow the user to override the default name, {@link FrameworkMethod} is extended with {@link EasyFrameworkMethod}
+     * and {@link EasyFrameworkMethod#setName(String)} method introduced.
+     * 
+     * @return list of {@link FrameworkMethod}
+     */
+
+    protected List<FrameworkMethod> computeMethodsForTest() {
+
+        List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
+        List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
+        List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
+        categorizeTestMethods(methodsWithNoData, methodsWithData);
+        handleMethodsWithData(methodsWithData, finalList);
+        HandleMethodsWithNoData(methodsWithNoData, finalList);
         if (finalList.isEmpty()) {
             Assert.fail("No method exists for the Test Runner");
         }
@@ -349,8 +390,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             } else {
                 Duration duration = field.getAnnotation(Duration.class);
                 if (duration != null) {
-                    provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field,
-                        testInstance);
+                    provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field, testInstance);
                 }
             }
 
@@ -531,9 +571,8 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         for (Field field : fields) {
             field.setAccessible(true);
             if (field.getType().isAssignableFrom(duration.forClass())) {
-                provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field,
-                    testInstance);
-                
+                provideProxyWrapperFor(duration.interceptor(), duration.timeInMillis(), field, testInstance);
+
             }
         }
     }

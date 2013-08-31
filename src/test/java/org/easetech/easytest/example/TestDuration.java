@@ -1,5 +1,7 @@
 package org.easetech.easytest.example;
 
+import org.easetech.easytest.annotation.Repeat;
+
 import javax.inject.Inject;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Duration;
@@ -32,18 +34,21 @@ public class TestDuration {
     }
     
     @Test
-    @Duration(timeInMillis=3000 , forClass= RealItemService.class)
+    @Duration(timeInMillis=3000 , forClass= RealItemService.class)   
     public Item testNoData() throws InterruptedException{
         System.out.println("Executing testNoData");
         return itemService.findItem(new LibraryId(Long.valueOf(1)), new ItemId(2L));
     }
     
     @Test
+    @Repeat(times=2)
     public void a() {
+        System.out.println("A Called");
         itemService.findItem(new LibraryId(1L), new ItemId(2L));
     }
 
     @Test
+    @Repeat(times=3)
     public Item getExcelTestData(@Param(name="libraryId")
     Long libraryId, @Param(name="itemId")
     Long itemId) {
