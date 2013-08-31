@@ -70,15 +70,20 @@ import org.easetech.easytest.interceptor.MethodIntercepter;
  * Once the method is finished, it will revert back to the original value specified at the field level. Thus if you have second test method 
  * that does not have Duration annotation, then the measure of time taken by the method will be 100 milliseconds and not 50 ms.
  * 
- * 
+ * @author Anuj Kumar
  *  
  */
 @Target({ ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Duration {
     
+    /** The time in milliseconds. This is the maximum time a method under test should take to execute */
     long timeInMillis();
     
+    /** The Class that should be proxied to provide the time comparison functionality.
+     * Only required in case the Duration annotation is specified at the test method level.
+     * Its value will be ignored in case it is specified when the annotation is used at the field level
+     */
     Class<?> forClass() default Empty.class;
     
     /**
