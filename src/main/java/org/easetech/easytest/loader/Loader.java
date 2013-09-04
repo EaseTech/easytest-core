@@ -74,7 +74,7 @@ public interface Loader {
     final String TEST_FAILED = "FAILED";
     
     /**
-     * Method responsible to Load the test data from the list of files passed as parameter
+     * Method responsible to Load the test data from the {@link Resource} instance passed as parameter
      * @param resource from which to load the data
      * @return a Map consisting of the methodName as key and a List of Key/value pairs as the value of the Map.
      * This is currently not a user friendly way of exposing the test data. 
