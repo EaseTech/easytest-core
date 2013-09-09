@@ -9,6 +9,10 @@
    times by the EasyTest framework,
    once each for the given TestRecord.
   </Description>
+  <InputData>
+    <Entry key="libraryId" value="-1"/>
+    <Entry key="globalParam" value="globalParamValue"/>
+  </InputData>
   <TestRecord id="1">
    <Description>This test tries to capture the scenario when the data is
     available in the DB
