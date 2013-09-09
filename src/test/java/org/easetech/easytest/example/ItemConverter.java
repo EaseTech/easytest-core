@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ItemConverter extends AbstractConverter<Item> {
 
-    public Item convert(Map<String, Object> convertFrom) {
+    public Item convert(Map<String, Object> convertFrom, String paramName) {
         Item item = null;
 
         if (convertFrom != null) {
