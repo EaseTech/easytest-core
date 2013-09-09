@@ -12,7 +12,7 @@ public class EnumConverter extends AbstractConverter<Workingday> {
      * @param convertFrom
      * @return
      */
-    public Workingday convert(Map<String, Object> convertFrom) {
+    public Workingday convert(Map<String, Object> convertFrom, String paramName) {
         
         return Workingday.valueOf((String)convertFrom.get("items"));
 
