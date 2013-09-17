@@ -28,10 +28,9 @@ public interface Converter<Type> {
     /**
      * Convert the Map into a user defined object.
      * @param convertFrom the {@link Map} to convert from
-     * @param paramName the param that is currently being converted
      * @return the object to convert to identified by {@link #convertTo()} class.
      */
-    Type convert(Map<String , Object> convertFrom, String paramName);
+    Type convert(Map<String , Object> convertFrom);
     
     /**
      * Method responsible for returning an instance of the provided Generic Type argument.

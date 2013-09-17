@@ -1,7 +1,7 @@
 
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.annotation.Repeat;
+import org.easetech.easytest.internal.SystemProperties;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +22,7 @@ import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Provided;
+import org.easetech.easytest.annotation.Repeat;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
@@ -122,7 +123,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         setSchedulingStrategy();
         loadBeanConfiguration();
         loadClassLevelData(klass);
-        registerConverter(testClass.getAnnotation(org.easetech.easytest.annotation.Converters.class));
+        registerConverter(testClass.getAnnotation(Converters.class));
         try {
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
@@ -169,7 +170,9 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     protected void setSchedulingStrategy() {
         Class<?> testClass = getTestClass().getJavaClass();
-        if (testClass.getAnnotation(Parallel.class) != null) {
+        if (testClass.getAnnotation(Parallel.class) != null || 
+            Boolean.TRUE.toString().equalsIgnoreCase(
+                System.getProperty(SystemProperties.RUN_PARALLEL.getValue()))) {
             super.setScheduler(SchedulerStrategy.getScheduler(testClass));
         }
     }
@@ -253,8 +256,9 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                     }
                     for (Map<String, Object> testData : methodData) {
                         Repeat repeatTests = method.getAnnotation(Repeat.class);
-                        if (repeatTests != null) {
-                            for (int count = 0; count < repeatTests.times(); count++) {
+                        if (repeatTests != null || getRepeatCount() != null) {
+                            int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
+                            for (int count = 0; count < repeatCount; count++) {
                                 TestResultBean testResultBean = new TestResultBean(
                                     methodWithData.getMethod().getName(), new Date());
                                 testReportContainer.addTestResult(testResultBean);
@@ -287,13 +291,23 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
     }
     
+    protected Integer getRepeatCount() {
+        Integer count = null;
+        String repeatCount = System.getProperty(SystemProperties.REPEAT_COUNT.getValue());
+        if(repeatCount != null) {
+            count = Integer.valueOf(repeatCount);
+        }
+        return count;
+        
+    }
 
     protected void HandleMethodsWithNoData(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> finalList) {
         for (FrameworkMethod fMethod : methodsWithNoData) {
 
             Repeat repeatTests = fMethod.getAnnotation(Repeat.class);
-            if (repeatTests != null) {
-                for (int count = 0; count < repeatTests.times(); count++) {
+            if (repeatTests != null || getRepeatCount() != null) {
+                int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
+                for (int count = 0; count < repeatCount; count++) {
                     TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
                     testReportContainer.addTestResult(testResultBean);
                     // Create a new FrameworkMethod for each set of test data

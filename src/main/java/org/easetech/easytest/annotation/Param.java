@@ -87,7 +87,7 @@ import org.slf4j.LoggerFactory;
  *       translate a map of key/value pair into custom objects that can be passed as input parameters to the test cases.
  *       For example, if you want to pass a complex object as input parameter to a test case then you will simply write
  *       a custom converter that extends {@link AbstractConverter} and will override the
- *       {@link AbstractConverter#convert(Map, String)} method. You can look at example of CustomConverter here :
+ *       {@link AbstractConverter#convert(Map)} method. You can look at example of CustomConverter here :
  *       https://github.
  *       com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/ItemConverter.java
  * 
@@ -273,7 +273,7 @@ public @interface Param {
                             LOG.debug("Converter for class " + idClass + "  found. ");
                         }
                         for (Map<String, Object> object : convertFrom) {
-                            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, converter.convert(object, paramName)));
+                            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, converter.convert(object)));
                         }
                     } else {
                         
@@ -380,7 +380,7 @@ public @interface Param {
                             String[] splitValues = values.split(COLON);
                             for (int i = 0; i < splitValues.length; i++) {
                                 tempMap.put(paramName, splitValues[i]);
-                                objectValues.add(converter.convert(tempMap, paramName));
+                                objectValues.add(converter.convert(tempMap));
                             }
                             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                         }

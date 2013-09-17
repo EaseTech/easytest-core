@@ -10,7 +10,7 @@ public class DequeConverter extends AbstractConverter<LinkedBlockingQueue> {
      * @param convertFrom
      * @return
      */
-    public LinkedBlockingQueue convert(Map<String, Object> convertFrom, String paramName) {
+    public LinkedBlockingQueue convert(Map<String, Object> convertFrom) {
         // TODO Auto-generated method stub
         return null;
     }

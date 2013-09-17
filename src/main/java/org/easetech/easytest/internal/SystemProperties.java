@@ -1,5 +1,7 @@
 package org.easetech.easytest.internal;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * 
  * A convenient class to define all the system properties that EasyTest expects.
@@ -7,12 +9,14 @@ package org.easetech.easytest.internal;
  * @author Anuj Kumar
  *
  */
+@XmlRootElement
 public enum SystemProperties {
     
     /**
-     * System Property that a user can set at runtime using the -D option, to provide test data at runtime.
+     * System Property that a user can set at runtime using the -D option, to provide 
+     * test data file paths at runtime.
      */
-    TEST_DATA_FILES("testDataFiles"),
+    TEST_DATA_FILES("test.dataFiles"),
     
     /**
      * System Property that a user can set at runtime using the -D option, 
@@ -36,7 +40,18 @@ public enum SystemProperties {
      * System Property that a user can set at runtime using the -D option, 
      * to specify the report package.
      */
-    REPORT_PACKAGES("reports.package");
+    REPORT_PACKAGES("reports.package"),
+    
+    /**
+     * System Property to be used for specifying the number of times
+     * a test should be repeated
+     */
+    REPEAT_COUNT("test.repeatCount"),
+    
+    /**
+     * System property to specify whether the tests should run parallel or not
+     */
+    RUN_PARALLEL("test.runParallel");
     
     /**
      * the actual value of the system property
