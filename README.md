@@ -24,7 +24,7 @@ will create 20 unique instances of the above test method.
 
 There is also a System Property <B>test.repeatCount</B> that can be used while running tests from command line.
 When this property is set, EasyTest simply creates "n" instances of each test defined in the test class, where "n" is defined 
-by the "times" attribute of teh Repeat annotation. System Property takes precedence over Repeat annotation. It means that if 
+by the value of the above System Property. System Property takes precedence over Repeat annotation. It means that if 
 both annotation and system property is present, then System Property's value will be used.
 
 Another important addition to EasyTest is a new interface for Converter called [ParamAwareConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/ParamAwareConverter.java)
