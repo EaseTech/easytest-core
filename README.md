@@ -1,6 +1,44 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-An updated version of EasyTest Core(1.2.3) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+An updated version of EasyTest Core(1.2.4) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+
+What's new in Version 1.2.4
+---------------------------
+A new method level annotation [Repeat](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Repeat.java).
+This annotation can be used to repeat the same test multiple times. This annotation is useful in scenarios where you may quickly want to load test your application.
+Here is how this annotation can be used.
+
+        public class TestRepeat {
+        
+            @Test
+            @Repeat(times=20)
+            public Item findItemTest(@Param(name='itemId')String itemId) {
+               Item result = testSubject.findItem(itemId)
+                 Assert.notNull(result);
+                 return result;
+            }
+          
+Notice the Repeat annotation at the method level. When EasyTest sees this annotation, it creates "n" different instances 
+of the test method, where "n" is defined by the "times" attribute of the Repeat annotation. In the above case, EasyTest 
+will create 20 unique instances of the above test method.
+
+There is also a System Property <B>test.repeatCount</B> that can be used while running tests from command line.
+When this property is set, EasyTest simply creates "n" instances of each test defined in the test class, where "n" is defined 
+by the "times" attribute of teh Repeat annotation. System Property takes precedence over Repeat annotation. It means that if 
+both annotation and system property is present, then System Property's value will be used.
+
+Another important addition to EasyTest is a new interface for Converter called [ParamAwareConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/ParamAwareConverter.java)
+This interface introduces a new convert method that is now aware of the Parameter name that it is trying to convert.
+Users of the original [Converter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/Converter.java)
+will not be affected and can continue to use it like before. If you are using [AbstractConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/AbstractConverter.java)
+class to define your converters then you are in luck. You now get the name parameter for free by calling the getParamName method
+of the [AbstractConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/AbstractConverter.java) class.
+Thanks to [Josef Sustacek](https://github.com/sustacek) for his contribution.
+
+Yet another addition to the library is the support for global/default input test data in the XML file. So a user can now 
+specify the repeatable input data globally once, instead of defining the same test data again and again for each test method.
+Thanks again to [Josef Sustacek](https://github.com/sustacek) for his contribution. You can have a look at an example [here.](https://github.com/EaseTech/easytest-core/blob/master/src/test/resources/input-data.xml)
+
 
 What's new in Version 1.2.3
 ---------------------------
