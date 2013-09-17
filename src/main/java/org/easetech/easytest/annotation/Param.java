@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.annotation;
 
+import org.easetech.easytest.converter.ParamAwareConverter;
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
@@ -157,7 +159,8 @@ public @interface Param {
 
             if (testMethodName == null) {
                 Assert
-                    .fail("The framework could not locate the test data for the test method. If you are using TestData annotation, make sure you specify the test method name in the data file. "
+                    .fail("The framework could not locate the test data for the test method. If you are using TestData annotation, " +
+                    		"make sure you specify the test method name in the data file. "
                         + "In case you are using ParametersSuppliedBy annotation, make sure you are using the right ParameterSupplier subclass.");
             }
             List<PotentialAssignment> listOfData = null;
@@ -230,6 +233,7 @@ public @interface Param {
          * @param convertFrom the list of raw data read from the CSV file.
          * @return list of {@link PotentialAssignment}
          */
+        @SuppressWarnings("unchecked")
         private List<PotentialAssignment> convert(Class<?> idClass, String paramName,
             List<Map<String, Object>> convertFrom) {
             List<PotentialAssignment> potentialAssignments = new ArrayList<PotentialAssignment>();
@@ -262,18 +266,20 @@ public @interface Param {
                     }
 
                 } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Editor for class " + idClass + " not found. Trying to find converter.");
-                    }
+                    
+                    LOG.debug("Editor for class {} not found. Trying to find converter.", idClass);
                     // Try to find the Converter
                     Converter<?> converter = ConverterManager.findConverter(idClass);
                     if (converter != null) {
-                        System.out.println("Converter found for class " + idClass);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Converter for class " + idClass + "  found. ");
-                        }
+                        LOG.debug("Converter for class {} found.", idClass);
                         for (Map<String, Object> object : convertFrom) {
-                            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, converter.convert(object)));
+                            Object value = null;
+                            if (converter instanceof ParamAwareConverter) {
+                                value = ((ParamAwareConverter)converter).convert(object, paramName);
+                            } else {
+                                value = converter.convert(object);
+                            }
+                            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, value));
                         }
                     } else {
                         
@@ -380,7 +386,13 @@ public @interface Param {
                             String[] splitValues = values.split(COLON);
                             for (int i = 0; i < splitValues.length; i++) {
                                 tempMap.put(paramName, splitValues[i]);
-                                objectValues.add(converter.convert(tempMap));
+                                Object value = null;
+                                if(converter instanceof ParamAwareConverter) {
+                                    value = ((ParamAwareConverter)converter).convert(tempMap, paramName);
+                                } else {
+                                    value = converter.convert(tempMap);
+                                }
+                                objectValues.add(value);
                             }
                             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
                         }

@@ -11,6 +11,7 @@ public class ComparableObjectConverter extends AbstractConverter<ComparableObjec
      * @return
      */
     public ComparableObject convert(Map<String, Object> convertFrom) {
+        System.out.println("Param name is :" + getParamName());
         String items = (String)convertFrom.get("items");
         return new ComparableObject(Long.valueOf(items));
         
