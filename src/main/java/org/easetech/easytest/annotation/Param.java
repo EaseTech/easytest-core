@@ -238,7 +238,11 @@ public @interface Param {
             List<Map<String, Object>> convertFrom) {
             List<PotentialAssignment> potentialAssignments = new ArrayList<PotentialAssignment>();
 
-            if (GeneralUtil.isStandardObjectInstance(idClass)) {
+            if (GeneralUtil.dataAlreadyConverted(idClass, convertFrom, paramName)) {
+                for (Map<String , Object> object : convertFrom) {
+                    potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, object.get(paramName)));
+                }
+            } else if (GeneralUtil.isStandardObjectInstance(idClass)) {
                 for (Map<String, Object> object : convertFrom) {
                     potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING,
                         GeneralUtil.convertToTargetType(idClass, object.get(paramName))));
@@ -309,6 +313,19 @@ public @interface Param {
 
 
         /**
+         * Get the instance of the collection from the User converted data
+         */
+        private Collection getCollectionInstance(List<Map<String, Object>> convertFrom , String paramName , Class<?> genericType) {
+            Collection result = null;
+            for(Map<String , Object> data : convertFrom) {
+                Object value = data.get(paramName);
+                result = getCollectionInstance(value.getClass(), genericType);
+                break;
+            }
+            return result;
+        }
+
+        /**
          * Method that returns a list of {@link PotentialAssignment} that contains the value as specified by idClass
          * parameter.
          * 
@@ -327,8 +344,14 @@ public @interface Param {
                 : Object.class;
             Collection objectValues = getCollectionInstance(parameterType, genericType);
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
-
-            if (!signature.getIsGenericParameter()) {
+            if(GeneralUtil.dataAlreadyConverted(parameterType , convertFrom , paramName)) {
+                objectValues = getCollectionInstance(convertFrom , paramName , genericType);
+                for(Map<String, Object> object : convertFrom) {
+                    Object value = object.get(paramName);                     
+                    objectValues.add(value);
+                }
+                finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
+            } else if (!signature.getIsGenericParameter()) {
                 LOG.debug("Collection is of Non generic type.Setting the same values as fetched from the test file.");
                 for (Map<String, Object> object : convertFrom) {
                     String[] strValues = ((String) object.get(paramName)).split(COLON);
