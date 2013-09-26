@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.reports.data.DurationObserver;
+
 import org.easetech.easytest.internal.SystemProperties;
 
 import java.lang.reflect.Field;
@@ -104,6 +106,8 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      * The report container which holds all the reporting data
      */
     private final ReportDataContainer testReportContainer;
+    
+    private final DurationObserver durationObserver = new DurationObserver();
 
     /**
      * Look at {@link DataDrivenTestRunner} for details.
@@ -128,6 +132,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
             testReportContainer = new ReportDataContainer(getTestClass().getJavaClass());
+            testReportContainer.setDurationList(durationObserver.getDurationList());
             frameworkMethods = computeMethodsForTest();
 
         } catch (Exception e) {
@@ -643,6 +648,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         handler.setUserIntercepter(interceptorClass.newInstance());
         handler.setTargetInstance(fieldInstance);
         handler.setExpectedRunTime(timeInMillis);
+        handler.addObserver(durationObserver);
         return Proxy.newProxyInstance(classLoader, interfaces, handler);
     }
 
@@ -655,6 +661,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         cglibInterceptor.setTargetInstance(fieldInstance);
         cglibInterceptor.setUserIntercepter(interceptorClass.newInstance());
         cglibInterceptor.setExpectedRunTime(timeInMillis);
+        cglibInterceptor.addObserver(durationObserver);
         enhancer.setCallback(cglibInterceptor);
         return enhancer.create();
     }
@@ -698,6 +705,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             }
 
         }
+        
         RunAftersWithOutputData runAftersWithOutputData = new RunAftersWithOutputData(statement, afters, null,
             testInfoList, writableData, testReportContainer);
         return runAftersWithOutputData;

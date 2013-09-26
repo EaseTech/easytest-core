@@ -1,5 +1,9 @@
 package org.easetech.easytest.interceptor;
 
+import org.easetech.easytest.reports.data.MethodUnderTestDuration;
+
+import java.util.Observable;
+
 import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
@@ -15,7 +19,7 @@ import org.easetech.easytest.annotation.Duration;
  * @author Anuj Kumar
  *
  */
-public class CommonProxyInterceptor {
+public class CommonProxyInterceptor  extends Observable {
     
     /** Logger implementation*/
     protected static final Logger LOG = LoggerFactory.getLogger(CommonProxyInterceptor.class);
@@ -97,7 +101,7 @@ public class CommonProxyInterceptor {
         if(timeInMillis != null && timeInMillis != 0 && timeInMillis != Long.MAX_VALUE) {
             if (nanoBase > Long.MAX_VALUE / timeInMillis) {
                 Assert.fail("EasyTest tries to convert the time (specified in Millisecond using Duration annotation) into nano seconds for precise comparisons." +
-                		"But in this particular case, you specified a value that would ultimately overflow. " +
+                		"But in this particular case, you specified a value that would ultimately overflow and will not fit in the long datatype. " +
                 		"The value is : " + timeInMillis + "(ms). Please specify a smaller time unit.");
             } else {
                result = timeInMillis * nanoBase; 
@@ -111,11 +115,12 @@ public class CommonProxyInterceptor {
      * Compare the time taken by the method to the expected runtime.
      * Fail if the time taken is more, else log the time taken.
      * @param timeTakenInNanos time taken by the method under test
-     * @param methodName Name of the method
+     * @param method Name of the method
+     * @param durationBean the instance of {@link MethodUnderTestDuration}
      */
-    public void compareTime(Long timeTakenInNanos , String methodName) {
+    public void compareTime(Long timeTakenInNanos , Method method , MethodUnderTestDuration durationBean) {
         Long expectedTimeInNano = getExpectedTimeInNano(getExpectedRunTime());
-        Long expectedTimeInMillis, timeTakenInMillis, expectedTimeinMicros, timeTakenInMicros;
+        Long expectedTimeInMillis = Long.valueOf(0), timeTakenInMillis, expectedTimeinMicros, timeTakenInMicros;
         timeTakenInMicros = timeTakenInNanos / 1000 ;
         timeTakenInMillis = (timeTakenInNanos / 1000)/1000;
         if(expectedTimeInNano!= null && timeTakenInNanos > expectedTimeInNano) {
@@ -123,12 +128,15 @@ public class CommonProxyInterceptor {
             expectedTimeInMillis = (expectedTimeInNano / 1000)/1000;
             expectedTimeinMicros = expectedTimeInNano / 1000 ;
             
-            Assert.fail("Total time taken by method " + methodName+" ("+ timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec) is greater than the " +
+            Assert.fail("Total time taken by method " + method.getName() +" ("+ timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec) is greater than the " +
             		"expected time("+expectedTimeInNano+" nenosec/" +expectedTimeinMicros+" microsec/"+expectedTimeInMillis+" millisec)");
         } else {
-            System.out.println("Method " + methodName + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec" );
-            LOG.debug("Method {} on class {} took " + timeTakenInNanos +" ms", methodName, getTargetInstance().getClass());
+            System.out.println("Method " + method.getName() + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec" );
+            LOG.debug("Method " + method.getName() + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec" );
         }
+        durationBean.setActualDurationinMillis(timeTakenInMillis);
+        durationBean.setExpectedDurationinMillis(expectedTimeInMillis);
+        notifyObservers(durationBean);
     }
     
     /**
@@ -145,8 +153,26 @@ public class CommonProxyInterceptor {
         Long startTime = System.nanoTime();
         Object result = getUserIntercepter().intercept(method, getTargetInstance(), args);
         Long timeTaken = System.nanoTime() - startTime;
-        compareTime(timeTaken , method.getName());
+        MethodUnderTestDuration durationBean = getMethodDurationBean(method, args, result);
+        compareTime(timeTaken , method , durationBean);
         return result;
+    }
+    
+    /**
+     * Method to get hte {@link MethodUnderTestDuration} instance filled with requisite information
+     * @param method the method under test
+     * @param args the arguments to the method under test
+     * @param result the result returned by the method under test
+     * @return an instance of {@link MethodUnderTestDuration}
+     */
+    private MethodUnderTestDuration getMethodDurationBean(Method method, Object[] args , Object result) {
+        MethodUnderTestDuration durationBean = new MethodUnderTestDuration();
+        durationBean.setClassUnderTest(getTargetInstance().getClass());
+        durationBean.setMethodUnderTest(method);
+        durationBean.setMethodArguments(args);
+        durationBean.setMethodResult(result);
+        return durationBean;
+        
     }
 
 }

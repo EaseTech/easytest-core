@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
  * Uncomment the Ignore annotation
  *
  */
-@Ignore
+
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
 @TestConfigProvider({TestConfigProviderClass.class})

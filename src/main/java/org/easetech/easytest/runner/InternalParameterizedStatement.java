@@ -9,7 +9,7 @@ import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
-import org.easetech.easytest.reports.data.DurationBean;
+import org.easetech.easytest.reports.data.TestMethodDuration;
 import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.util.CommonUtils;
 import org.junit.Assert;
@@ -195,7 +195,7 @@ public class InternalParameterizedStatement extends Statement {
             returnObj = method.invokeExplosively(freshInstance, values);
             eachRunNotifier.fireTestFinished();
             
-            DurationBean testItemDurationBean = new DurationBean(currentMethodName,
+            TestMethodDuration testItemDurationBean = new TestMethodDuration(currentMethodName,
                 testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
             testResult.addTestItemDurationBean(testItemDurationBean);
             testResult.setOutput((returnObj == null) ? "void" : returnObj);
