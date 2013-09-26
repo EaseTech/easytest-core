@@ -1,6 +1,13 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-An updated version of EasyTest Core(1.2.4) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+An updated version of EasyTest Core(1.2.5) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+
+What's new in Version 1.2.5
+---------------------------
+Version 1.2.5 is mostly some bug fixes and code cleaning release. Importantly, from a user's perspective, anyone writing their own custom loaders
+can now convert the data into specific Object during read time itself, which simplifies their test cases further in the sense that they dont need to write/register specific converters.
+Although this practice is not encouraged as it may lead to coupled, hard to refactor code, but in certain scenarios it is also useful.
+One of the clients of EasyTest had this requirement and so it has now been supported.
 
 What's new in Version 1.2.4
 ---------------------------
@@ -90,7 +97,7 @@ when run inside the test method with name <B>getItemsTest</B>.
 
 In order to get the complete picture, have a look at the Java docs of [Duration](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Duration.java) annotation.
 
-What's changed in Version 1.2.2
+What's new in Version 1.2.2
 -------------------------------
 * A user can now specify a variable value as part of the DataLoader's filePaths attribute.
 Thus it is now possible to use DataLoader annotation like this :
@@ -107,7 +114,7 @@ system that it has to fetch the value of filePaths attribute from the system pro
 * <B>NOTE</B> If a user has specified both <B>"testDataFiles" System Property AND a value for "dataFiles" attribute</B>, then the System Property files(specified using testDataFiles System Property) 
 will override the files specified using the "dataFiles" attribute of DataLoader annotation.
 
-What's changed in Version 1.2.1
+What's new in Version 1.2.1
 ------------------------------
 Besides regular clean up stuff, one of the important things that changed in 1.2.1 is the way Test methods are now instantiated and their data handled.
 Until version 1.2, all the test methods were running in a single test class instance, which, normally was not a problem, but caused
