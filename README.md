@@ -47,7 +47,7 @@ specify the repeatable input data globally once, instead of defining the same te
 Thanks again to [Josef Sustacek](https://github.com/sustacek) for his contribution. You can have a look at an example [here.](https://github.com/EaseTech/easytest-core/blob/master/src/test/resources/input-data.xml)
 
 You can always refer the [WIKI pages](https://github.com/EaseTech/easytest/wiki) of EasyTest project for a general idea and more indepth detail, or can directly mail me at 
-anujkumar@easetech.org
+anujkumar@easetech.org for any questions/clarifications/suggestions.
 
 
 What's new in Version 1.2.3
