@@ -345,12 +345,9 @@ public @interface Param {
             Collection objectValues = getCollectionInstance(parameterType, genericType);
             List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
             if(GeneralUtil.dataAlreadyConverted(parameterType , convertFrom , paramName)) {
-                objectValues = getCollectionInstance(convertFrom , paramName , genericType);
-                for(Map<String, Object> object : convertFrom) {
-                    Object value = object.get(paramName);                     
-                    objectValues.add(value);
+                for (Map<String , Object> object : convertFrom) {
+                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, object.get(paramName)));
                 }
-                finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
             } else if (!signature.getIsGenericParameter()) {
                 LOG.debug("Collection is of Non generic type.Setting the same values as fetched from the test file.");
                 for (Map<String, Object> object : convertFrom) {

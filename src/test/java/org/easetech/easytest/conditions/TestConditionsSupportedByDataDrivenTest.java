@@ -2,6 +2,8 @@ package org.easetech.easytest.conditions;
 
 
 
+import org.junit.Ignore;
+
 import java.sql.Date;
 import java.util.LinkedList;
 import java.util.Map;

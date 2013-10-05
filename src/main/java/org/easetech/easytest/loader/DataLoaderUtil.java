@@ -83,17 +83,20 @@ public final class DataLoaderUtil {
         String[] result = new String[filePaths.length];
         result = handleSystemProperty();
         if (result == null) {
-            if(filePaths == null || filePaths.length == 0) {
-                LOG.warn("Neither System Property 'testDataFiles' nor 'filePaths' attribute is specified.");
-            }
-            result = new String[filePaths.length];
-            for (int i = 0; i < filePaths.length; i++) {
-                if (isVariablePath(filePaths[i])) {
-                    result[i] = getTestDataFileExpression(filePaths[i]);
-                } else {
-                    result[i] = filePaths[i];
+            //filePaths cannot be null as the default is an empty array
+            if(filePaths.length == 0) {
+                LOG.info("Neither System Property 'testDataFiles' nor the attribute 'filePaths' is specified.");
+            } else {
+                result = new String[filePaths.length];
+                for (int i = 0; i < filePaths.length; i++) {
+                    if (isVariablePath(filePaths[i])) {
+                        result[i] = getTestDataFileExpression(filePaths[i]);
+                    } else {
+                        result[i] = filePaths[i];
+                    }
                 }
             }
+            
         }
         return result;
 
@@ -113,11 +116,9 @@ public final class DataLoaderUtil {
     private static String[] handleSystemProperty() {
         String[] result = null;
         String datafiles = System.getProperty(SystemProperties.TEST_DATA_FILES.getValue());
-        if (datafiles == null || datafiles.length() == 0) {
-            LOG.warn("Input Test data not provided. Assuming that user has a custom Data Loader.");
-        } else {
+        if (datafiles != null && datafiles.length() > 0) {
             result = datafiles.split(",");
-        }
+        } 
         return result;
     }
 
@@ -143,7 +144,7 @@ public final class DataLoaderUtil {
         LoaderType loaderType = testData.loaderType();
         if (LoaderType.NONE.equals(loaderType)) {
             // Identify the file extension
-            if (dataFiles.length == 0) {
+            if (dataFiles == null || dataFiles.length == 0) {
                 // assume it is custom loader and return
                 return LoaderType.CUSTOM;
             }
