@@ -84,7 +84,7 @@ public final class DataLoaderUtil {
         result = handleSystemProperty();
         if (result == null) {
             if(filePaths == null || filePaths.length == 0) {
-                LOG.warn("Neither System Property 'testDataFiles' nor 'filePaths' attribute is specified.");
+                LOG.info("Neither System Property 'testDataFiles' nor 'filePaths' attribute is specified.");
             }
             result = new String[filePaths.length];
             for (int i = 0; i < filePaths.length; i++) {
@@ -114,7 +114,7 @@ public final class DataLoaderUtil {
         String[] result = null;
         String datafiles = System.getProperty(SystemProperties.TEST_DATA_FILES.getValue());
         if (datafiles == null || datafiles.length() == 0) {
-            LOG.warn("Input Test data not provided. Assuming that user has a custom Data Loader.");
+            LOG.info("Input Test data not provided. Assuming that user has a custom Data Loader.");
         } else {
             result = datafiles.split(",");
         }
