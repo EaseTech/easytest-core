@@ -392,4 +392,7 @@ Conclusion
 This extension to JUnit focuses on bringing back the simplicity back to JUnit in JUnit way.
 This extension also focuses mainly on performing Data Driven Testing within your system with ease and at the same time giving Flexibility and Extensibility to the user to use their custom behavior.
 This extension is meant for people who want to write Test cases once and then reuse them again and again.
-A single test can act both as a Unit Test and an integration test. Nothing in the test case should or will change. Only the test data and the tesSubject will change. This saves a lot of developers time and in turn of the project.
+A single test can act both as a Unit Test and an integration test. Nothing in the test case should or will change. 
+Only the test data and the tesSubject will change. This saves a lot of developers time and in turn of the project.
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/f9493f386883ce202a74100a0cd78f4c "githalytics.com")](http://githalytics.com/EaseTech/easytest-core)
