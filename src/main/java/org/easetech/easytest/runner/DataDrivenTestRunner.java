@@ -127,7 +127,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         setSchedulingStrategy();
         loadBeanConfiguration();
         loadClassLevelData(klass);
-        registerConverter(testClass.getAnnotation(Converters.class));
+        //registerConverter(testClass.getAnnotation(Converters.class));
         try {
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
@@ -175,11 +175,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     protected void setSchedulingStrategy() {
         Class<?> testClass = getTestClass().getJavaClass();
-        if (testClass.getAnnotation(Parallel.class) != null || 
-            Boolean.TRUE.toString().equalsIgnoreCase(
-                System.getProperty(SystemProperties.RUN_PARALLEL.getValue()))) {
-            super.setScheduler(SchedulerStrategy.getScheduler(testClass));
-        }
+        super.setScheduler(SchedulerStrategy.getScheduler(testClass));
     }
 
     /**
@@ -235,7 +231,8 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                 }
             }
             // Piggyback to register converters if any for the given method
-            registerConverter(method.getAnnotation(Converters.class));
+            //registerConverter(method.getAnnotation(Converters.class));
+            
 
         }
     }
@@ -549,6 +546,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         loadTestConfigurations(testInstance);
         loadResourceProperties(testInstance);
         instrumentClass(getTestClass().getJavaClass(), testInstance);
+        registerConverter(getTestClass().getJavaClass().getAnnotation(Converters.class));
         return testInstance;
 
     }
@@ -557,6 +555,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      * Returns a {@link Statement} that invokes {@code method} on {@code test}
      */
     protected Statement methodInvoker(FrameworkMethod method, Object testInstance) {
+        registerConverter(method.getAnnotation(Converters.class));
         if (method.getAnnotation(Duration.class) != null) {
             try {
                 handleDuration(method, testInstance);

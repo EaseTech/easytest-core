@@ -200,7 +200,7 @@
 			<textField pattern="###0.000" isBlankWhenNull="true">
 				<reportElement x="589" y="0" width="84" height="14"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[((org.easetech.easytest.reports.data.DurationBean)$F{testItemDurationsMap}.get($F{method})).getRoundedMsDifference()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[((org.easetech.easytest.reports.data.TestMethodDuration)$F{testItemDurationsMap}.get($F{method})).getRoundedMsDifference()]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

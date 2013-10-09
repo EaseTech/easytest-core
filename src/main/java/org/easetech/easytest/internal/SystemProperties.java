@@ -49,9 +49,9 @@ public enum SystemProperties {
     REPEAT_COUNT("test.repeatCount"),
     
     /**
-     * System property to specify whether the tests should run parallel or not
+     * System property to specify the number of threads to run in parallel
      */
-    RUN_PARALLEL("test.runParallel");
+    PARALLEL_THREAD_COUNT("test.parallelThreads");
     
     /**
      * the actual value of the system property

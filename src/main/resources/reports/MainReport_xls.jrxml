@@ -182,7 +182,7 @@
 			<textField isStretchWithOverflow="true" pattern="###0.000" isBlankWhenNull="true">
 				<reportElement stretchType="RelativeToTallestObject" x="714" y="0" width="88" height="14"/>
 				<textElement/>
-				<textFieldExpression><![CDATA[((org.easetech.easytest.reports.data.DurationBean)$F{testItemDurationsMap}.get($F{method})).getRoundedMsDifference()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[((org.easetech.easytest.reports.data.TestMethodDuration)$F{testItemDurationsMap}.get($F{method})).getRoundedMsDifference()]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="262" height="14"/>
