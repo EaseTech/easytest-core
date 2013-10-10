@@ -1,2 +1,1 @@
-testJSONObjectCSV,Item,LibraryId
-,{'itemId':{'id':23}&'itemType':'BOOK'&'description':'batMAN'}, 34
+testJSONObjectCSV,Item,LibraryId,Purpose,{'itemId':{'id':23}&'itemType':'BOOK'&'description':'batMAN'},34,testJSONDAta

@@ -465,6 +465,10 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
 
     protected String testName(final FrameworkMethod method) {
+        
+//        EasyFrameworkMethod fMethod = (EasyFrameworkMethod)method;
+//        Map<String , Object> testData = fMethod.getTestData();
+//        Object purpose = testData.get("Purpose");
         return String.format("%s", method.getName());
     }
 
