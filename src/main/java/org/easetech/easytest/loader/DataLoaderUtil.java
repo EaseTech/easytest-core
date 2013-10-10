@@ -1,9 +1,13 @@
 
 package org.easetech.easytest.loader;
 
+import org.easetech.easytest.internal.SystemProperties;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.io.EmptyResource;
 import org.easetech.easytest.io.Resource;
@@ -31,6 +35,10 @@ public final class DataLoaderUtil {
      */
     protected static final Logger LOG = LoggerFactory.getLogger(DataLoaderUtil.class);
 
+    /** Pattern for runtime expression */
+    private static final Pattern RUNTIME_EXPR_PATTERN = Pattern.compile("\\$\\{.*\\}");
+
+
     /**
      * Method that determines the right Loader and the right Data Files for the "write output data" functionality
      * supported by the EasyTest Framework.
@@ -44,8 +52,9 @@ public final class DataLoaderUtil {
      */
     public static TestInfo determineLoader(DataLoader testData, TestClass testClass) {
         TestInfo result = new TestInfo(testClass);
-        String[] dataFiles = testData.filePaths();
-        LoaderType loaderType = determineLoaderType(testData);
+        // String[] dataFiles = testData.filePaths();
+        String[] dataFiles = determineFilePaths(testData);
+        LoaderType loaderType = determineLoaderType(testData, dataFiles);
         // Loader
         Loader dataLoader = null;
         if (LoaderType.CUSTOM.equals(loaderType) || dataFiles.length == 0) {
@@ -64,16 +73,78 @@ public final class DataLoaderUtil {
     }
 
     /**
+     * Determine the Path of the test data files
+     * 
+     * @param dataLoader the {@link DataLoader} annotation
+     * @return an array of resolved file names
+     */
+    private static String[] determineFilePaths(DataLoader dataLoader) {
+        String[] filePaths = dataLoader.filePaths();
+        String[] result = new String[filePaths.length];
+        result = handleSystemProperty();
+        if (result == null) {
+            //filePaths cannot be null as the default is an empty array
+            if(filePaths.length == 0) {
+                LOG.info("Neither System Property 'testDataFiles' nor the attribute 'filePaths' is specified.");
+            } else {
+                result = new String[filePaths.length];
+                for (int i = 0; i < filePaths.length; i++) {
+                    if (isVariablePath(filePaths[i])) {
+                        result[i] = getTestDataFileExpression(filePaths[i]);
+                    } else {
+                        result[i] = filePaths[i];
+                    }
+                }
+            }
+            
+        }
+        return result;
+
+    }
+
+    /**
+     * Get the test data file expression from the variable path
+     * 
+     * @param pathExpression
+     * @return
+     */
+    private static String getTestDataFileExpression(String pathExpression) {
+        String variable = pathExpression.substring(2, pathExpression.lastIndexOf("}"));
+        return System.getProperty(variable) == null ? variable : System.getProperty(variable);
+    }
+
+    private static String[] handleSystemProperty() {
+        String[] result = null;
+        String datafiles = System.getProperty(SystemProperties.TEST_DATA_FILES.getValue());
+        if (datafiles != null && datafiles.length() > 0) {
+            result = datafiles.split(",");
+        } 
+        return result;
+    }
+
+    private static Boolean isVariablePath(String path) {
+        if (path == null || "".equals(path)) {
+            return false;
+        }
+        Matcher exprMatcher = RUNTIME_EXPR_PATTERN.matcher(path);
+        if (exprMatcher.matches()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Determine the Loader Type to load the test data
+     * 
      * @param testData the {@link DataLoader} annotation instance
+     * @param dataFiles the list of test data Files
      * @return {@link LoaderType} to use
      */
-    private static final LoaderType determineLoaderType(DataLoader testData) {
+    private static final LoaderType determineLoaderType(DataLoader testData, String[] dataFiles) {
         LoaderType loaderType = testData.loaderType();
-        String[] dataFiles = testData.filePaths();
         if (LoaderType.NONE.equals(loaderType)) {
             // Identify the file extension
-            if (dataFiles.length == 0) {
+            if (dataFiles == null || dataFiles.length == 0) {
                 // assume it is custom loader and return
                 return LoaderType.CUSTOM;
             }
@@ -89,6 +160,7 @@ public final class DataLoaderUtil {
 
     /**
      * Return the laoder type based on file extension
+     * 
      * @param filePath the file path
      * @return {@link LoaderType} based on file extension
      */

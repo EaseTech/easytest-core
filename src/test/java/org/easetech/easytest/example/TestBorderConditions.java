@@ -3,7 +3,6 @@ package org.easetech.easytest.example;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -11,7 +10,7 @@ import org.junit.runner.RunWith;
  * Test that checks for NULL, 0 and negative values as part of the Test Data
  *
  */
-@RunWith(TransactionalTestRunner.class)
+@RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths={"borderConditions.csv"})
 public class TestBorderConditions {
     

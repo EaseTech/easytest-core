@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.converter;
 
+import java.util.Map;
+
 import java.lang.reflect.Modifier;
 
 import junit.framework.Assert;
@@ -9,10 +11,10 @@ import java.lang.reflect.ParameterizedType;
 
 /**
  * 
- * An abstract implementation of the {@link Converter} interface that can be used by the user to define their custom
- * converters. Users are encouraged to extend this class instead of implementing the {@link Converter} interface
- * directly as this class provides the common implementations of convertTo and instanceOfType methods whose
- * implementations are generic to every Converter.
+ * An abstract implementation of the {@link ParamAwareConverter} interface that can be used by the user to define their custom
+ * converters. Users are encouraged to extend this class instead of implementing either {@link Converter} or {@link ParamAwareConverter}interface
+ * directly as this class provides the common implementations of {@link #convertTo()} , {@link #instanceOfType()} and {@link #convert(Map, String)} 
+ * methods whose implementations are generic to every Converter.
  * 
  * For an example of a custom converter, you can look at the following :
  * https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/ItemConverter.java
@@ -21,7 +23,10 @@ import java.lang.reflect.ParameterizedType;
  * 
  * @author Anuj Kumar
  */
-public abstract class AbstractConverter<Type> implements Converter<Type> {
+public abstract class AbstractConverter<Type> implements ParamAwareConverter<Type> {
+    
+    /** The name of the parameter to which this converter is serving */
+    private String paramName;
 
     /**
      * Get the Class variable representing the Type object
@@ -33,6 +38,11 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
         Class<Type> type = (Class<Type>) ((ParameterizedType) getClass().getGenericSuperclass())
             .getActualTypeArguments()[0];
         return type;
+    }
+    
+    public Type convert(Map<String , Object> convertFrom , String paramName) {
+        setParamName(paramName);
+        return convert(convertFrom);
     }
 
     /**
@@ -76,6 +86,14 @@ public abstract class AbstractConverter<Type> implements Converter<Type> {
                 + e.getMessage());
         }
         return type;
+    }
+
+    public String getParamName() {
+        return paramName;
+    }
+
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
     }
 
 }

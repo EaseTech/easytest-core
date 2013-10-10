@@ -30,6 +30,12 @@ public class ReportDataContainer {
 	 * list of test results
 	 */
 	private volatile Map<String, List<TestResultBean>> methodTestResults;
+	
+	/**
+	 * The synchronized list of {@link MethodUnderTestDuration} instances that can be used
+	 * for various report generations
+	 */
+	private List<MethodUnderTestDuration> durationList;
 
 	// TODO map method, list duration ??? This can also be obtained from the
 	// testresultbean list
@@ -103,5 +109,19 @@ public class ReportDataContainer {
 	public Class<?> getTestClass() {
 		return testClass;
 	}
+
+    /**
+     * @return the durationList
+     */
+    public List<MethodUnderTestDuration> getDurationList() {
+        return durationList;
+    }
+
+    /**
+     * @param durationList the durationList to set
+     */
+    public void setDurationList(List<MethodUnderTestDuration> durationList) {
+        this.durationList = durationList;
+    }
 
 }

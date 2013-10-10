@@ -27,11 +27,16 @@
 				contain the name of the test method
 				as attribute and a multiple Test Records within the test Method. Each
 				TestRecord signifies a single execution of the given test method.
+				Default input data can be supplied, they will be passed to every
+				TestRecord as default values. Default may be overridden by specifying
+				an entry of the same key in the actual TestRecord.
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element name="Description" type="xsd:string"
 				minOccurs="0" maxOccurs="1" />
+			<xsd:element name="InputData" type="tns:InputData"
+			             minOccurs="0" maxOccurs="1" />
 			<xsd:element name="TestRecord" type="tns:TestRecord"
 				minOccurs="1" maxOccurs="unbounded" />
 		</xsd:sequence>

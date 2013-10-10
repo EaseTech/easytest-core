@@ -4,8 +4,6 @@ package org.easetech.easytest.interceptor;
 import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -18,23 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Anuj Kumar
  *
  */
-public class InternalInterceptor implements MethodInterceptor {
-    
-    /**
-     * User provided implementation of {@link MethodIntercepter} interface.
-     * if none is provided, then {@link DefaultMethodIntercepter} is used.
-     */
-    MethodIntercepter UserIntercepter;
-    
-    /**
-     * The target class on which to call the intercepted method
-     */
-    Object targetInstance;
-    
-    /**
-     * An instance of logger associated with the test framework.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(InternalInterceptor.class);
+public class InternalInterceptor extends CommonProxyInterceptor implements MethodInterceptor {
 
     /**
      * Intercept the method with the advice
@@ -46,42 +28,8 @@ public class InternalInterceptor implements MethodInterceptor {
      * @throws Throwable
      */
     public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-        return UserIntercepter.intercept(method, targetInstance, args);
+        return intercept(method, args);
     }
-
-    /**
-     * @return the userIntercepter
-     */
-    public MethodIntercepter getUserIntercepter() {
-        return UserIntercepter;
-    }
-
-    /**
-     * @param userIntercepter the userIntercepter to set
-     */
-    public void setUserIntercepter(MethodIntercepter userIntercepter) {
-        UserIntercepter = userIntercepter;
-    }
-
-    /**
-     * @return the targetInstance
-     */
-    public Object getTargetInstance() {
-        return targetInstance;
-    }
-
-    /**
-     * @param targetInstance the targetInstance to set
-     */
-    public void setTargetInstance(Object targetInstance) {
-        this.targetInstance = targetInstance;
-    }
-    
-    
-
-
-
-    
 
 
 }

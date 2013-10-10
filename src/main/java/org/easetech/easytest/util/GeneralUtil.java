@@ -487,14 +487,15 @@ public class GeneralUtil {
     /**
      * Method to convert object to Character type It checks the instance of the object is of different datatype then it
      * gets the value from the object and casts it to required data type.
-     * 
-     * @param Object object
+     * @param idClass 
+     * @param object 
      * @return Character converted value.
      */
+    @SuppressWarnings("unchecked")
     public static Enum convertToEnum(Class idClass, Object object) {
         Enum enumValue = null;
         if (object != null && idClass.isEnum()) {
-            enumValue = Enum.valueOf(idClass, (String) convertToString(object));
+            enumValue = Enum.valueOf(idClass, convertToString(object));
         }
         return enumValue;
     }
@@ -503,7 +504,7 @@ public class GeneralUtil {
      * Method to convert string to Boolean type It checks the instance of the object is of different datatype then it
      * gets the value from the object and casts it to required data type.
      * 
-     * @param String
+     * @param str the string to convert to boolean
      * @return Boolean converted value.
      */
 
@@ -517,6 +518,32 @@ public class GeneralUtil {
             }
         }
         return value;
+    }
+    
+    /**
+     * Is the data already converted by the user while loading the data.
+     * This can happen when a user has its own custom loader and converts the data
+     * while loading it. This may not be advisable as it brings in extra coupling
+     * but is still possible as sometimes it may be very simple to convert the data while loading it.
+     * @param parameterType the type of the input parameter
+     * @param convertFrom the data to convert from
+     * @param paramName the name of the parameter
+     * @return whether the data is already converted by the user while loading the data
+     */
+    @SuppressWarnings({ "unchecked"})
+    public static Boolean dataAlreadyConverted(Class parameterType , List<Map<String, Object>> convertFrom , String paramName) {
+        Boolean result = false;
+        for(Map<String , Object> data : convertFrom) {
+            Object value = data.get(paramName);
+            if(value != null && parameterType.isAssignableFrom(value.getClass())) {
+                result = true;
+                break;
+            } else {
+                //We just want to check the first instance 
+                break;
+            }
+        }
+        return result;
     }
 
     /**
