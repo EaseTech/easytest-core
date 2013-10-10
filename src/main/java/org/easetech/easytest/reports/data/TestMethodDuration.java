@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * Class contains duration of item. Item can be a method call. A test method
- * runs for every test data input. In the test method, it is possible to measure
- * the time of a service call which has been called in the test method. In this
- * case to have this service method call, annotate it with @Intercept
+ * Class encapsulating the information about the test methods exact executiopn time.
+ * This class is actually used by the Reports functionality to provide useful reports
+ * information to the end user.
  * 
  * @author gpcmol
  * 
  */
-public class DurationBean implements Serializable {
+public class TestMethodDuration implements Serializable {
 
 	private static final long serialVersionUID = -6175933760799880386L;
 
@@ -36,7 +35,7 @@ public class DurationBean implements Serializable {
 	/**
 	 * Constructor
 	 */
-	public DurationBean() {
+	public TestMethodDuration() {
 		// empty constructor
 	}
 
@@ -50,7 +49,7 @@ public class DurationBean implements Serializable {
 	 * @param endInNano
 	 *            end system time in nano
 	 */
-	public DurationBean(String item, long startInNano, long endInNano) {
+	public TestMethodDuration(String item, long startInNano, long endInNano) {
 		this();
 		this.item = item;
 		this.startInNano = startInNano;

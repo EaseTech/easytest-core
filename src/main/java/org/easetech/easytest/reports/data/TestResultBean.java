@@ -58,12 +58,12 @@ public class TestResultBean implements Serializable {
 	 * called, e.g. service method calls. These method calls need to be
 	 * annotated with @Intercept)
 	 */
-	private List<DurationBean> testItemDurations;
+	private List<TestMethodDuration> testItemDurations;
 	
 	/**
 	 * Duration bean data structure: key = item name, value is the bean
 	 */
-	private Map<String, DurationBean> testItemDurationsMap;
+	private Map<String, TestMethodDuration> testItemDurationsMap;
 
 	/**
 	 * Date of run
@@ -72,8 +72,8 @@ public class TestResultBean implements Serializable {
 
 	public TestResultBean() {
 		this.input = new LinkedHashMap<String, Object>();
-		this.testItemDurations = new ArrayList<DurationBean>();
-		this.testItemDurationsMap = new HashMap<String, DurationBean>();
+		this.testItemDurations = new ArrayList<TestMethodDuration>();
+		this.testItemDurationsMap = new HashMap<String, TestMethodDuration>();
 	}
 	
 	public TestResultBean(String method , Date date) {
@@ -177,23 +177,23 @@ public class TestResultBean implements Serializable {
 		return null;
 	}
 
-	public List<DurationBean> getTestItemDurations() {
+	public List<TestMethodDuration> getTestItemDurations() {
 		return testItemDurations;
 	}
 
-	public void setTestItemDurations(List<DurationBean> testItemDurations) {
+	public void setTestItemDurations(List<TestMethodDuration> testItemDurations) {
 		this.testItemDurations = testItemDurations;
 	}
 	
-	public Map<String, DurationBean> getTestItemDurationsMap() {
+	public Map<String, TestMethodDuration> getTestItemDurationsMap() {
 		return testItemDurationsMap;
 	}
 
-	public void setTestItemDurationsMap(Map<String, DurationBean> testItemDurationsMap) {
+	public void setTestItemDurationsMap(Map<String, TestMethodDuration> testItemDurationsMap) {
 		this.testItemDurationsMap = testItemDurationsMap;
 	}
 
-	public void addTestItemDurationBean(DurationBean testItemDurationBean) {
+	public void addTestItemDurationBean(TestMethodDuration testItemDurationBean) {
 		this.testItemDurations.add(testItemDurationBean);
 		if (testItemDurationBean.getItem() != null && !(testItemDurationBean.getItem().length() <= 0)) {
 			this.testItemDurationsMap.put(testItemDurationBean.getItem(), testItemDurationBean);

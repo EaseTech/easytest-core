@@ -1,6 +1,6 @@
 package org.easetech.easytest.util;
 
-import org.easetech.easytest.converter.ConverterManager;
+import org.easetech.easytest.internal.SystemProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.io.ResourceLoader;
 import org.easetech.easytest.io.ResourceLoaderStrategy;
 import org.easetech.easytest.reports.data.ReportDataContainer;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * methods in the test cases.
  * This class also encapsulates the logic of running the reports after the test execution.
  * The reports are run asynchronously so that the Test cases do not get halted for the expensive run of the reports.
- * 
+ *
  */
 public class RunAftersWithOutputData extends Statement {
 
@@ -53,7 +53,7 @@ public class RunAftersWithOutputData extends Statement {
      * The target class on which to invoke the {@link AfterClass} annotated method
      */
     private final Object fTarget;
-    
+
     /**
      * The list of {@link TestInfo} objects that contains the information required to write data back to the file.
      */
@@ -63,7 +63,7 @@ public class RunAftersWithOutputData extends Statement {
      * List of {@link FrameworkMethod} that should be run as part of teh {@link AfterClass} annotation.
      */
     private final List<FrameworkMethod> fAfters;
-    
+
     /**
      * The report container which holds all the reporting data
      */
@@ -71,7 +71,7 @@ public class RunAftersWithOutputData extends Statement {
 
     /**
      * Construct a new RunAftersWithOutputData
-     * 
+     *
      * @param next the instance of {@link Statement} object
      * @param afters the list of {@link FrameworkMethod} that needs to be run after all the methods in the test class
      *            have been executed.
@@ -95,16 +95,16 @@ public class RunAftersWithOutputData extends Statement {
     /**
      * Evaluate all the test methods and then finally run all the afterClass methods.
      * Before afterClass annotated methods are executed, we start the asynchronous processing of the reports.
-     * This will save us some time in case the afterClass annotation on the client 
+     * This will save us some time in case the afterClass annotation on the client
      * does some process intensive tasks.
      * @see {@link RunAfters#evaluate()}
      * @throws Throwable
      */
     public void evaluate() throws Throwable {
         LOG.info("evaluate started");
-        
+
         Future<Boolean> submit = null;
-     
+
         List<Throwable> errors = new ArrayList<Throwable>();
         try {
             fNext.evaluate();
@@ -134,7 +134,7 @@ public class RunAftersWithOutputData extends Statement {
                 }
             }
         }
-        
+
         if (submit != null) {
         	long start = System.nanoTime();
         	while(!submit.isDone());
@@ -142,34 +142,37 @@ public class RunAftersWithOutputData extends Statement {
         	LOG.debug("Writing reports took: {} ms.", end);
         }
         ConverterManager.cleanConverters();
-        ConfigContext.cleanConfigContext();
+        //ConfigContext.cleanConfigContext();
         //DataContext.cleanData();
     }
-    
+
     private Future<Boolean> processReports(ReportDataContainer testReportContainer) {
     	Future<Boolean> submit = null;
         if (testReportContainer != null) {
         	Report annotation = testReportContainer.getTestClass().getAnnotation(Report.class);
-        	
+
         	ReportParametersBean reportParameters = null;
-        	
-        	if (System.getProperty("reports.generate") != null) {
-        		reportParameters = new ReportParametersBean(System.getProperty("reports.format"), System.getProperty("reports.location"), System.getProperty("reports.package"));
+
+        	if (System.getProperty(SystemProperties.GENERATE_REPORT.getValue()) != null) {
+        		reportParameters = new ReportParametersBean(
+        		    System.getProperty(SystemProperties.REPORT_FORMAT.getValue()),
+        		    System.getProperty(SystemProperties.REPORT_LOCATION.getValue()),
+        		    System.getProperty(SystemProperties.REPORT_PACKAGES.getValue()));
         	} else if (annotation != null) {
                 reportParameters = new ReportParametersBean(annotation.outputFormats(), annotation.outputLocation());
         	} else {
         		return null;
         	}
-        	
+
         	String rawOutputLocation = reportParameters.getOutputLocation();
         	EXPORT_FORMAT[] outputFormats = reportParameters.getOutputFormats();
-        	
+
             String absoluteLocation = CommonUtils.getAbsoluteLocation(rawOutputLocation);
             String outputLocation = CommonUtils.createFolder(absoluteLocation);
-            
+
             if (outputLocation != null) {
                 ExecutorService executor = Executors.newCachedThreadPool();
-                
+
                 LOG.info("Writing reports to folder: {} ", outputLocation);
                 ReportRunner reportExecuter = new ReportRunner(testReportContainer, outputFormats,
                         outputLocation);
@@ -179,9 +182,9 @@ public class RunAftersWithOutputData extends Statement {
                         + " can't be created.",  rawOutputLocation);
             }
         }
-    	
+
     	return submit;
     }
-    
-    
+
+
 }

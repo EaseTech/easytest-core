@@ -9,9 +9,8 @@ import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
-import org.easetech.easytest.reports.data.DurationBean;
+import org.easetech.easytest.reports.data.TestMethodDuration;
 import org.easetech.easytest.reports.data.TestResultBean;
-import org.easetech.easytest.runner.DataDrivenTestRunner.EasyTestRunner;
 import org.easetech.easytest.util.CommonUtils;
 import org.junit.Assert;
 import org.junit.experimental.theories.PotentialAssignment;
@@ -27,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An internal class that holds the logic of running a given Test method. This class contains the common code for both
- * {@link EasyTestRunner} and SpringTestRunner that is present in the easytest-spring module.
+ * {@link DataDrivenTestRunner} and SpringTestRunner that is present in the easytest-spring module.
  * 
  * @author Anuj Kumar
  * 
@@ -108,7 +107,7 @@ public class InternalParameterizedStatement extends Statement {
      */
     protected void runWithAssignment(EasyAssignments parameterAssignment) throws Throwable {
         while (!parameterAssignment.isComplete()) {
-            List<PotentialAssignment> potentialAssignments = parameterAssignment.potentialsForNextUnassigned(DataConverter.getFullyQualifiedTestName(fTestMethod.getName(),
+            List<PotentialAssignment> potentialAssignments = parameterAssignment.potentialsForNextUnassigned(DataConverter.getFullyQualifiedTestName(fTestMethod.getMethodNameForTestData(),
                 getTestClass().getJavaClass()));
             boolean isFirstSetOfArguments = listOfAssignments.isEmpty();
             for (int i = 0; i < potentialAssignments.size(); i++) {
@@ -196,7 +195,7 @@ public class InternalParameterizedStatement extends Statement {
             returnObj = method.invokeExplosively(freshInstance, values);
             eachRunNotifier.fireTestFinished();
             
-            DurationBean testItemDurationBean = new DurationBean(currentMethodName,
+            TestMethodDuration testItemDurationBean = new TestMethodDuration(currentMethodName,
                 testRunDurationListener.getStartInNano(), testRunDurationListener.getEndInNano());
             testResult.addTestItemDurationBean(testItemDurationBean);
             testResult.setOutput((returnObj == null) ? "void" : returnObj);

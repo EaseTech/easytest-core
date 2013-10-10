@@ -1,20 +1,18 @@
 package org.easetech.easytest.example;
 
-import javax.inject.Named;
-
 import javax.inject.Inject;
+import javax.inject.Named;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.easetech.easytest.runner.TransactionalTestRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RunWith(TransactionalTestRunner.class)
+@RunWith(DataDrivenTestRunner.class)
 @TestConfigProvider({TestConfigProviderClass.class})
 public class TestBeanProviderFunctionality {
     

@@ -159,7 +159,9 @@ public class XMLDataLoader implements Loader {
     private void convertFromInputTestData(InputTestData source, Map<String, List<Map<String, Object>>> destination) {
         List<TestMethod> testMethods = source.getTestMethod();
         for (TestMethod method : testMethods) {
-            List<Map<String, Object>> testMethodData = convertFromLIstOfTestRecords(method.getTestRecord());
+	        InputData defaultInputData = method.getInputData();
+
+            List<Map<String, Object>> testMethodData = convertFromLIstOfTestRecords(method.getTestRecord(), defaultInputData);
             LOG.debug("Read record for method {} and the data read is {}", method.getName(),testMethodData);
             destination.put(method.getName(), testMethodData);
 
@@ -172,11 +174,11 @@ public class XMLDataLoader implements Loader {
      * @param dataRecords an instance of List of {@link TestRecord}
      * @return an instance of {@link List} of Map
      */
-    private List<Map<String, Object>> convertFromLIstOfTestRecords(List<TestRecord> dataRecords) {
+    private List<Map<String, Object>> convertFromLIstOfTestRecords(List<TestRecord> dataRecords, InputData defaultInputData) {
         List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
         if (dataRecords != null) {
             for (TestRecord record : dataRecords) {              
-                Map<String, Object> singleTestData = convertFromListOfEntry(record.getInputData().getEntry());
+                Map<String, Object> singleTestData = convertFromListOfEntry(record.getInputData().getEntry(), (defaultInputData != null ? defaultInputData.getEntry() : null));
                 singleTestData.put(RECORD_POSITION, record.getId());
                 result.add(singleTestData);
             }
@@ -191,10 +193,21 @@ public class XMLDataLoader implements Loader {
      * @param testEntry a list of {@link Entry} objects
      * @return a Map
      */
-    Map<String, Object> convertFromListOfEntry(List<Entry> testEntry) {
+    Map<String, Object> convertFromListOfEntry(List<Entry> testEntries, List<Entry> defaultEntries) {
         Map<String, Object> testData = new HashMap<String, Object>();
-        if (testEntry != null) {
-            for (Entry entry : testEntry) {
+
+	    // use default test entries as defaults, when present
+
+	    if (defaultEntries != null) {
+		    for (Entry defaultEntry : defaultEntries) {
+			    testData.put(defaultEntry.getKey(), defaultEntry.getValue());
+		    }
+	    }
+
+	    // use actual test entries on top
+
+        if (testEntries != null) {
+            for (Entry entry : testEntries) {
                 testData.put(entry.getKey(), entry.getValue());
             }
         }

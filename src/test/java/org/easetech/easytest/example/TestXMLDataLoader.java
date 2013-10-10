@@ -2,18 +2,15 @@
 package org.easetech.easytest.example;
 
 import java.util.Properties;
-
-import org.easetech.easytest.annotation.TestProperties;
-
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
-import org.easetech.easytest.runner.TransactionalTestRunner;
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(TransactionalTestRunner.class)
+@RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "input-data.xml" })
 @TestProperties({ "config.properties" })
 public class TestXMLDataLoader {
@@ -28,12 +25,19 @@ public class TestXMLDataLoader {
     public Item getItemsDataFromXMLLoader(@Param(name = "libraryId")
     String libraryId, @Param(name = "itemId")
     String itemId, @Param(name = "itemType")
-    String itemType, @Param(name = "expectedItems")
+    String itemType, @Param(name = "globalParam")
+    String globalParam, @Param(name = "expectedItems")
     String expectedItems) {
         System.out.println("Print Property :" + loadedProperties.getProperty("simple.property"));
         System.out.print("Executing getItemsDataFromXMLLoader :");
         System.out.println("LibraryId :" + libraryId + " itemId : " + itemId + " itemType :" + itemType
-            + " expectedItems :" + expectedItems);
+	        + " globalParam : " + globalParam + " expectedItems :" + expectedItems);
+
+	    // assert global param is used / overridden
+
+	    Assert.assertEquals("globalParamValue", globalParam);
+	    Assert.assertNotSame("-1", libraryId);
+
         Item item = new Item();
         item.setDescription("Description Modified");
         item.setItemId(new ItemId(Long.valueOf(itemId)));

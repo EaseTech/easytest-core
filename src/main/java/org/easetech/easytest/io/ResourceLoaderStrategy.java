@@ -1,4 +1,3 @@
-
 package org.easetech.easytest.io;
 
 import java.net.MalformedURLException;
@@ -85,10 +84,13 @@ public class ResourceLoaderStrategy implements ResourceLoader {
      */
     public Resource getResource(String location) {
         Resource resource = null;
-        String locationWithoutClasspathPrefix = location.startsWith(CLASSPATH_PREFIX) ? location.substring(CLASSPATH_PREFIX.length()): location;
+        
         if (location == null || location.length() <= 0) {
             Assert.fail("The location specified can not be Null or empty");
         }
+        
+        String locationWithoutClasspathPrefix = location.startsWith(CLASSPATH_PREFIX) ? location.substring(CLASSPATH_PREFIX.length()): location;
+        
         resource = new ClasspathResource(locationWithoutClasspathPrefix, getClassLoader(), this.classObj) ;
         if (!resource.exists()) {
             LOG.debug(

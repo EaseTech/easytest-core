@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 /**
- * Interface representing a generic Resource to be used by the EasyTEst framework.
+ * Interface representing a generic Resource to be used by the EasyTest framework.
  * Three implementations exists for this interface in the EasyTest framework:
  * <li> {@link ClasspathResource} - Resources that exists in the Classpath</li>
  * <li> {@link FileSystemResource} - Resources that exists in the FileSystem</li>

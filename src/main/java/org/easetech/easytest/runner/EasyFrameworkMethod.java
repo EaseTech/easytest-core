@@ -1,5 +1,7 @@
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.annotation.Repeat;
+
 import org.easetech.easytest.reports.data.TestResultBean;
 
 import java.util.Map;
@@ -20,23 +22,44 @@ public class EasyFrameworkMethod extends FrameworkMethod {
      */
     private String methodName;
     
+    /**
+     * The test data associated with the Method
+     */
     private final Map<String, Object> testData; 
     
+    /**
+     * The {@link TestResultBean} associated with the method
+     */
     private final TestResultBean testResult;
+    
+    /** The name of the method to fetch test data. This field had to be introduced
+     * when we started the support for {@link Repeat} annotation. the way the lgic works for repeat,
+     * mandated us to separate the name of the test method with the name of the method 
+     * that acted as an ID to fetch the correct data set for a particular run. 
+     */
+    private final String methodNameForTestData;
     
     /**
      * 
      * Construct a new EasyFrameworkMethod
      * @param method the method
      */
-    public EasyFrameworkMethod(Method method , Map<String, Object> testData , TestResultBean testResult) {
+    public EasyFrameworkMethod(Method method , Map<String, Object> testData , TestResultBean testResult , String methodNameForTestData) {
         super(method);
         this.methodName = method.getName();
         this.testData = testData;
         this.testResult = testResult;
+        this.methodNameForTestData = methodNameForTestData;
         
     }
     
+    /**
+     * @return the methodNameForTestData
+     */
+    public String getMethodNameForTestData() {
+        return methodNameForTestData;
+    }
+
     /**
      * Returns the method's name
      */

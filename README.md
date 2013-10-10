@@ -1,5 +1,160 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
+An updated version of EasyTest Core(1.2.5) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+
+What's new in Version 1.2.5
+---------------------------
+Version 1.2.5 is mostly some bug fixes and code cleaning release. Importantly, from a user's perspective, anyone writing their own custom loaders
+can now convert the data into specific Object during read time itself, which simplifies their test cases further in the sense that they dont need to write/register specific converters.
+Although this practice is not encouraged as it may lead to coupled, hard to refactor code, but in certain scenarios it is also useful.
+One of the clients of EasyTest had this requirement and so it has now been supported.
+
+What's new in Version 1.2.4
+---------------------------
+A new method level annotation [Repeat](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Repeat.java).
+This annotation can be used to repeat the same test multiple times. This annotation is useful in scenarios where you may quickly want to load test your application.
+Here is how this annotation can be used.
+
+        public class TestRepeat {
+        
+            @Test
+            @Repeat(times=20)
+            public Item findItemTest(@Param(name='itemId')String itemId) {
+               Item result = testSubject.findItem(itemId)
+                 Assert.notNull(result);
+                 return result;
+            }
+          
+Notice the Repeat annotation at the method level. When EasyTest sees this annotation, it creates "n" different instances 
+of the test method, where "n" is defined by the "times" attribute of the Repeat annotation. In the above case, EasyTest 
+will create 20 unique instances of the above test method.
+
+There is also a System Property <B>test.repeatCount</B> that can be used while running tests from command line.
+When this property is set, EasyTest simply creates "n" instances of each test defined in the test class, where "n" is defined 
+by the value of the above System Property. System Property takes precedence over Repeat annotation. It means that if 
+both annotation and system property is present, then System Property's value will be used.
+
+Another important addition to EasyTest is a new interface for Converter called [ParamAwareConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/ParamAwareConverter.java)
+This interface introduces a new convert method that is now aware of the Parameter name that it is trying to convert.
+Users of the original [Converter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/Converter.java)
+will not be affected and can continue to use it like before. If you are using [AbstractConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/AbstractConverter.java)
+class to define your converters then you are in luck. You now get the name parameter for free by calling the getParamName method
+of the [AbstractConverter](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/converter/AbstractConverter.java) class.
+Thanks to [Josef Sustacek](https://github.com/sustacek) for his contribution.
+
+Yet another addition to the library is the support for global/default input test data in the XML file. So a user can now 
+specify the repeatable input data globally once, instead of defining the same test data again and again for each test method.
+Thanks again to [Josef Sustacek](https://github.com/sustacek) for his contribution. You can have a look at an example [here.](https://github.com/EaseTech/easytest-core/blob/master/src/test/resources/input-data.xml)
+
+You can always refer the [WIKI pages](https://github.com/EaseTech/easytest/wiki) of EasyTest project for a general idea and more indepth detail, or can directly mail me at 
+anujkumar@easetech.org for any questions/clarifications/suggestions.
+
+
+What's new in Version 1.2.3
+---------------------------
+A new annotation [Duration](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Duration.java) is introduced.
+This annotation is introduced to capture the time taken by the method under test and assert it with the user specified maximum time.
+Thus a user can now say that the test should fail if the method it is trying to test takes more than "x"milliseconds.
+<br>Let's look at an example
+
+        public class TestDuration {
+        
+        @Duration(timeInMillis=20)
+        ItemService testSubject;
+        
+        @Test
+        public Item findItemTest(@Param(name='itemId')String itemId) {
+        Item result = testSubject.findItem(itemId)
+          Assert.notNull(result);
+          return result;
+        }
+        
+In the above case, if the method <B>findItem</B> of class <B>ItemService</B> took more than 20 milli seconds, then the test method 
+will fail specifying that the method took more time than expected.
+
+A second use of this annotation is if a user wants to override the value of <B>timeInMillis</B> attribute of Duration annotation for a specific Test. In such a case,
+he can specify the Duration annotation at the Test Method level and EasyTest will override the value of timeInMillis only for that test.
+Lets look at an example :
+   
+        public class TestDuration {
+        
+        @Duration(timeInMillis=20)
+        ItemService testSubject;
+        
+        @Test
+        public Item findItemTest(@Param(name='itemId')String itemId) {
+        Item result = testSubject.findItem(itemId)
+          Assert.notNull(result);
+          return result;
+          
+        @Test
+        @Duration(timeInMillis=50 , forClass=ItemService.class)
+        public List<Item> getItemsTest(@Param(name='itemType')String itemType) {
+        List<Item> result = testSubject.getItems(itemType)
+          Assert.notNull(result);
+          return result;
+        }
+        
+In the above case, we are telling EasyTest that method <B>getItems</B> of class <B>ItemService</B> should not take more than 50 milliseconds
+when run inside the test method with name <B>getItemsTest</B>. 
+
+In order to get the complete picture, have a look at the Java docs of [Duration](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Duration.java) annotation.
+
+What's new in Version 1.2.2
+-------------------------------
+* A user can now specify a variable value as part of the DataLoader's filePaths attribute.
+Thus it is now possible to use DataLoader annotation like this :
+
+          @DataLoader(filePaths = {"${my.data.file}" , "${my.second.data.file}"})
+    
+Using the above way, a user can specify properties of the above variables "my.data.file" and "my.second.data.file" as System property using -D option of Java System Properties.
+
+* A new System Property <B>"testDataFiles"</B> to provide a comma separated list of input test data files at runtime.
+In order to use this option simply specify @DataLoader annotation at the top of your class without any input data. 
+Thus in such a case DataLoader annotation acts as a marker annotation telling the EasyTest 
+system that it has to fetch the value of filePaths attribute from the system property "testDataFiles".
+
+* <B>NOTE</B> If a user has specified both <B>"testDataFiles" System Property AND a value for "dataFiles" attribute</B>, then the System Property files(specified using testDataFiles System Property) 
+will override the files specified using the "dataFiles" attribute of DataLoader annotation.
+
+What's new in Version 1.2.1
+------------------------------
+Besides regular clean up stuff, one of the important things that changed in 1.2.1 is the way Test methods are now instantiated and their data handled.
+Until version 1.2, all the test methods were running in a single test class instance, which, normally was not a problem, but caused
+some concern with JUnit Rules, especially with Rules that depended on a new instance for each test method (ErrorCollector for eg.)
+With 1.2.1 that has changed and each test method now runs in its own test instance.
+
+You can download the latest version of EasyTest Core from [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)  
+
+Whats new in Version 1.2
+------------------------
+* Run Your tests in Parallel using @Parallel annotation. Heres an example :
+
+        @RunWith(DataDrivenTestRunner.class)
+        @DataLoader(filePaths = { "getItemsData.csv" })
+        @Parallel(threads=2)
+        public class TestConditionsSupportedByEasyTestRunner {
+
+        
+         @Test
+         public void testGetItems(@Param(name="inputData")
+        Map<String, String> inputData) {
+            System.out.println("library Id : " + inputData.get("LibraryId") + " and item type : "
+                + inputData.get("itemType") + " and search text array :" + inputData.get("searchText"));
+
+         }
+    
+        @Test
+        public void testAnotherItem(@Param(name="inputData") 
+          Map<String, String> inputData) {
+               // your test condition
+
+          }
+         }
+    
+Note the annotation @Parallel at the class level. This annotation is all you need to run your tests in Parallel.
+
+* The code is a lot cleaner and is known to support all the known features of JUnit.
 
 Download EasyTest simply by including the latest version of easytest-core and easytest-spring modules from Maven in your pom file.
    
@@ -7,7 +162,7 @@ Download EasyTest simply by including the latest version of easytest-core and ea
         
         <artifactId>easytest-core</artifactId>
         
-        <version>1.1</version>
+        <version>1.2</version>
         
 And for Spring module simply include :
 
@@ -237,4 +392,7 @@ Conclusion
 This extension to JUnit focuses on bringing back the simplicity back to JUnit in JUnit way.
 This extension also focuses mainly on performing Data Driven Testing within your system with ease and at the same time giving Flexibility and Extensibility to the user to use their custom behavior.
 This extension is meant for people who want to write Test cases once and then reuse them again and again.
-A single test can act both as a Unit Test and an integration test. Nothing in the test case should or will change. Only the test data and the tesSubject will change. This saves a lot of developers time and in turn of the project.
+A single test can act both as a Unit Test and an integration test. Nothing in the test case should or will change. 
+Only the test data and the tesSubject will change. This saves a lot of developers time and in turn of the project.
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/f9493f386883ce202a74100a0cd78f4c "githalytics.com")](http://githalytics.com/EaseTech/easytest-core)

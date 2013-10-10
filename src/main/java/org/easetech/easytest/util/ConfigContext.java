@@ -23,12 +23,12 @@ public final class ConfigContext {
     /**
      * The threadlocal variable that is responsible for containing the bean name to object instance mapping
      */
-    public static final ThreadLocal<Map<String, Object>> beansByName = new ThreadLocal<Map<String, Object>>();
+    public static final InheritableThreadLocal<Map<String, Object>> beansByName = new InheritableThreadLocal<Map<String, Object>>();
 
     /**
      * The threadlocal variable that is responsible for containing the bean type to object instance mapping
      */
-    public static final ThreadLocal<Map<Class, Object>> beansByType = new ThreadLocal<Map<Class, Object>>();
+    public static final InheritableThreadLocal<Map<Class, Object>> beansByType = new InheritableThreadLocal<Map<Class, Object>>();
 
     /**
      * Set the test bean in the thread local variable by name
