@@ -290,19 +290,10 @@ public @interface Param {
                         if(!GeneralUtil.populateJSONData(idClass , convertFrom, potentialAssignments, paramName)){
                             try {
                                 GeneralUtil.populateParamData(idClass, convertFrom, potentialAssignments, paramName);
-                            } catch (IllegalArgumentException e) {
-                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                                throw e;
-                            } catch (InstantiationException e) {
+                            } catch (Exception e) {
                                 LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
                                 throw new RuntimeException(e);
-                            } catch (IllegalAccessException e) {
-                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                                throw new RuntimeException(e);
-                            } catch (InvocationTargetException e) {
-                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                                throw new RuntimeException(e);
-                            }
+                            } 
                         }
                     }
                 }
@@ -419,16 +410,7 @@ public @interface Param {
                     } else {
                         try {
                             GeneralUtil.fillDataUsingConstructor(genericType, convertFrom, finalData, paramName, objectValues);
-                        } catch (IllegalArgumentException e) {
-                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                            throw e;
-                        } catch (InstantiationException e) {
-                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                            throw new RuntimeException(e);
-                        } catch (IllegalAccessException e) {
-                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
+                        } catch (Exception e) {
                             LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
                             throw new RuntimeException(e);
                         }
@@ -491,30 +473,12 @@ public @interface Param {
                 } else if (Collection.class.isAssignableFrom(parameterType)) {
                     return new ArrayList();
                 }
-            } catch (InstantiationException e) {
+            } catch (Exception e) {
                 LOG.error(
-                    "InstantiationException occured while trying to instantiate a Collection of Type : {} . Error is {}",
+                    "Exception occured while trying to instantiate a Collection of Type : {} . Error is {}",
                     parameterType, e);
-                Assert.fail("InstantiationException occured while trying to instantiate a Collection of Type : "
-                    + parameterType + " . The exception is :" + e.getMessage());
-            } catch (IllegalAccessException e) {
-                LOG.error(
-                    "IllegalAccessException occured while trying to instantiate a Collection of Type : {} . Error is {}",
-                    parameterType, e);
-                Assert.fail("IllegalAccessException occured while trying to instantiate a Collection of Type : "
-                    + parameterType + " . The exception is :" + e.getMessage());
-            } catch (IllegalArgumentException e) {
-                LOG.error(
-                    "IllegalArgumentException occured while trying to instantiate a Collection of Type : {} . Error is {}",
-                    parameterType, e);
-                Assert.fail("IllegalArgumentException occured while trying to instantiate a Collection of Type : "
-                    + parameterType + " . The exception is :" + e.getMessage());
-            } catch (SecurityException e) {
-                LOG.error(
-                    "SecurityException occured while trying to instantiate a Collection of Type : {} . Error is {}",
-                    parameterType, e);
-                Assert.fail("SecurityException occured while trying to instantiate a Collection of Type : "
-                    + parameterType + " . The exception is :" + e.getMessage());
+                Assert.fail("Exception occured while trying to instantiate a Collection of Type : "
+                    + parameterType + " . The exception is :" + e.toString());
             }
             return null;
         }
