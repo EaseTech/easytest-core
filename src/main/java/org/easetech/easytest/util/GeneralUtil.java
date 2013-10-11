@@ -166,7 +166,7 @@ public class GeneralUtil {
 
     public static Timestamp convertToSQLTimestamp(Object object) {
         Timestamp timestamp = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             timestamp = new java.sql.Timestamp(convertToUtilDate(object).getTime());
             /*
              * if(object instanceof java.util.Date){ timestamp = new Timestamp(((java.util.Date) object).getTime()); }
@@ -188,7 +188,7 @@ public class GeneralUtil {
 
     public static Date convertToUtilDate(Object object) {
         Date date = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof java.util.Date) {
                 date = (java.util.Date) object;
             } else if (object instanceof Double) {
@@ -219,7 +219,7 @@ public class GeneralUtil {
 
     public static java.sql.Date convertToSQLDate(Object object) {
         java.sql.Date sqlDate = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             sqlDate = new java.sql.Date(convertToUtilDate(object).getTime());
             ;
         }
@@ -237,7 +237,7 @@ public class GeneralUtil {
 
     public static java.sql.Time convertToSQLTime(Object object) {
         java.sql.Time time = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
 
             if (object instanceof java.util.Date) {
                 time = new java.sql.Time(((Date) object).getTime());
@@ -267,7 +267,7 @@ public class GeneralUtil {
      */
     public static Integer convertToInteger(Object object) {
         Integer integer = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
                 integer = ((Long) object).intValue();
             } else if (object instanceof Integer) {
@@ -290,7 +290,7 @@ public class GeneralUtil {
      */
     public static Short convertToShort(Object object) {
         Short shortValue = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
                 shortValue = ((Long) object).shortValue();
             } else if (object instanceof Integer) {
@@ -341,7 +341,7 @@ public class GeneralUtil {
      */
     public static Double convertToDouble(Object object) {
         Double doublevalue = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
                 doublevalue = ((Long) object).doubleValue();
             } else if (object instanceof Integer) {
@@ -364,7 +364,7 @@ public class GeneralUtil {
      */
     public static Float convertToFloat(Object object) {
         Float floatvalue = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
                 floatvalue = ((Long) object).floatValue();
             } else if (object instanceof Integer) {
@@ -387,7 +387,7 @@ public class GeneralUtil {
      */
     public static Boolean convertToBoolean(Object object) {
         Boolean booleanValue = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
                 booleanValue = stringToBoolean(((Long) object).toString());
             } else if (object instanceof Integer) {
@@ -410,7 +410,7 @@ public class GeneralUtil {
      */
     public static Byte convertToByte(Object object) {
         Byte byteValue = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
 
                 byteValue = Byte.valueOf(((Long) object).toString());
@@ -434,7 +434,7 @@ public class GeneralUtil {
      */
     public static Character convertToCharacter(Object object) {
         java.lang.Character chValue = null;
-        if (object != null) {
+        if (object != null && !object.toString().isEmpty()) {
             if (object instanceof Long) {
                 chValue = Character.valueOf((char) ((Long) object).longValue());
             } else if (object instanceof Integer) {
