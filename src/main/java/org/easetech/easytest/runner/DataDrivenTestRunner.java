@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.annotation.Display;
+
 import org.easetech.easytest.reports.data.DurationObserver;
 
 import org.easetech.easytest.internal.SystemProperties;
@@ -107,6 +109,9 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     private final ReportDataContainer testReportContainer;
     
+    /**
+     * An observer that is responsible for capturing the Duration of a methd under test
+     */
     private final DurationObserver durationObserver = new DurationObserver();
 
     /**
@@ -120,14 +125,9 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
         super(klass);
         Class<?> testClass = getTestClass().getJavaClass();
-        // PENDING: This is not a nice way to define scheduler
-        // but it is required at the moment because JUnit tests can run in parallel,
-        // from either command line or from Maven plugins.
-        // Have to look at a more robust solution.
         setSchedulingStrategy();
         loadBeanConfiguration();
         loadClassLevelData(klass);
-        //registerConverter(testClass.getAnnotation(Converters.class));
         try {
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
@@ -229,11 +229,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                         methodsWithNoData.add(method);
                     }
                 }
-            }
-            // Piggyback to register converters if any for the given method
-            //registerConverter(method.getAnnotation(Converters.class));
-            
-
+            }           
         }
     }
 
@@ -465,7 +461,30 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
 
     protected String testName(final FrameworkMethod method) {
-        return String.format("%s", method.getName());
+        String testName = method.getName();
+        Display displayAnnotation = method.getMethod().getAnnotation(Display.class) != null ? 
+            method.getMethod().getAnnotation(Display.class) : getTestClass().getJavaClass().getAnnotation(Display.class);
+        if(displayAnnotation != null) {
+            String fieldsToConcatenate = "";
+            String[] fields = displayAnnotation.fields();
+            EasyFrameworkMethod fMethod = (EasyFrameworkMethod)method;
+            Map<String , Object> testData = fMethod.getTestData();
+            if(testData != null) {
+                for(int i = 0 ; i < fields.length ; i++) {
+                    Object data = testData.get(fields[i]);
+                    if(data != null) {
+                        fieldsToConcatenate = fieldsToConcatenate.concat(data.toString());
+                    }
+                }
+                if(!fieldsToConcatenate.equals("")) {
+                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate).concat("}");
+                }
+                
+            }
+            
+        }
+
+        return String.format("%s", testName);
     }
 
     /**

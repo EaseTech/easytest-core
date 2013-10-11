@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.strategy;
 
+import org.easetech.easytest.annotation.ParallelSuite;
+
 import org.easetech.easytest.internal.SystemProperties;
 
 import org.easetech.easytest.annotation.Parallel;
@@ -50,6 +52,23 @@ public class SchedulerStrategy {
         }
         return new SerialScheduler();
 
+    }
+    
+    /**
+     * Utility method to get the Scheduler for Suite class
+     * @param suiteClass the suiteClass
+     * @return an instance of {@link RunnerScheduler}
+     */
+    public static RunnerScheduler getSchedulerForSuite(Class<?> suiteClass) {
+        ParallelSuite parallelSuite = suiteClass.getAnnotation(ParallelSuite.class);
+        if(parallelSuite != null) {
+            if(parallelSuite.threads() <=0) {
+                return new ParallelScheduler();
+            } else {
+                return new ParallelScheduler(parallelSuite.threads());
+            }
+        }
+        return new SerialScheduler();
     }
 
 }

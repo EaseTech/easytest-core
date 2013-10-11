@@ -1,5 +1,7 @@
 package org.easetech.easytest.example;
 
+import org.junit.Ignore;
+
 import java.util.AbstractCollection;
 import java.util.AbstractList;
 import java.util.AbstractQueue;
@@ -88,7 +90,7 @@ public class TestDifferentConditionsSupportedByParam {
     public void testGenericSetInterface(@Param(name="dates") Set<Date> items){
         Assert.assertNotNull(items);
         for(Date date : items){
-            System.out.println("testNonGenericListImplementation : "+date);
+            System.out.println("AAAAA testGenericSetInterface : "+date);
         }
     }
     
@@ -164,21 +166,23 @@ public class TestDifferentConditionsSupportedByParam {
         }
     }
     //FROM HERE
-    @Test
-    public void testAbstractCollection(@Param(name="items") AbstractCollection<ItemId> items){
-        Assert.assertNotNull(items);
-        for(ItemId item : items){
-            System.out.println("testNonGenericListImplementation : "+item);
-        }
-    }
-    
-    @Test
-    public void testAbstractList(@Param(name="items") AbstractList<ItemId> items){
-        Assert.assertNotNull(items);
-        for(ItemId item : items){
-            System.out.println("testNonGenericListImplementation : "+item);
-        }
-    }
+//    @Test
+//    @Ignore
+//    public void testAbstractCollection(@Param(name="items") AbstractCollection<ItemId> items){
+//        Assert.assertNotNull(items);
+//        for(ItemId item : items){
+//            System.out.println("testNonGenericListImplementation : "+item);
+//        }
+//    }
+//    
+//    @Test
+//    @Ignore
+//    public void testAbstractList(@Param(name="items") AbstractList<ItemId> items){
+//        Assert.assertNotNull(items);
+//        for(ItemId item : items){
+//            System.out.println("testNonGenericListImplementation : "+item);
+//        }
+//    }
     
     @Test
     public void testAbstractQueue(@Param(name="items") AbstractQueue<ItemId> items){

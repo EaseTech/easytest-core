@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import org.easetech.easytest.annotation.Display;
+
 import javax.inject.Inject;
 import junit.framework.Assert;
 import org.easetech.easytest.annotation.DataLoader;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 @Report
 @TestConfigProvider({TestConfigProviderClass.class})
 @Parallel(threads=8)
+@Display(fields={"Description"})
 public class TestExcelDataLoader {
     
     @Intercept
@@ -44,6 +47,7 @@ public class TestExcelDataLoader {
         return "Anuj";
     }
 
+    @Display(fields={"libraryId"})
     @Test
     public void getExcelTestData(@Param(name="libraryId")
     Float libraryId, @Param(name="itemId")

@@ -13,7 +13,7 @@ public class TestJSON {
 
     @Test
     public void testJSONObjectCSV(@Param(name="Item")Item item , LibraryId libId){
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + item);
+        System.out.println(item);
         //System.out.println(libId);
     }
     
@@ -21,9 +21,8 @@ public class TestJSON {
     @Test
     @DataLoader(filePaths="jsonBasedData.xls")
     public void testJSONObject(@Param(name="Item")Item item , LibraryId libId){
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + item);
+        System.out.println(item);
         //System.out.println(libId);
-    }
-    
+    }    
 
 }
