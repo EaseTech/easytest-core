@@ -473,7 +473,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                 for(int i = 0 ; i < fields.length ; i++) {
                     Object data = testData.get(fields[i]);
                     if(data != null) {
-                        fieldsToConcatenate = fieldsToConcatenate.concat(data.toString());
+                        fieldsToConcatenate = fieldsToConcatenate.concat(data.toString()).concat(",");
                     }
                 }
                 if(!fieldsToConcatenate.equals("")) {

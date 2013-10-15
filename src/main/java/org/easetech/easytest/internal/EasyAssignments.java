@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.internal;
 
+import org.easetech.easytest.annotation.Format;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +106,10 @@ public class EasyAssignments {
      */
     public Param.DataSupplier getSupplier(EasyParamSignature unassigned) throws InstantiationException,
         IllegalAccessException {
-        return new Param.DataSupplier();
+        Param.DataSupplier supplier = new Param.DataSupplier();
+//        supplier.setDateFormat(getDateFormat());
+//        supplier.setDateFormat(getDateTimeFormat());
+        return supplier;
     }
 
    
@@ -133,6 +138,26 @@ public class EasyAssignments {
             values[i] = fAssigned.get(i).getDescription();
         }
         return values;
+    }
+    
+    protected String getDateFormat() {
+        String dateFormat = null;
+        Format format = fClass.getJavaClass().getAnnotation(Format.class);
+        if(format != null) {
+            dateFormat = format.date();
+        }
+        return dateFormat;
+        
+    }
+    
+    protected String getDateTimeFormat() {
+        String dateTimeFormat = null;
+        Format format = fClass.getJavaClass().getAnnotation(Format.class);
+        if(format != null) {
+            dateTimeFormat = format.dateTime();
+        }
+        return dateTimeFormat;
+        
     }
 
 }

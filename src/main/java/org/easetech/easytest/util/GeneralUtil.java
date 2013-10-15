@@ -67,6 +67,19 @@ public class GeneralUtil {
         BigDecimal bigDecimal = new BigDecimal(valueToRound).setScale(numberOfDecimalPlaces, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
     }
+    
+    /**
+     * Util method to get the String value
+     * 
+     * @param paramName the name of the parameter to get the String value for
+     * @param data the data that contains the include Holdings value
+     * @return String value or null if it is not set in the data.
+     */
+    public static String getStringValue(String paramName, Map<String, Object> data) {
+        return (data.get(paramName) != null && !data.get(paramName).equals("null") ? data.get(paramName).toString()
+            : null);
+
+    }
 
     /**
      * Create directory
@@ -108,17 +121,17 @@ public class GeneralUtil {
         }
         return absoluteLocation;
     }
-
-    /**
-     * Format date with pattern ddMMyyyyHHmmss
-     * 
-     * @param date
-     * @return string with formatted date
-     */
-    public static String getFormattedDate(Date date) {
-        DateFormat instance = new SimpleDateFormat("ddMMyyyyHHmmss");
-        return instance.format(date);
-    }
+//
+//    /**
+//     * Format date with pattern ddMMyyyyHHmmss
+//     * 
+//     * @param date
+//     * @return string with formatted date
+//     */
+//    public static String getFormattedDate(Date date) {
+//        DateFormat instance = new SimpleDateFormat("ddMMyyyyHHmmss");
+//        return instance.format(date);
+//    }
 
     /**
      * Returns absulute path of either the classpath of file location

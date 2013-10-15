@@ -1,7 +1,9 @@
 
 package org.easetech.easytest.annotation;
 
-import org.easetech.easytest.converter.ParamAwareConverter;
+import org.easetech.easytest.converter.ConversionDelegator;
+
+import org.easetech.easytest.converter.MapConverter;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
@@ -9,7 +11,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.easetech.easytest.converter.AbstractConverter;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
+import org.easetech.easytest.converter.ParamAwareConverter;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.GeneralUtil;
@@ -130,21 +132,14 @@ public @interface Param {
     String name();
 
     /**
-     * Static class that overrides the getValueSources method of {@link ParameterSupplier} to return the data in Junit
-     * Format which is a list of {@link PotentialAssignment}. This is the place where we can specify what the data type
+     * Static class that returns the data as a list of {@link PotentialAssignment}. 
+     * This is the place where we can specify what the data type
      * of the returned data would be. We can also specify different return types for different test methods.
      * 
      */
     static class DataSupplier {
 
-        /**
-         * Logger
-         */
-        protected final static Logger LOG = LoggerFactory.getLogger(DataSupplier.class);
-
-        private static final String COLON = ":";
-
-        private static final String EMPTY_STRING = "";
+       
 
         /**
          * Method to return the list of data for the given Test method
@@ -156,7 +151,6 @@ public @interface Param {
 
         public List<PotentialAssignment> getValueSources(String testMethodName, EasyParamSignature signature) {
             Param provider = signature.getAnnotation(Param.class);
-
             if (testMethodName == null) {
                 Assert
                     .fail("The framework could not locate the test data for the test method. If you are using TestData annotation, " +
@@ -167,333 +161,16 @@ public @interface Param {
             Map<String, List<Map<String, Object>>> data = DataContext.getConvertedData();
             List<Map<String, Object>> methodData = data.get(testMethodName);
             if (methodData == null) {
-                Assert
-                    .fail("Data does not exist for the specified method with name :"
-                        + testMethodName
-                        + " .Please check "
-                        + "that the Data file contains the data for the given method name. A possible cause could be spelling mismatch.");
+                Assert.fail("Data does not exist for the specified method with name :" + testMethodName
+                        + " .Please check that the Data file contains the data for the given method name. A possible cause could be spelling mismatch.");
             }
-            Class<?> parameterType = signature.getParameterType();
-            if (Map.class.isAssignableFrom(parameterType)) {
-                listOfData = convert(data.get(testMethodName), parameterType);
-            } else if (Collection.class.isAssignableFrom(parameterType)) {
-                listOfData = convertCollection(signature, provider != null ? provider.name() : null, data.get(testMethodName),
-                    parameterType);
-            } else {
-                listOfData = convert(signature.getParameterType(), provider != null ? provider.name() : null,
-                    data.get(testMethodName));
-            }
+            List<Map<String , Object>> testData = data.get(testMethodName);
+            listOfData = new ConversionDelegator(signature , provider != null ? provider.name() : null).convert(testData);
+
             return listOfData;
         }
 
-        /**
-         * Method that returns a list of {@link PotentialAssignment} that contains map value. This is the map of values
-         * that the user can use to fetch the values it requires on its own.
-         * 
-         * @param convertFrom the data to convert from
-         * @param mapType The type of map
-         * @return a list of {@link PotentialAssignment} that contains map value
-         */
-        @SuppressWarnings("unchecked")
-        private List<PotentialAssignment> convert(List<Map<String, Object>> convertFrom, Class mapType) {
-            List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
-            for (Map<String, Object> map : convertFrom) {
-                if (mapType.isInterface()) {
-                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, map));
-                } else {
-                    Map dataValues;
-                    try {
-                        dataValues = (Map) mapType.newInstance();
-                    } catch (InstantiationException e) {
-                        LOG.error(
-                            "InstantiationException occured while trying to convert the data to Map(using newInstance() method). "
-                                + "The type of Map passed as input parameter is :" + mapType, e);
-                        throw new RuntimeException(e);
-                    } catch (IllegalAccessException e) {
-                        LOG.error(
-                            "IllegalAccessException occured while trying to convert the data to Map(using newInstance() method). "
-                                + "The type of Map passed as input parameter is :" + mapType, e);
-                        throw new RuntimeException(e);
-                    }
-                    dataValues.putAll(map);
-                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, dataValues));
-                }
-
-            }
-            return finalData;
-        }
-
-        /**
-         * Method that returns a list of {@link PotentialAssignment} that contains the value as specified by idClass
-         * parameter.
-         * 
-         * @param idClass the class object that dictates the type of data that will be present in the list of
-         *            {@link PotentialAssignment}
-         * @param paramName the optional name of the parameter with which to search for the data.
-         * @param convertFrom the list of raw data read from the CSV file.
-         * @return list of {@link PotentialAssignment}
-         */
-        @SuppressWarnings("unchecked")
-        private List<PotentialAssignment> convert(Class<?> idClass, String paramName,
-            List<Map<String, Object>> convertFrom) {
-            List<PotentialAssignment> potentialAssignments = new ArrayList<PotentialAssignment>();
-
-            if (GeneralUtil.dataAlreadyConverted(idClass, convertFrom, paramName)) {
-                for (Map<String , Object> object : convertFrom) {
-                    potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, object.get(paramName)));
-                }
-            } else if (GeneralUtil.isStandardObjectInstance(idClass)) {
-                for (Map<String, Object> object : convertFrom) {
-                    potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING,
-                        GeneralUtil.convertToTargetType(idClass, object.get(paramName))));
-                }
-            } else {
-                PropertyEditor editor = PropertyEditorManager.findEditor(idClass);
-                if (editor != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Editor for class " + idClass + " found.");
-                    }
-                    for (Map<String, Object> object : convertFrom) {
-                        if (paramName != null && !EMPTY_STRING.equals(paramName)) {
-                            if (getStringValue(paramName, object) != null) {
-                                editor.setAsText(getStringValue(paramName, object));
-                            }
-
-                        } else {
-                            if(getStringValue(idClass.getSimpleName(), object) != null){
-                        		editor.setAsText(getStringValue(idClass.getSimpleName(), object));
-                        	}
-                        }
-                        // add data to PotentialAssignment even if it is null
-                        potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, editor.getValue()));
-
-                    }
-
-                } else {
-                    
-                    LOG.debug("Editor for class {} not found. Trying to find converter.", idClass);
-                    // Try to find the Converter
-                    Converter<?> converter = ConverterManager.findConverter(idClass);
-                    if (converter != null) {
-                        LOG.debug("Converter for class {} found.", idClass);
-                        for (Map<String, Object> object : convertFrom) {
-                            Object value = null;
-                            if (converter instanceof ParamAwareConverter) {
-                                value = ((ParamAwareConverter)converter).convert(object, paramName);
-                            } else {
-                                value = converter.convert(object);
-                            }
-                            potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, value));
-                        }
-                    } else {
-                        
-                        if(!GeneralUtil.populateJSONData(idClass , convertFrom, potentialAssignments, paramName)){
-                            try {
-                                GeneralUtil.populateParamData(idClass, convertFrom, potentialAssignments, paramName);
-                            } catch (Exception e) {
-                                LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                                throw new RuntimeException(e);
-                            } 
-                        }
-                    }
-                }
-            }
-
-            return potentialAssignments;
-        }
 
 
-        /**
-         * Get the instance of the collection from the User converted data
-         */
-        private Collection getCollectionInstance(List<Map<String, Object>> convertFrom , String paramName , Class<?> genericType) {
-            Collection result = null;
-            for(Map<String , Object> data : convertFrom) {
-                Object value = data.get(paramName);
-                result = getCollectionInstance(value.getClass(), genericType);
-                break;
-            }
-            return result;
-        }
-
-        /**
-         * Method that returns a list of {@link PotentialAssignment} that contains the value as specified by idClass
-         * parameter.
-         * 
-         * @param signature an instance of {@link EasyParamSignature} that dictates the type of data that will be
-         *            present in the list of {@link PotentialAssignment}
-         * @param paramName the optional name of the parameter with which to search for the data.
-         * @param convertFrom the list of raw data read from the CSV file.
-         * @param parameterType The Class of the parameter type
-         * @return list of {@link PotentialAssignment}
-         */
-
-        @SuppressWarnings("unchecked")
-        private List<PotentialAssignment> convertCollection(EasyParamSignature signature, String paramName,
-            List<Map<String, Object>> convertFrom, Class parameterType) {
-            Class<?> genericType = signature.getIsGenericParameter() ? signature.getGenericParameterArgType()
-                : Object.class;
-            Collection objectValues = getCollectionInstance(parameterType, genericType);
-            List<PotentialAssignment> finalData = new ArrayList<PotentialAssignment>();
-            if(GeneralUtil.dataAlreadyConverted(parameterType , convertFrom , paramName)) {
-                for (Map<String , Object> object : convertFrom) {
-                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, object.get(paramName)));
-                }
-            } else if (!signature.getIsGenericParameter()) {
-                LOG.debug("Collection is of Non generic type.Setting the same values as fetched from the test file.");
-                for (Map<String, Object> object : convertFrom) {
-                    String[] strValues = ((String) object.get(paramName)).split(COLON);
-                    for (int i = 0; i < strValues.length; i++) {
-                        objectValues.add(strValues[i]);
-                    }
-                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
-                }
-            } else if (GeneralUtil.isStandardObjectInstance(genericType)) {
-                LOG.debug(
-                    "parameter to the collection is a Standard Java Class {} . Using Internal Editors to resolve values",
-                    genericType);
-                if (objectValues == null) {
-                    Assert.fail("Unable to identify the Collection with Class :" + parameterType);
-                }
-
-                for (Map<String, Object> object : convertFrom) {
-                    String[] strValues = ((String) object.get(paramName)).split(COLON);
-                    for (int i = 0; i < strValues.length; i++) {
-                        objectValues.add(GeneralUtil.convertToTargetType(genericType, strValues[i]));
-                    }
-                    finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
-                }
-            } else {
-                PropertyEditor editor = PropertyEditorManager.findEditor(genericType);
-                if (editor != null) {
-                    LOG.debug("Editor for class {} found", genericType);
-                    for (Map<String, Object> object : convertFrom) {
-                        String strValue = null;
-                        if (paramName != null && !EMPTY_STRING.equals(paramName)) {
-                            strValue = getStringValue(paramName, object);
-                        } else {
-                            strValue = getStringValue(genericType.getSimpleName(), object);
-                        }
-                        if (strValue != null) {
-                            String[] values = strValue.split(COLON);
-                            for (int i = 0; i < values.length; i++) {
-                                editor.setAsText(values[i]);
-                                if (editor.getValue() != null) {
-                                    objectValues.add(editor.getValue());
-                                }
-                            }
-                        }
-                        finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
-                    }
-
-                } else {
-                    LOG.debug("Editor for class {}  not found. Trying to find converter.", genericType);
-                    Converter<?> converter = ConverterManager.findConverter(genericType);
-                    if (converter != null) {
-                        LOG.debug("Converter for class {} found ", genericType);
-                        for (Map<String, Object> object : convertFrom) {
-                            Map<String, Object> tempMap = new HashMap<String, Object>();
-                            String values = (String) object.get(paramName);
-                            String[] splitValues = values.split(COLON);
-                            for (int i = 0; i < splitValues.length; i++) {
-                                tempMap.put(paramName, splitValues[i]);
-                                Object value = null;
-                                if(converter instanceof ParamAwareConverter) {
-                                    value = ((ParamAwareConverter)converter).convert(tempMap, paramName);
-                                } else {
-                                    value = converter.convert(tempMap);
-                                }
-                                objectValues.add(value);
-                            }
-                            finalData.add(PotentialAssignment.forValue(EMPTY_STRING, objectValues));
-                        }
-                    } else {
-                        try {
-                            GeneralUtil.fillDataUsingConstructor(genericType, convertFrom, finalData, paramName, objectValues);
-                        } catch (Exception e) {
-                            LOG.error("Exception occured while trying to populate the data by instantiating the parameter object" , e);
-                            throw new RuntimeException(e);
-                        }
-                    }
-
-                }
-            }
-
-            return finalData;
-
-        }
-
-        /**
-         * Method that is responsible for returning the right instance of the Collection based on user's input. If the
-         * collection type is abstract or if the collection type is an interface a default collection type is returned.
-         * 
-         * @param parameterType the Class object representing the Collection Type
-         * @param genericType the optional generic type for the Collection
-         * @return an instance of {@link Collection}
-         */
-        @SuppressWarnings("unchecked")
-        private static Collection getCollectionInstance(Class parameterType, Class genericType) {
-            try {
-                if (Set.class.isAssignableFrom(parameterType)) {
-                    if (EnumSet.class.isAssignableFrom(parameterType)) {
-                        LOG.debug("Returning an instance of {} " + " for the input parameter of Type :{}",
-                            EnumSet.class.getSimpleName(), parameterType);
-                        return EnumSet.noneOf(genericType == null ? Object.class : genericType);
-                    }
-
-                    return (Collection) (parameterType.isInterface()
-                        || Modifier.isAbstract(parameterType.getModifiers()) ? new TreeSet() : parameterType
-                        .newInstance());
-                } else if (List.class.isAssignableFrom(parameterType)) {
-                    return (Collection) (parameterType.isInterface()
-                        || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedList() : parameterType
-                        .newInstance());
-                } else if ("Deque".equals(parameterType.getSimpleName())
-                    || "LinkedBlockingDeque".equals(parameterType.getSimpleName())
-                    || "BlockingDeque".equals(parameterType.getSimpleName())) {
-                    // Try to find an instance of the Class from the ConverterManager
-                    Converter converter = ConverterManager.findConverter(parameterType);
-                    if (converter == null) {
-                        Assert
-                            .fail("EasyTest does not natively support the Collection of type "
-                                + parameterType
-                                + " . In order to use this Collection type as parameter, provide an empty implementation of AbstractConveter "
-                                + "class with the generic type as " + parameterType
-                                + "or provide an implementation of instance() method of the Converter interface ");
-                    } else {
-                        return (Collection) converter.instanceOfType();
-                    }
-                } else if (Queue.class.isAssignableFrom(parameterType)) {
-                    if (ArrayBlockingQueue.class.isAssignableFrom(parameterType)) {
-                        return new ArrayBlockingQueue(100);
-                    }
-                    return (Collection) (parameterType.isInterface()
-                        || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedBlockingQueue()
-                        : parameterType.newInstance());
-                } else if (Collection.class.isAssignableFrom(parameterType)) {
-                    return new ArrayList();
-                }
-            } catch (Exception e) {
-                LOG.error(
-                    "Exception occured while trying to instantiate a Collection of Type : {} . Error is {}",
-                    parameterType, e);
-                Assert.fail("Exception occured while trying to instantiate a Collection of Type : "
-                    + parameterType + " . The exception is :" + e.toString());
-            }
-            return null;
-        }
-
-        /**
-         * Util method to get the String value
-         * 
-         * @param paramName the name of the parameter to get the String value for
-         * @param data the data that contains the include Holdings value
-         * @return String value or null if it is not set in the data.
-         */
-        private static String getStringValue(String paramName, Map<String, Object> data) {
-            return (data.get(paramName) != null && !data.get(paramName).equals("null") ? data.get(paramName).toString()
-                : null);
-
-        }
     }
 }
