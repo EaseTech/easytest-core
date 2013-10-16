@@ -1,12 +1,11 @@
 
 package org.easetech.easytest.converter;
 
-import junit.framework.Assert;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import junit.framework.Assert;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.GeneralUtil;
 import org.junit.experimental.theories.PotentialAssignment;

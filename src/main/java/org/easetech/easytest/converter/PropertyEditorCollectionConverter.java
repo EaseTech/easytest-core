@@ -1,23 +1,16 @@
 package org.easetech.easytest.converter;
 
-import org.easetech.easytest.util.GeneralUtil;
-
-import java.util.ArrayList;
-
-import java.util.Collection;
-
-import org.easetech.easytest.internal.EasyParamSignature;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
-
-import org.junit.experimental.theories.PotentialAssignment;
-
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.easetech.easytest.internal.EasyParamSignature;
+import org.easetech.easytest.util.GeneralUtil;
+import org.junit.experimental.theories.PotentialAssignment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 

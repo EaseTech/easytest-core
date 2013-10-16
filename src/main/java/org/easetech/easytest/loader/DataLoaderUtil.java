@@ -1,14 +1,13 @@
 
 package org.easetech.easytest.loader;
 
-import org.easetech.easytest.internal.SystemProperties;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.internal.SystemProperties;
 import org.easetech.easytest.io.EmptyResource;
 import org.easetech.easytest.io.Resource;
 import org.easetech.easytest.io.ResourceLoader;
@@ -69,6 +68,7 @@ public final class DataLoaderUtil {
         }
         result.setDataLoader(dataLoader);
         result.setFilePaths(dataFiles);
+        result.setWriteData(testData.writeData());
         return result;
     }
 

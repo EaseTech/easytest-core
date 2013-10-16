@@ -1,13 +1,9 @@
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.annotation.Repeat;
-
-import org.easetech.easytest.reports.data.TestResultBean;
-
-import java.util.Map;
-
 import java.lang.reflect.Method;
-
+import java.util.Map;
+import org.easetech.easytest.annotation.Repeat;
+import org.easetech.easytest.reports.data.TestResultBean;
 import org.junit.runners.model.FrameworkMethod;
 /**
  * An extension of {@link FrameworkMethod} to introduce custom method name getters and setters.

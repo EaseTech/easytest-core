@@ -6,7 +6,7 @@ import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.TestConfigProvider;
 
-@DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
+@DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" } , writeData=false)
 @Report
 @TestConfigProvider({TestConfigProviderClass.class})
 @Parallel(threads=8)

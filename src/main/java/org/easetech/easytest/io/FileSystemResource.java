@@ -1,25 +1,17 @@
 
 package org.easetech.easytest.io;
 
-import org.easetech.easytest.annotation.DataLoader;
-
-import org.easetech.easytest.util.CommonUtils;
-
-import java.io.FileOutputStream;
-
-import java.net.MalformedURLException;
-
-import java.io.FileNotFoundException;
-
-import java.io.FileInputStream;
-
-import java.io.OutputStream;
-
-import org.junit.Assert;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.util.CommonUtils;
+import org.junit.Assert;
 
 /**
  * A FileSystem based {@link Resource} implementation.

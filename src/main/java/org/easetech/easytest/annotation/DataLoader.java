@@ -1,16 +1,13 @@
 package org.easetech.easytest.annotation;
 
-import java.lang.annotation.Inherited;
-
-import org.easetech.easytest.loader.EmptyLoader;
-import org.easetech.easytest.loader.Loader;
-import org.easetech.easytest.loader.LoaderType;
-
-
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.easetech.easytest.loader.EmptyLoader;
+import org.easetech.easytest.loader.Loader;
+import org.easetech.easytest.loader.LoaderType;
 
 /**
  * 
@@ -73,5 +70,10 @@ public @interface DataLoader {
     
     /** The custom Loader class that will be used by EasyTest to load the test data*/
     Class<? extends Loader> loader() default EmptyLoader.class;
+    
+    /**
+     * Boolean identifying whether the data should be written back to the file or not. Default behavior is that the data will be written back to the file.
+     */
+    boolean writeData() default true;
 
 }

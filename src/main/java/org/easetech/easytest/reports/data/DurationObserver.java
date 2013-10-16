@@ -3,9 +3,7 @@ package org.easetech.easytest.reports.data;
 
 
 import java.util.ArrayList;
-
 import java.util.Collections;
-
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;

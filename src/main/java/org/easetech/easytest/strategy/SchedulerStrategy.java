@@ -1,13 +1,10 @@
 
 package org.easetech.easytest.strategy;
 
-import org.easetech.easytest.annotation.TestPolicy;
-
-import org.easetech.easytest.annotation.ParallelSuite;
-
-import org.easetech.easytest.internal.SystemProperties;
-
 import org.easetech.easytest.annotation.Parallel;
+import org.easetech.easytest.annotation.ParallelSuite;
+import org.easetech.easytest.annotation.TestPolicy;
+import org.easetech.easytest.internal.SystemProperties;
 import org.junit.runners.model.RunnerScheduler;
 
 /**

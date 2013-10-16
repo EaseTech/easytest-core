@@ -1,13 +1,10 @@
 
 package org.easetech.easytest.converter;
 
-import java.util.Map;
-
 import java.lang.reflect.Modifier;
-
-import junit.framework.Assert;
-
 import java.lang.reflect.ParameterizedType;
+import java.util.Map;
+import junit.framework.Assert;
 
 /**
  * 

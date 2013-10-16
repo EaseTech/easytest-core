@@ -1,10 +1,6 @@
 
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.Parallel;
-
-import org.junit.After;
-
 import javax.inject.Inject;
 import junit.framework.Assert;
 import org.easetech.easytest.annotation.DataLoader;
@@ -13,6 +9,7 @@ import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.TestPolicy;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +87,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" })
+    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" } , writeData=false)
     public Item getExcelTestDataWithReturnType(@Param(name="libraryId")
     Float libraryId, @Param(name="itemId")
     Float itemId) {

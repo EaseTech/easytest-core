@@ -51,7 +51,12 @@ public enum SystemProperties {
     /**
      * System property to specify the number of threads to run in parallel
      */
-    PARALLEL_THREAD_COUNT("test.parallelThreads");
+    PARALLEL_THREAD_COUNT("test.parallelThreads"),
+    
+    /**
+     * System property to specify whethere the data should be written back to the file or not
+     */
+    WRITE_DATA("easytest.writeData");
     
     /**
      * the actual value of the system property

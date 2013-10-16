@@ -3,7 +3,6 @@ package org.easetech.easytest.reports.utils;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Map;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;

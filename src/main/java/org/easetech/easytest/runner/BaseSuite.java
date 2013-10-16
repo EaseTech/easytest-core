@@ -1,16 +1,14 @@
 
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.annotation.TestConfigProvider;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.loader.DataConverter;

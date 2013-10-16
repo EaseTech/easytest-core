@@ -1,10 +1,8 @@
 package org.easetech.easytest.interceptor;
 
-import org.easetech.easytest.runner.DataDrivenTestRunner;
-
-import org.easetech.easytest.annotation.Intercept;
-
 import java.lang.reflect.Method;
+import org.easetech.easytest.annotation.Intercept;
+import org.easetech.easytest.runner.DataDrivenTestRunner;
 
 /**
  * Interface that provides the users with the ability to intercept 

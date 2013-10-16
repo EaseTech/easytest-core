@@ -1,16 +1,6 @@
 
 package org.easetech.easytest.runner;
 
-import org.junit.runners.model.RunnerScheduler;
-
-import org.easetech.easytest.annotation.TestPolicy;
-
-import org.easetech.easytest.annotation.Display;
-
-import org.easetech.easytest.reports.data.DurationObserver;
-
-import org.easetech.easytest.internal.SystemProperties;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
@@ -26,12 +16,14 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Display;
 import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.Repeat;
 import org.easetech.easytest.annotation.TestConfigProvider;
+import org.easetech.easytest.annotation.TestPolicy;
 import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
@@ -40,8 +32,10 @@ import org.easetech.easytest.interceptor.Empty;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
 import org.easetech.easytest.interceptor.MethodIntercepter;
+import org.easetech.easytest.internal.SystemProperties;
 import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.DataLoaderUtil;
+import org.easetech.easytest.reports.data.DurationObserver;
 import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.strategy.SchedulerStrategy;
@@ -61,6 +55,7 @@ import org.junit.runners.ParentRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
+import org.junit.runners.model.RunnerScheduler;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

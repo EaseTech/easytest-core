@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.loader;
 
+import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,13 +14,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.easetech.easytest.io.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.csvreader.CsvReader;
-import com.csvreader.CsvWriter;
 
 /**
  * An implementation of {@link Loader} for the CSV based files. This Loader is responsible for reading and writing to a list of CSV

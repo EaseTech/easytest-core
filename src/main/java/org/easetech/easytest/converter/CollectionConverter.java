@@ -1,29 +1,23 @@
 package org.easetech.easytest.converter;
 
-import java.util.LinkedHashMap;
-
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.easetech.easytest.internal.EasyParamSignature;
 import org.junit.Assert;
-
-import java.util.ArrayList;
-
+import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.easetech.easytest.internal.EasyParamSignature;
-
-import java.util.Collection;
-
-import java.util.List;
-import java.util.Map;
-import org.junit.experimental.theories.PotentialAssignment;
 
 /**
  * 

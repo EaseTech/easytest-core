@@ -1,12 +1,11 @@
 
 package org.easetech.easytest.loader;
 
-import org.easetech.easytest.runner.DataDrivenTestRunner;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.easetech.easytest.util.DataContext;
 
 /**

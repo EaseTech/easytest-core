@@ -1,11 +1,10 @@
 
 package org.easetech.easytest.internal;
 
-import org.easetech.easytest.annotation.Format;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.easetech.easytest.annotation.Format;
 import org.easetech.easytest.annotation.Param;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.PotentialAssignment.CouldNotGenerateValueException;

@@ -1,11 +1,10 @@
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.Repeat;
-
 import javax.inject.Inject;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.annotation.Repeat;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
 import org.junit.Before;

@@ -1,12 +1,10 @@
 package org.easetech.easytest.converter;
 
 import java.util.ArrayList;
-
-import org.easetech.easytest.internal.EasyParamSignature;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.GeneralUtil;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;

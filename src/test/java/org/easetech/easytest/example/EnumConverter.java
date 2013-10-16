@@ -1,10 +1,8 @@
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.example.EnumObject.Workingday;
-
 import java.util.Map;
-
 import org.easetech.easytest.converter.AbstractConverter;
+import org.easetech.easytest.example.EnumObject.Workingday;
 
 public class EnumConverter extends AbstractConverter<Workingday> {
 

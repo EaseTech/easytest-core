@@ -1,15 +1,6 @@
 
 package org.easetech.easytest.util;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.util.regex.Matcher;
-
-import java.util.regex.Pattern;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -20,16 +11,19 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

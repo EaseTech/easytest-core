@@ -1,11 +1,9 @@
 package org.easetech.easytest.reports.data;
 
 
-import org.easetech.easytest.annotation.Duration;
-
-import org.easetech.easytest.annotation.Intercept;
-
 import java.lang.reflect.Method;
+import org.easetech.easytest.annotation.Duration;
+import org.easetech.easytest.annotation.Intercept;
 
 /**
  * Class encapsulating the run information
