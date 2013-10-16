@@ -121,17 +121,7 @@ public class GeneralUtil {
         }
         return absoluteLocation;
     }
-//
-//    /**
-//     * Format date with pattern ddMMyyyyHHmmss
-//     * 
-//     * @param date
-//     * @return string with formatted date
-//     */
-//    public static String getFormattedDate(Date date) {
-//        DateFormat instance = new SimpleDateFormat("ddMMyyyyHHmmss");
-//        return instance.format(date);
-//    }
+
 
     /**
      * Returns absulute path of either the classpath of file location
@@ -234,7 +224,7 @@ public class GeneralUtil {
         java.sql.Date sqlDate = null;
         if (object != null && !object.toString().isEmpty()) {
             sqlDate = new java.sql.Date(convertToUtilDate(object).getTime());
-            ;
+            
         }
 
         return sqlDate;
@@ -335,11 +325,9 @@ public class GeneralUtil {
                 longvalue = ((Double) object).longValue();
             } else if (object instanceof String) {
                 String strLongValue = (String) object;
-                if ("".equalsIgnoreCase(strLongValue)) {
-                    longvalue = (long) 0;
-                } else {
+                if (!"".equalsIgnoreCase(strLongValue)) {
                     longvalue = Long.valueOf((String) object);
-                }
+                } 
             }
         }
         return longvalue;
@@ -361,7 +349,7 @@ public class GeneralUtil {
                 doublevalue = ((Integer) object).doubleValue();
             } else if (object instanceof Double) {
                 doublevalue = ((Double) object).doubleValue();
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 doublevalue = Double.valueOf((String) object);
             }
         }
@@ -384,7 +372,7 @@ public class GeneralUtil {
                 floatvalue = ((Integer) object).floatValue();
             } else if (object instanceof Double) {
                 floatvalue = ((Double) object).floatValue();
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 floatvalue = Float.valueOf((String) object);
             }
         }
@@ -407,7 +395,7 @@ public class GeneralUtil {
                 booleanValue = stringToBoolean(((Integer) object).toString());
             } else if (object instanceof Double) {
                 booleanValue = stringToBoolean(((Double) object).toString());
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 booleanValue = stringToBoolean((String) object);
             }
         }
@@ -431,7 +419,7 @@ public class GeneralUtil {
                 byteValue = Byte.valueOf(((Integer) object).toString());
             } else if (object instanceof Double) {
                 byteValue = Byte.valueOf(((Double) object).toString());
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 byteValue = Byte.valueOf((String) object);
             }
         }
@@ -454,7 +442,7 @@ public class GeneralUtil {
                 chValue = Character.valueOf((char) ((Integer) object).intValue());
             } else if (object instanceof Double) {
                 chValue = Character.valueOf((char) ((Double) object).doubleValue());
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 chValue = Character.valueOf(((String) object).charAt(0));
             } else if (object instanceof Character) {
                 chValue = (Character) object;
@@ -564,14 +552,19 @@ public class GeneralUtil {
      * 
      * @param idClass
      * @param object
+     * @param convertEmptyToNull 
      * @return
      */
-    public static Object convertToTargetType(Class<?> idClass, Object object) {
+    public static Object convertToTargetType(Class<?> idClass, Object object , Boolean convertEmptyToNull) {
         Object returnObj = null;
         if (object == null || NULL_STR.equals(object.toString())) {
             return null;
         }
-
+        if(convertEmptyToNull) {
+            if("".equals(object.toString())){
+                return null;
+            }
+        }
         if (String.class.isAssignableFrom(idClass)) {
             returnObj = convertToString(object);
         } else if (Timestamp.class.isAssignableFrom(idClass)) {
@@ -682,67 +675,47 @@ public class GeneralUtil {
         return false;
     }
 
-    /**
-     * Method responsible for calling a constructor on an object to try to fill it with data.
-     * 
-     * @param idClass
-     * @param convertFrom
-     * @param finalData
-     * @param paramName
-     * @return Boolean in case the data is successfuly filled else false
-     * @throws IllegalArgumentException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     */
-    public static Boolean populateParamData(Class<?> idClass, List<Map<String, Object>> convertFrom,
-        List<PotentialAssignment> finalData, String paramName) throws IllegalArgumentException, InstantiationException,
-        IllegalAccessException, InvocationTargetException {
-        return fillDataUsingConstructor(idClass, convertFrom, finalData, paramName, null);
-
-    }
-
     public static Boolean fillDataUsingConstructor(Class<?> idClass, List<Map<String, Object>> convertFrom,
-        List<PotentialAssignment> finalData, String paramName, Collection collectionInstance)
+        List<PotentialAssignment> finalData, String paramName, Collection collectionInstance , Boolean convertEmptyToNull)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         // See if the parameter class has a constructor that we can use.
         Constructor constructor = getConstructor(idClass, Long.class) == null ? getConstructor(idClass, long.class)
             : getConstructor(idClass, Long.class);
         if (constructor != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Long.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Long.class, collectionInstance , convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, String.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, String.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, String.class, collectionInstance , convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Integer.class) == null ? getConstructor(idClass, int.class)
             : getConstructor(idClass, Integer.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Integer.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Integer.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Byte.class) == null ? getConstructor(idClass, byte.class)
             : getConstructor(idClass, Byte.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Byte.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Byte.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Character.class) == null ? getConstructor(idClass, char.class)
             : getConstructor(idClass, Character.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Character.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Character.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Date.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Date.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Date.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, java.util.Date.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, java.util.Date.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, java.util.Date.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Timestamp.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Timestamp.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Timestamp.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Time.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Time.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Time.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Double.class) == null ? getConstructor(idClass, double.class)
             : getConstructor(idClass, Double.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Double.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Double.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Float.class) == null ? getConstructor(idClass, float.class)
             : getConstructor(idClass, Float.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Float.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Float.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Boolean.class) == null ? getConstructor(idClass,
             boolean.class) : getConstructor(idClass, Boolean.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Boolean.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Boolean.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Short.class) == null ? getConstructor(idClass, short.class)
             : getConstructor(idClass, Boolean.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Short.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Short.class, collectionInstance, convertEmptyToNull);
         } else if ((constructor = getConstructor(idClass, Enum.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Enum.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Enum.class, collectionInstance, convertEmptyToNull);
         } else {
             return false;
         }
@@ -753,16 +726,16 @@ public class GeneralUtil {
     @SuppressWarnings({ "unused" })
     private static <T> Boolean fill(Class idClass, String paramName, Constructor constructor,
         List<PotentialAssignment> finalData, List<Map<String, Object>> convertFrom, Class<T> argType,
-        Collection collectionInstance) throws IllegalArgumentException, InstantiationException, IllegalAccessException,
+        Collection collectionInstance , Boolean convertEmptyToNull) throws IllegalArgumentException, InstantiationException, IllegalAccessException,
         InvocationTargetException {
         if (GeneralUtil.isStandardObjectInstance(argType)) {
             for (Map<String, Object> object : convertFrom) {
                 T target = null;
                 Object result = null;
                 if (collectionInstance != null) {
-                    fillCollectionData(idClass, object, paramName, constructor, finalData, argType, collectionInstance);
+                    fillCollectionData(idClass, object, paramName, constructor, finalData, argType, collectionInstance, convertEmptyToNull);
                 } else {
-                    fillData(idClass, object, paramName, constructor, finalData, argType);
+                    fillData(idClass, object, paramName, constructor, finalData, argType, convertEmptyToNull);
                 }
 
             }
@@ -775,7 +748,7 @@ public class GeneralUtil {
 
     @SuppressWarnings("unchecked")
     private static <T> void fillCollectionData(Class<?> idClass, Map<String, Object> object, String paramName,
-        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Collection collectionInstance)
+        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Collection collectionInstance, Boolean convertEmptyToNull)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Object result = null;
         T target = null;
@@ -783,7 +756,7 @@ public class GeneralUtil {
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
             String[] strValues = ((String) object.get(paramName)).split(COLON);
             for (int i = 0; i < strValues.length; i++) {
-                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
+                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i], convertEmptyToNull);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
             }
@@ -791,7 +764,7 @@ public class GeneralUtil {
         } else {
             String[] strValues = ((String) object.get(idClass.getSimpleName())).split(COLON);
             for (int i = 0; i < strValues.length; i++) {
-                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
+                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i], convertEmptyToNull);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
             }
@@ -801,18 +774,18 @@ public class GeneralUtil {
 
     @SuppressWarnings("unchecked")
     private static <T> void fillData(Class<?> idClass, Map<String, Object> object, String paramName,
-        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType)
+        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Boolean convertEmptyToNull)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Object result = null;
         T target = null;
 
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
-            target = (T) GeneralUtil.convertToTargetType(argType, object.get(paramName));
+            target = (T) GeneralUtil.convertToTargetType(argType, object.get(paramName), convertEmptyToNull);
             result = constructor.newInstance(target);
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, result));
         } else {
             result = constructor.newInstance((T) GeneralUtil.convertToTargetType(argType,
-                object.get(idClass.getSimpleName())));
+                object.get(idClass.getSimpleName()), convertEmptyToNull));
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, result));
         }
     }

@@ -1,6 +1,10 @@
 
 package org.easetech.easytest.runner;
 
+import org.junit.runners.model.RunnerScheduler;
+
+import org.easetech.easytest.annotation.TestPolicy;
+
 import org.easetech.easytest.annotation.Display;
 
 import org.easetech.easytest.reports.data.DurationObserver;
@@ -124,7 +128,6 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
     public DataDrivenTestRunner(Class<?> klass) throws InitializationError {
 
         super(klass);
-        Class<?> testClass = getTestClass().getJavaClass();
         setSchedulingStrategy();
         loadBeanConfiguration();
         loadClassLevelData(klass);
@@ -175,14 +178,31 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     protected void setSchedulingStrategy() {
         Class<?> testClass = getTestClass().getJavaClass();
-        super.setScheduler(SchedulerStrategy.getScheduler(testClass));
+        TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
+        if(testPolicy != null) {
+            Class<?> policyClass = testPolicy.value();
+            super.setScheduler(SchedulerStrategy.getScheduler(policyClass , false));
+            RunnerScheduler testClassScheduler = SchedulerStrategy.getScheduler(testClass , true);
+            if(testClassScheduler != null) {
+                super.setScheduler(testClassScheduler);
+            }
+            
+        } else {
+            super.setScheduler(SchedulerStrategy.getScheduler(testClass , false));
+        }
+        
     }
 
     /**
      * @see TestConfigUtil#loadTestBeanConfig(Class)
      */
     protected void loadBeanConfiguration() {
+        
         Class<?> testClass = getTestClass().getJavaClass();
+        TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
+        if(testPolicy != null) {
+            TestConfigUtil.loadTestBeanConfig(testPolicy.value());
+        }
         TestConfigUtil.loadTestBeanConfig(testClass);
     }
 
@@ -193,6 +213,10 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      * @param klass
      */
     protected void loadClassLevelData(Class<?> klass) {
+        TestPolicy testPolicy = getTestClass().getJavaClass().getAnnotation(TestPolicy.class);
+        if(testPolicy != null) {
+            DataLoaderUtil.loadData(testPolicy.value(), null, getTestClass(), writableData);
+        }
         DataLoaderUtil.loadData(klass, null, getTestClass(), writableData);
     }
 
@@ -452,6 +476,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
     }
 
+    
     /**
      * Override the name of the test. In case of EasyTest, it will be the name of the test method concatenated with the
      * input test data that the method will run with.
@@ -462,10 +487,18 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
     protected String testName(final FrameworkMethod method) {
         String testName = method.getName();
-        Display displayAnnotation = method.getMethod().getAnnotation(Display.class) != null ? 
-            method.getMethod().getAnnotation(Display.class) : getTestClass().getJavaClass().getAnnotation(Display.class);
+        Display methodDisplay = method.getMethod().getAnnotation(Display.class);
+        Display classDisplay = getTestClass().getJavaClass().getAnnotation(Display.class);
+        Display policyDisplay = null;
+        TestPolicy testPolicy = getTestClass().getJavaClass().getAnnotation(TestPolicy.class);
+        if(testPolicy != null) {
+            Class<?> policyClass = testPolicy.value();
+            policyDisplay = policyClass.getAnnotation(Display.class);
+        }
+        Display displayAnnotation = methodDisplay != null ? methodDisplay : classDisplay != null ? classDisplay : policyDisplay;
+            
         if(displayAnnotation != null) {
-            String fieldsToConcatenate = "";
+            StringBuilder fieldsToConcatenate = new StringBuilder("");
             String[] fields = displayAnnotation.fields();
             EasyFrameworkMethod fMethod = (EasyFrameworkMethod)method;
             Map<String , Object> testData = fMethod.getTestData();
@@ -473,11 +506,17 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                 for(int i = 0 ; i < fields.length ; i++) {
                     Object data = testData.get(fields[i]);
                     if(data != null) {
-                        fieldsToConcatenate = fieldsToConcatenate.concat(data.toString()).concat(",");
+                        fieldsToConcatenate = fieldsToConcatenate.append(data.toString()).append(",");
                     }
                 }
-                if(!fieldsToConcatenate.equals("")) {
-                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate).concat("}");
+                
+                
+                if(!fieldsToConcatenate.toString().equals("")) {
+                    if(fieldsToConcatenate.lastIndexOf(",") > 0) {
+                        fieldsToConcatenate = fieldsToConcatenate.deleteCharAt(fieldsToConcatenate.lastIndexOf(","));
+                    }
+                    
+                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate.toString()).concat("}");
                 }
                 
             }
@@ -565,6 +604,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         loadTestConfigurations(testInstance);
         loadResourceProperties(testInstance);
         instrumentClass(getTestClass().getJavaClass(), testInstance);
+        
         registerConverter(getTestClass().getJavaClass().getAnnotation(Converters.class));
         return testInstance;
 

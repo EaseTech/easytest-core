@@ -1,5 +1,7 @@
 package org.easetech.easytest.annotation;
 
+import java.lang.annotation.Inherited;
+
 import org.easetech.easytest.loader.EmptyLoader;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.loader.LoaderType;
@@ -59,6 +61,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD , ElementType.TYPE})
+@Inherited
 public @interface DataLoader {
     
     /** The list of files representing the input test data for the given test method. */

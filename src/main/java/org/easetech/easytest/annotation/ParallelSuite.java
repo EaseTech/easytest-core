@@ -1,5 +1,7 @@
 package org.easetech.easytest.annotation;
 
+import java.lang.annotation.Inherited;
+
 import org.junit.runners.Suite;
 
 import java.util.concurrent.Executors;
@@ -21,6 +23,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
+@Inherited
 public @interface ParallelSuite {
     
     /** Number of threads to start while executing the test classes in the given suite class 

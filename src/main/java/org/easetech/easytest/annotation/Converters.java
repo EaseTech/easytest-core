@@ -1,5 +1,7 @@
 package org.easetech.easytest.annotation;
 
+import java.lang.annotation.Inherited;
+
 import org.easetech.easytest.converter.Converter;
 
 import java.lang.annotation.ElementType;
@@ -16,6 +18,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD , ElementType.TYPE})
+@Inherited
 public @interface Converters {
     
     /**

@@ -32,7 +32,7 @@ public class EasyTestSuite extends Suite {
      */
     protected void setSchedulingStrategy() {
         Class<?> testClass = getTestClass().getJavaClass();
-        super.setScheduler(SchedulerStrategy.getScheduler(testClass));
+        super.setScheduler(SchedulerStrategy.getScheduler(testClass , false));
         Parallel parallelAnnotation = testClass.getAnnotation(Parallel.class);
         if(parallelAnnotation != null) {
             int threads = parallelAnnotation.threads();

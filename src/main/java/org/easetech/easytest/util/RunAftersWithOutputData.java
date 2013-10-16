@@ -1,5 +1,7 @@
 package org.easetech.easytest.util;
 
+import org.easetech.easytest.annotation.TestPolicy;
+
 import org.easetech.easytest.internal.SystemProperties;
 
 import java.util.ArrayList;
@@ -149,7 +151,14 @@ public class RunAftersWithOutputData extends Statement {
     private Future<Boolean> processReports(ReportDataContainer testReportContainer) {
     	Future<Boolean> submit = null;
         if (testReportContainer != null) {
-        	Report annotation = testReportContainer.getTestClass().getAnnotation(Report.class);
+            TestPolicy testPolicy = testReportContainer.getTestClass().getAnnotation(TestPolicy.class);
+            Report policyLevelReport = null;
+            if(testPolicy != null) {
+                Class<?> policyClass = testPolicy.value();
+                policyLevelReport = policyClass.getAnnotation(Report.class);
+            }
+            Report testClassLevelReport = testReportContainer.getTestClass().getAnnotation(Report.class);
+        	Report annotation = testClassLevelReport != null ? testClassLevelReport : policyLevelReport;
 
         	ReportParametersBean reportParameters = null;
 

@@ -1,43 +1,22 @@
 
 package org.easetech.easytest.annotation;
 
-import org.easetech.easytest.converter.ConversionDelegator;
-
-import org.easetech.easytest.converter.MapConverter;
-
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.easetech.easytest.converter.AbstractConverter;
+import org.easetech.easytest.converter.ConversionDelegator;
 import org.easetech.easytest.converter.Converter;
-import org.easetech.easytest.converter.ConverterManager;
-import org.easetech.easytest.converter.ParamAwareConverter;
 import org.easetech.easytest.internal.EasyParamSignature;
 import org.easetech.easytest.util.DataContext;
-import org.easetech.easytest.util.GeneralUtil;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.experimental.theories.ParameterSignature;
-import org.junit.experimental.theories.ParameterSupplier;
 import org.junit.experimental.theories.PotentialAssignment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A parameter level optional annotation that converts the data for EasyTest based test methods to consume. This
@@ -130,6 +109,9 @@ public @interface Param {
 
     /** The name of the parameter for which value needs to be fetched from the data set */
     String name();
+    
+    
+    boolean convertEmptyToNull() default false;
 
     /**
      * Static class that returns the data as a list of {@link PotentialAssignment}. 
@@ -139,8 +121,7 @@ public @interface Param {
      */
     static class DataSupplier {
 
-       
-
+        
         /**
          * Method to return the list of data for the given Test method
          * 
@@ -165,12 +146,15 @@ public @interface Param {
                         + " .Please check that the Data file contains the data for the given method name. A possible cause could be spelling mismatch.");
             }
             List<Map<String , Object>> testData = data.get(testMethodName);
-            listOfData = new ConversionDelegator(signature , provider != null ? provider.name() : null).convert(testData);
+            String paramName = provider != null ? provider.name() : null;
+            Boolean convertEmptyToNull = provider != null ? provider.convertEmptyToNull() : false;
+            listOfData = new ConversionDelegator(signature , paramName, convertEmptyToNull).convert(testData);
 
             return listOfData;
         }
-
-
+        
+        
+        
 
     }
 }

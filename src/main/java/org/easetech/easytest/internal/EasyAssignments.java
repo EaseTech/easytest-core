@@ -107,6 +107,7 @@ public class EasyAssignments {
     public Param.DataSupplier getSupplier(EasyParamSignature unassigned) throws InstantiationException,
         IllegalAccessException {
         Param.DataSupplier supplier = new Param.DataSupplier();
+        
 //        supplier.setDateFormat(getDateFormat());
 //        supplier.setDateFormat(getDateTimeFormat());
         return supplier;
