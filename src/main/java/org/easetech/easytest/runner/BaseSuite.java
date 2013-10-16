@@ -35,7 +35,7 @@ public class BaseSuite extends Suite {
     protected Map<String, List<Map<String, Object>>> writableData = new HashMap<String, List<Map<String, Object>>>();
 
     /**
-     * A List of {@link DataDrivenTestRunner.EasyTestRunner}s.
+     * A List of {@link DataDrivenTestRunner}s.
      */
     protected final List<Runner> runners = new ArrayList<Runner>();
 

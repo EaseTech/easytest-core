@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
  * In case the value of threads attribute is specified and it is greater than 0,
  * {@link Executors#newFixedThreadPool(int)} method is used to create a fixed thread pool
  *
+ *@author Anuj Kumar
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
