@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
  * <li> {@link Display}
  * <li> {@link DataLoader}
  * <li> {@link Report}
+ * <li> {@link Format}
  *
  * Thus a user can define all the above annotation is a separate class and annotate the test class with {@link TestPolicy}
  * annotation and define all the class level annotations in the class referenced by the {@link TestPolicy} annotation.
