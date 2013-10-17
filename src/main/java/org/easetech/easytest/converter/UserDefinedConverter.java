@@ -1,5 +1,7 @@
 package org.easetech.easytest.converter;
 
+import org.easetech.easytest.internal.DateTimeFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,16 @@ public class UserDefinedConverter implements BaseConverter<List<Map<String, Obje
     private final String paramName;
     
     /**
+     * Whether empty values should be converted to Null values or not
+     */
+    private final Boolean convertEmptyToNull;
+    
+    /**
+     * The user specified date time format to use
+     */
+    private final DateTimeFormat dateTimeFormat;
+    
+    /**
      * Logger
      */
     private static final Logger LOG = LoggerFactory.getLogger(UserDefinedConverter.class);
@@ -37,10 +49,14 @@ public class UserDefinedConverter implements BaseConverter<List<Map<String, Obje
      * Construct a new UserDefinedConverter
      * @param parameterType The type of parameter to convert the raw data to
      * @param paramName The name of the parameter that is being converted
+     * @param convertEmptyToNull 
+     * @param dateTimeFormat 
      */
-    public UserDefinedConverter(Class<?> parameterType, String paramName) {
+    public UserDefinedConverter(Class<?> parameterType, String paramName , Boolean convertEmptyToNull, DateTimeFormat dateTimeFormat) {
         this.parameterType = parameterType;
         this.paramName = paramName;
+        this.convertEmptyToNull = convertEmptyToNull;
+        this.dateTimeFormat = dateTimeFormat;
     }
     
     /**
@@ -56,10 +72,19 @@ public class UserDefinedConverter implements BaseConverter<List<Map<String, Obje
         // Try to find the Converter
         Converter<?> converter = ConverterManager.findConverter(parameterType);
         if (converter != null) {
+            if(converter instanceof AbstractConverter) {
+                ConverterSupport converterSupport = new ConverterSupport();
+                converterSupport.setConvertEmptyToNull(convertEmptyToNull);
+                converterSupport.setDateTimeFormat(dateTimeFormat);
+                converterSupport.setParamName(paramName);
+                ((AbstractConverter) converter).setConverterSupport(converterSupport);
+            }
+            
             potentialAssignments = new ArrayList<PotentialAssignment>();
             LOG.debug("Converter for class {} found.", parameterType);
             for (Map<String, Object> object : convertFrom) {
                 Object value = null;
+                //TODO: This logic should be removed in future versions of EasyTest
                 if (converter instanceof ParamAwareConverter) {
                     value = ((ParamAwareConverter)converter).convert(object, paramName);
                 } else {

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * An instance of {@link BaseConverter} that is responsible for converting the raw data in to a user defined type instance 
- * using any jav standard object
+ * using any java standard object
  * 
  * @author Anuj Kumar
  *
