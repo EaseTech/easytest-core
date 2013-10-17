@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An extremely useful annotation to define a test classe's policy.
+ * An extremely useful annotation to define a test class policy.
  * A policy of the test class is basically its behavior that drives the test.
  * Currently , in EasyTest World, the Test Policy consists of the following annotations :
  * <ul> <li>{@link Parallel} 
@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
  * <li> {@link DataLoader}
  * <li> {@link Report}
  * <li> {@link Format}
+ * </ul>
  *
  * Thus a user can define all the above annotation is a separate class and annotate the test class with {@link TestPolicy}
  * annotation and define all the class level annotations in the class referenced by the {@link TestPolicy} annotation.

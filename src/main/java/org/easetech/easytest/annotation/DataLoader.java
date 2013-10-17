@@ -52,7 +52,9 @@ import org.easetech.easytest.loader.LoaderType;
  * </code>
  *<br>
  * Note that the custom Loader must implement the {@link Loader} interface and should have a no arg constructor.
- * 
+ * <br>
+ * The data loader annotation also supports the functionality for the user to specify whether the data should be written back to the test file or not
+ * using the attribute {@link DataLoader#writeData()}. Its default value is {@link Boolean#TRUE}.
  * 
  * @author Anuj Kumar
  */
@@ -72,7 +74,8 @@ public @interface DataLoader {
     Class<? extends Loader> loader() default EmptyLoader.class;
     
     /**
-     * Boolean identifying whether the data should be written back to the file or not. Default behavior is that the data will be written back to the file.
+     * Boolean identifying whether the data should be written back to the file or not. 
+     * Default behavior is that the data will be written back to the file.
      */
     boolean writeData() default true;
 

@@ -32,36 +32,44 @@ import org.junit.experimental.theories.PotentialAssignment;
  * custom) is same as the name of the input parameter type then this annotation can be omitted. For eg:<br>
  * <code><B>
  * public void testWithStrongParameters(LibraryId id ,
- * (@)Param(name="itemid") ItemId
+ * {@literal @}Param(name="itemid") ItemId
  * itemId) { .... } </B>
  * </code> <br>
- * In the above example we have not provided @Param annotation to the input parameter LibraryId. In this case the test
+ * In the above example we have not provided {@literal @}Param annotation to the input parameter LibraryId. In this case the test
  * parameter name in the test file should be LibraryId. You have to take care that in scenario where the input
  * parameters are of the same type, the names should be different. Thus if you have two input parameters of type
- * LibraryId then you should provide atleast @Param annotation on one of the input parameters.
+ * LibraryId then you should provide atleast {@literal @}Param annotation on one of the input parameters.
  * 
- * The annotation contains a single mandatory field :
- * 
+ * The annotation contains a single mandatory field and one optional field:
+ * <ul>
  * <li><B> name</B> : the name of the parameter(Mandatory) as is present in the input test data file. <li>In case the
  * param annotation is not specified and the Parameter type is Map, {@link DataSupplier} simply provides the HashMap
  * instance that was created while loading the data. This {@link HashMap} represents a single set of test data for the
- * test method.</li> <li>In case the param name is specified along with the {link @Param} annotation, the framework will
+ * test method.</li> 
+ * <li>In case the param name is specified along with the {@link Param} annotation, the framework will
  * look for the parameter with the specified name in the loaded test data. <br>
+ * 
+ * <li><B>convertEmptyToNull</B> : whether the empty string values be converted automatically to Null or whether they should be left as empty.
+ * </ul>
  * 
  * Moreover, the framework supports PropertyEditors support for strongly typed objects. If you have a custom object and
  * its property editor in the same package, the EasyTest framework will convert the String value to your specified
  * custom object by calling the right property editor and pass an instance of custom object to your test case. This
  * provides the users facility to write test cases such as this : <br>
- * <code>
  * 
- * @Test
- * @DataLoader(filePaths ={ "getItemsData.csv" }) <br>public void testWithStrongParameters(LibraryId id
+ * <code>
+ * <br>
+ * {@literal @}Test
+ * {@literal @}DataLoader(filePaths ={ "getItemsData.csv" }) <br>public void testWithStrongParameters(LibraryId id
  *                       ,@Param(name="itemid") ItemId itemId) { .... } </code> <br>
  * <br>
- *                       <li>Example of using Map to get the entire data:</li></br> <br>
- *                       <code><br>
- * @Test (@)DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType( Map<String,
- *       Object> inputData) {<br> ........
+ *
+ *<li>Example of using Map to get the entire data:</li></br> <br>
+ * 
+ * <code>
+ * {@literal @}Test {@literal @}DataLoader(filePaths= {"getItemsData.csv" })<br> public void testGetItemsWithoutFileType( Map<String,
+ *       Object> inputData) {
+ *          <br> ........
  * 
  *       }</code>
  * 
@@ -83,14 +91,14 @@ import org.junit.experimental.theories.PotentialAssignment;
  * <br>
  *       <code>
  * 
- *  (At)Test<br>
+ *  {@literal @}Test<br>
  *   public void testArrayList(@Param(name="items") ArrayList&lt;ItemId> items){<br>
  *       Assert.assertNotNull(items);<br>
  *      for(ItemId item : items){<br>
  *          System.out.println("testArrayList : "+item);<br>
  *      &nbsp;&nbsp;}<br>
  *  }<br>
- * 
+ * </code>
  * then all you have to do is :
  * <li> pass the list of itemIds as <B>":"</B> separated list in the test data file(XML, CSV,Excel or custom), for eg: 23:56:908:666</li><br>
  * <li> and register an editor or converter for converting the String data to object.<br>
@@ -102,8 +110,7 @@ import org.junit.experimental.theories.PotentialAssignment;
  * Note that you should pass only the Concrete type as parameter argument while extending the {@link AbstractConverter} and not the Abstract type or the interface type.
  * You can always override the default implementation of creating a specific type instance for use in your test cases by overriding the {@link AbstractConverter#instanceOfType()} method.
  * 
- * 
- * @author Anuj Kumar
+ *  @author Anuj Kumar
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
@@ -112,7 +119,7 @@ public @interface Param {
     /** The name of the parameter for which value needs to be fetched from the data set */
     String name();
     
-    
+    /** Boolean identifying whether an empty value be converted to a null value or not */
     boolean convertEmptyToNull() default false;
 
     /**
@@ -123,6 +130,15 @@ public @interface Param {
      */
     static class DataSupplier {
         
+        /**
+         * The user specified date time format to use. 
+         * If the user has not specified any date time formats using {@link Format} annotation,
+         * then a default list of values are used.
+         * 
+         *  @see DateTimeFormat#getDateFormat()
+         *  @see DateTimeFormat#getDateTimeFormat()
+         *  @see DateTimeFormat#getTimeFormat()
+         */
         private DateTimeFormat dateTimeFormatToUse;
 
         
@@ -156,15 +172,6 @@ public @interface Param {
 
             return listOfData;
         }
-
-
-        /**
-         * @return the dateTimeFormatToUse
-         */
-        public DateTimeFormat getDateTimeFormatToUse() {
-            return dateTimeFormatToUse;
-        }
-
 
         /**
          * @param dateTimeFormatToUse the dateTimeFormatToUse to set
