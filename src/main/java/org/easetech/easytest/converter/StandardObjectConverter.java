@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.converter;
 
+import org.easetech.easytest.internal.DateTimeFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,11 @@ public class StandardObjectConverter implements BaseConverter<List<Map<String, O
     private final Boolean convertEmptyToNull;
     
     /**
+     * The user specified date time format to use
+     */
+    private final DateTimeFormat dateTimeFormat;
+    
+    /**
      * Logger
      */
     private static final Logger LOG = LoggerFactory.getLogger(StandardObjectConverter.class);
@@ -45,11 +52,13 @@ public class StandardObjectConverter implements BaseConverter<List<Map<String, O
      * @param parameterType The type of parameter to convert the raw data to
      * @param paramName The name of the parameter that is being converted
      * @param convertEmptyToNull Whether empty values should be converted to Null values or not
+     * @param dateTimeFormat The user specified date time format to use
      */
-    public StandardObjectConverter(Class<?> parameterType, String paramName , Boolean convertEmptyToNull) {
+    public StandardObjectConverter(Class<?> parameterType, String paramName , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) {
         this.parameterType = parameterType;
         this.paramName = paramName;
         this.convertEmptyToNull = convertEmptyToNull;
+        this.dateTimeFormat = dateTimeFormat;
     }
 
     /**
@@ -65,7 +74,7 @@ public class StandardObjectConverter implements BaseConverter<List<Map<String, O
             potentialAssignments = new ArrayList<PotentialAssignment>();
             for (Map<String, Object> object : convertFrom) {
                 potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING,
-                    GeneralUtil.convertToTargetType(parameterType, object.get(paramName) , convertEmptyToNull)));
+                    GeneralUtil.convertToTargetType(parameterType, object.get(paramName) , convertEmptyToNull, dateTimeFormat)));
             }
         }
         

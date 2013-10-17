@@ -1,5 +1,7 @@
 package org.easetech.easytest.converter;
 
+import org.easetech.easytest.internal.DateTimeFormat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +42,11 @@ public class ParamConstructorConverter implements BaseConverter<List<Map<String,
     private final Boolean convertEmptyToNull;
     
     /**
+     * the user specified date time format to use
+     */
+    private final DateTimeFormat dateTimeFormat;
+    
+    /**
      * Logger
      */
     private static final Logger LOG = LoggerFactory.getLogger(JSONDataConverter.class);
@@ -50,12 +57,15 @@ public class ParamConstructorConverter implements BaseConverter<List<Map<String,
      * @param parameterType The type of parameter to convert to
      * @param paramName The name of the parameter that is being converted
      * @param collection The optional collection instance in case of Collection type parameter
+     * @param convertEmptyToNull whether empty string be converted to null or not
+     * @param dateTimeFormat the user specified date time format to use
      */
-    public ParamConstructorConverter(Class<?> parameterType, String paramName, Collection collection, Boolean convertEmptyToNull) {
+    public ParamConstructorConverter(Class<?> parameterType, String paramName, Collection collection, Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) {
         this.parameterType = parameterType;
         this.paramName = paramName;
         this.collection = collection;
         this.convertEmptyToNull = convertEmptyToNull;
+        this.dateTimeFormat = dateTimeFormat;
     }
     
     /**
@@ -69,7 +79,7 @@ public class ParamConstructorConverter implements BaseConverter<List<Map<String,
         List<PotentialAssignment> potentialAssignments = new ArrayList<PotentialAssignment>();
         Boolean populated = false;
         try {
-            populated = GeneralUtil.fillDataUsingConstructor(parameterType, convertFrom, potentialAssignments, paramName, collection , convertEmptyToNull);
+            populated = GeneralUtil.fillDataUsingConstructor(parameterType, convertFrom, potentialAssignments, paramName, collection , convertEmptyToNull , dateTimeFormat);
         } catch (Exception e) {
             LOG.debug("Exception occured while trying to populate the data by instantiating the parameter object" , e);
             potentialAssignments = null;

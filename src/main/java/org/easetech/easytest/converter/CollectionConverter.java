@@ -1,5 +1,7 @@
 package org.easetech.easytest.converter;
 
+import org.easetech.easytest.internal.DateTimeFormat;
+
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,17 +78,18 @@ public class CollectionConverter implements BaseConverter<List<Map<String, Objec
      * @param signature An instance of {@link EasyParamSignature} that contains information about the signature of the test method.
      * @param paramName The name of the parameter for which the data is being converted
      * @param convertEmptyToNull Whether empty values should be converted to Null values or not
+     * @param dateTimeFormat the user specified date time format to use
      */
-    public CollectionConverter(EasyParamSignature signature , String paramName , Boolean convertEmptyToNull ) {
+    public CollectionConverter(EasyParamSignature signature , String paramName , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) {
         this.signature = signature;
         this.paramName = paramName;
         Class<?> genericType = signature.getIsGenericParameter() ? signature.getGenericParameterArgType()
             : Object.class;
         collection = getCollectionInstance(signature.getParameterType(), genericType);
-        converters.put(STND_OBJ_COLLECTION_CONVERTER , new StandardObjectCollectionConverter(collection, signature, paramName , convertEmptyToNull));
+        converters.put(STND_OBJ_COLLECTION_CONVERTER , new StandardObjectCollectionConverter(collection, signature, paramName , convertEmptyToNull , dateTimeFormat));
         converters.put(PROPERTY_EDITOR_COLLECTION_CONVERTER, new PropertyEditorCollectionConverter(signature, paramName, collection));
         converters.put(USER_DEFINED_COLLECTION_CONVERTER, new UserDefinedCollectionConverter(signature, paramName, collection));
-        converters.put(PARAM_CONSTRUCTOR_CONVERTER, new ParamConstructorConverter(genericType, paramName, collection , convertEmptyToNull));
+        converters.put(PARAM_CONSTRUCTOR_CONVERTER, new ParamConstructorConverter(genericType, paramName, collection , convertEmptyToNull , dateTimeFormat));
     }
     
     /**

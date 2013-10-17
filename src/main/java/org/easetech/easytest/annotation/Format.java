@@ -16,14 +16,14 @@ import java.lang.annotation.Target;
 public @interface Format {
     
     /**
-     * The date format to be used
+     * The date formats to be used
      */
-    String date() default "dd/MM/yyyy";
+    String[] date() default "dd/MM/yyyy";
     
-    /** The date time format to be used*/
-    String dateTime() default "dd/MM/yyyy HH:MM:SS";
+    /** The date time formats to be used*/
+    String[] dateTime() default "dd/MM/yyyy HH:MM:SS";
     
-    /** The time format to be used*/
-    String time() default "HH:MM:SS";
+    /** The time formats to be used*/
+    String[] time() default "HH:MM:SS";
 
 }

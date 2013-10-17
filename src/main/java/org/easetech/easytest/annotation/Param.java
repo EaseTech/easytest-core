@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.annotation;
 
+import org.easetech.easytest.internal.DateTimeFormat;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -120,6 +122,8 @@ public @interface Param {
      * 
      */
     static class DataSupplier {
+        
+        private DateTimeFormat dateTimeFormatToUse;
 
         
         /**
@@ -148,9 +152,25 @@ public @interface Param {
             List<Map<String , Object>> testData = data.get(testMethodName);
             String paramName = provider != null ? provider.name() : null;
             Boolean convertEmptyToNull = provider != null ? provider.convertEmptyToNull() : false;
-            listOfData = new ConversionDelegator(signature , paramName, convertEmptyToNull).convert(testData);
+            listOfData = new ConversionDelegator(signature , paramName, convertEmptyToNull , dateTimeFormatToUse).convert(testData);
 
             return listOfData;
+        }
+
+
+        /**
+         * @return the dateTimeFormatToUse
+         */
+        public DateTimeFormat getDateTimeFormatToUse() {
+            return dateTimeFormatToUse;
+        }
+
+
+        /**
+         * @param dateTimeFormatToUse the dateTimeFormatToUse to set
+         */
+        public void setDateTimeFormatToUse(DateTimeFormat dateTimeFormatToUse) {
+            this.dateTimeFormatToUse = dateTimeFormatToUse;
         }
         
         

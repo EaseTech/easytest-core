@@ -1,5 +1,7 @@
 package org.easetech.easytest.converter;
 
+import org.easetech.easytest.internal.DateTimeFormat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,18 +43,26 @@ public class StandardObjectCollectionConverter implements BaseConverter<List<Map
     private final Boolean convertEmptyToNull;
     
     /**
+     * User specified date time format to use
+     */
+    private final DateTimeFormat dateTimeFormat;
+    
+    /**
      * 
      * Construct a new StandardObjectCollectionConverter
      * @param collection The collection instance in case of Collection type parameter
      * @param signature an instance of {@link EasyParamSignature}
      * @param paramName The name of the parameter that is being converted
+     * @param convertEmptyToNull whether empty values be converted to null or not
+     * @param dateTimeFormat user specified date time format
      */
-    public StandardObjectCollectionConverter(Collection collection, EasyParamSignature signature, String paramName , Boolean convertEmptyToNull) {
+    public StandardObjectCollectionConverter(Collection collection, EasyParamSignature signature, String paramName , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) {
         super();
         this.collection = collection;
         this.signature = signature;
         this.paramName = paramName;
         this.convertEmptyToNull = convertEmptyToNull;
+        this.dateTimeFormat = dateTimeFormat;
     }
 
     /**
@@ -80,7 +90,7 @@ public class StandardObjectCollectionConverter implements BaseConverter<List<Map
             for (Map<String, Object> object : convertFrom) {
                 String[] strValues = ((String) object.get(paramName)).split(COLON);
                 for (int i = 0; i < strValues.length; i++) {
-                    collection.add(GeneralUtil.convertToTargetType(genericType, strValues[i], convertEmptyToNull));
+                    collection.add(GeneralUtil.convertToTargetType(genericType, strValues[i], convertEmptyToNull , dateTimeFormat));
                 }
                 potentialAssignments.add(PotentialAssignment.forValue(EMPTY_STRING, collection));
             }

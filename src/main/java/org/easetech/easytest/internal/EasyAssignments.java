@@ -6,13 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import org.easetech.easytest.annotation.Format;
 import org.easetech.easytest.annotation.Param;
+import org.easetech.easytest.annotation.TestPolicy;
+import org.easetech.easytest.loader.DataConverter;
+import org.easetech.easytest.runner.EasyFrameworkMethod;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.PotentialAssignment.CouldNotGenerateValueException;
 import org.junit.runners.model.TestClass;
 
 /**
  * 
- * A internal util class for working with the parameters of a test method.
+ * An internal util class for working with the parameters of a test method.
  * This class provides EasyTest the facility to identify the method arguments, identify the DataSupplier
  * associated with the Test Framework and more.
  * 
@@ -32,7 +35,7 @@ public class EasyAssignments {
     private final List<EasyParamSignature> fUnassigned;
 
     /**
-     * Test Class associated with te tgiven test method
+     * Test Class associated with the given test method
      */
     private final TestClass fClass;
 
@@ -89,26 +92,36 @@ public class EasyAssignments {
         return values;
     }
 
-    public List<PotentialAssignment> potentialsForNextUnassigned(String testMethodName) throws InstantiationException,
+    public List<PotentialAssignment> potentialsForNextUnassigned(EasyFrameworkMethod testMethod) throws InstantiationException,
         IllegalAccessException {
+        String testMethodName = DataConverter.getFullyQualifiedTestName(testMethod.getMethodNameForTestData(),
+            fClass.getJavaClass());
         EasyParamSignature unassigned = nextUnassigned();
-        return getSupplier(unassigned).getValueSources(testMethodName , unassigned);
+        return getSupplier(testMethod).getValueSources(testMethodName , unassigned);
     }
 
     /**
      * Get the instance of class that provides the functionality to provide Data.
      * In our case, its always {@link org.easetech.easytest.annotation.Param.DataSupplier}
-     * @param unassigned
+     * @param testMethod the test method associated with the assignment
      * @return {@link org.easetech.easytest.annotation.Param.DataSupplier}
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public Param.DataSupplier getSupplier(EasyParamSignature unassigned) throws InstantiationException,
+    public Param.DataSupplier getSupplier(EasyFrameworkMethod testMethod) throws InstantiationException,
         IllegalAccessException {
         Param.DataSupplier supplier = new Param.DataSupplier();
-        
-//        supplier.setDateFormat(getDateFormat());
-//        supplier.setDateFormat(getDateTimeFormat());
+        DateTimeFormat dateTimeFormat = new DateTimeFormat();
+        if(getDateFormat(testMethod) != null) {
+            dateTimeFormat.setDateFormat(getDateFormat(testMethod));
+        }
+        if(getDateTimeFormat(testMethod) != null) {
+            dateTimeFormat.setDateTimeFormat(getDateTimeFormat(testMethod));
+        }
+        if(getTimeFormat(testMethod) != null) {
+            dateTimeFormat.setTimeFormat(getTimeFormat(testMethod));
+        }
+        supplier.setDateTimeFormatToUse(dateTimeFormat);
         return supplier;
     }
 
@@ -140,24 +153,47 @@ public class EasyAssignments {
         return values;
     }
     
-    protected String getDateFormat() {
-        String dateFormat = null;
-        Format format = fClass.getJavaClass().getAnnotation(Format.class);
-        if(format != null) {
-            dateFormat = format.date();
+    protected String[] getDateFormat(EasyFrameworkMethod testMethod) {
+        String[] dateFormat = null;
+        Format formatToUse = formatToUse(testMethod);
+        if(formatToUse != null) {
+            dateFormat = formatToUse.date();
         }
         return dateFormat;
         
     }
     
-    protected String getDateTimeFormat() {
-        String dateTimeFormat = null;
-        Format format = fClass.getJavaClass().getAnnotation(Format.class);
-        if(format != null) {
-            dateTimeFormat = format.dateTime();
+    protected String[] getTimeFormat(EasyFrameworkMethod testMethod) {
+        String[] timeFormat = null;
+        Format formatToUse = formatToUse(testMethod);
+        if(formatToUse != null) {
+            timeFormat = formatToUse.date();
+        }
+        return timeFormat;
+        
+    }
+    
+    protected String[] getDateTimeFormat(EasyFrameworkMethod testMethod) {
+        String[] dateTimeFormat = null;
+        Format formatToUse = formatToUse(testMethod);
+        if(formatToUse != null) {
+            dateTimeFormat = formatToUse.dateTime();
         }
         return dateTimeFormat;
         
+    }
+    
+    
+    private Format formatToUse(EasyFrameworkMethod testMethod) {
+        Format policyLevelFormat = null;
+        TestPolicy testPolicy = fClass.getJavaClass().getAnnotation(TestPolicy.class);
+        if(testPolicy != null) {
+            policyLevelFormat = testPolicy.value().getAnnotation(Format.class);
+        }
+        Format classLevelFormat = fClass.getJavaClass().getAnnotation(Format.class);
+        Format methodLevelFormat = testMethod.getAnnotation(Format.class);
+        Format formatToUse = methodLevelFormat != null ? methodLevelFormat : classLevelFormat != null ? classLevelFormat : policyLevelFormat;
+        return formatToUse;
     }
 
 }
