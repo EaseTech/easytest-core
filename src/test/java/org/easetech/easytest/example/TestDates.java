@@ -19,7 +19,7 @@ public class TestDates {
     }
     
     @Test
-    public void testEmptyInteger(@Param(name="day") Integer day , @Param(name="str", convertEmptyToNull=true)String str , @Param(name="long")Long longVal, @Param(name="Double")Double doubleVal){
+    public void testEmptyInteger(@Param(name="day") Integer day , @Param(name="str")String str , @Param(name="long")Long longVal, @Param(name="Double")Double doubleVal){
         System.out.print("day = " + day + ",");
         System.out.print("str = " + str + ",");
         System.out.print("long = " + longVal + ",");
