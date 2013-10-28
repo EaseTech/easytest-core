@@ -8,14 +8,14 @@ What's new in Version 1.2.7
 annotation is introduced to limit the input key=value pair that is displayed as part of the test method name. 
 Until now, all the test data that is used to run the test method was displayed in the IDE, in the form : testMethodName{paramName=paramVal,paramName=paramVal}
 Now a user can choose to show only certain fields in the test method name.
-Example : Look at [Display annotation Usage](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoaderPolicy.java) to see how it can be used at class level 
+Look at [Display annotation Usage](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoaderPolicy.java) to see how it can be used at class level 
 and [Display at method level](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoader.java) to see how it can be overridden at method level.
 
 * [Format](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Format.java) annotation is introduced 
 for the user to specify the date, datetime and time format to be used to convert date/datetime/time values. 
 Initially EasyTest was parsing the date strings randomly and it was not efficient. 
 The specified date/datetime/time formats are also available to the custom converters.
-Example : Look at [Format annotation usage ](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestDatesPolicy.java) 
+Look at [Format annotation usage ](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestDatesPolicy.java) 
 and [Test class where it is applied](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestDates.java).
 
 * New attribute [convertEmptyToNull](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Param.java)
