@@ -1,6 +1,44 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-An updated version of EasyTest Core(1.2.5) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+An updated version of EasyTest Core(1.2.7) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+
+What's new in Version 1.2.7
+---------------------------
+* [Display](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Display.java) 
+annotation is introduced to limit the input key=value pair that is displayed as part of the test method name. 
+Until now, all the test data that is used to run the test method was displayed in the IDE, in the form : testMethodName{paramName=paramVal,paramName=paramVal}
+Now a user can choose to show only certain fields in the test method name.
+Example : Look at [Display annotation Usage](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoaderPolicy.java) to see how it can be used at class level 
+and [Display at method level](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoader.java) to see how it can be overridden at method level.
+
+* [Format](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Format.java) annotation is introduced 
+for the user to specify the date, datetime and time format to be used to convert date/datetime/time values. 
+Initially EasyTest was parsing the date strings randomly and it was not efficient. 
+The specified date/datetime/time formats are also available to the custom converters.
+Example : Look at [Format annotation usage ](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestDatesPolicy.java) 
+and [Test class where it is applied](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestDates.java).
+
+* New attribute [convertEmptyToNull](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Param.java)
+added to the @Param annotation. 
+This attribute specifies whether the empty values (specified using "")in the test data be converted by EasyTest to Null values or not. Default value is false.
+Example usage [here](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoader.java).
+
+* New Attribute [writeData](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/DataLoader.java) 
+added to the DataLoader annotation. This attribute tells EasyTest whether the test data be written to the file or not. Default value is true. 
+A new System property to specify whether data should be written or not(using boolean true or false) is also added and is named : "easytest.writeData".
+Example usage [here](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestExcelDataLoader.java).
+
+* A new and extremely powerful annotation [TestPolicy](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/TestPolicy.java) is now added. 
+This annotation lets the user define a Policy for his test in a separate file and then reuse this policy in multiple tests. 
+This annotation takes a single argument of type class that defines the policy class that this test method should use. 
+The main benefit of TestPolicy is that it gives user an opportunity to reuse a lot of existing annotations and also de-clutters the main test. 
+Here is the [javadoc for TestPolicy annotation](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/TestPolicy.java ) to see what all annotations it supports.
+
+* [EasyTestSuite](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/runner/EasyTestSuite.java) class along with [ParallelSuite](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/ParallelSuite.java) annotation 
+is now available that is an extension of Suite Junit class and provides the user with the ability to run the suite classes in parallel as well as the methods inside the testclasses in parallel. 
+You can see it in action [here](https://github.com/EaseTech/easytest-core/blob/master/src/test/java/org/easetech/easytest/example/TestSuiteFunctionality.java).
+
+Besides the above major enhancements, there have been few bug fixes as well as code refactoring that went into this major release.
 
 What's new in Version 1.2.5
 ---------------------------
