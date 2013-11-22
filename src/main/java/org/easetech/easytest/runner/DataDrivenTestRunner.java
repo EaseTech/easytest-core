@@ -344,7 +344,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                     if (e instanceof AssertionError) { // Assertion error
                         testResult.setPassed(Boolean.FALSE);
                         testResult.setResult(e.getMessage());
-                        throw new ParamAssertionError(e, method.getName());
+                        throw e;
 
                     } else { // Exception
                         testResult.setException(Boolean.TRUE);

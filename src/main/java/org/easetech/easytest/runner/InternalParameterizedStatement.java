@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
-import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.reports.data.TestMethodDuration;
 import org.easetech.easytest.reports.data.TestResultBean;
