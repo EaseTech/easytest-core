@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,14 +15,11 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import org.easetech.easytest.annotation.Converters;
 import org.easetech.easytest.annotation.DataLoader;
-import org.easetech.easytest.annotation.Display;
 import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Provided;
-import org.easetech.easytest.annotation.Repeat;
 import org.easetech.easytest.annotation.TestConfigProvider;
-import org.easetech.easytest.annotation.TestPolicy;
 import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
@@ -32,14 +28,11 @@ import org.easetech.easytest.interceptor.Empty;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
 import org.easetech.easytest.interceptor.MethodIntercepter;
-import org.easetech.easytest.internal.SystemProperties;
-import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.DataLoaderUtil;
 import org.easetech.easytest.reports.data.DurationObserver;
 import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.data.TestResultBean;
 import org.easetech.easytest.strategy.SchedulerStrategy;
-import org.easetech.easytest.util.DataContext;
 import org.easetech.easytest.util.RunAftersWithOutputData;
 import org.easetech.easytest.util.TestInfo;
 import org.junit.After;
@@ -55,7 +48,6 @@ import org.junit.runners.ParentRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
-import org.junit.runners.model.RunnerScheduler;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,10 +126,39 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             frameworkMethods = computeMethodsForTest();
 
         } catch (Exception e) {
-            LOG.error("Exception occured while instantiating the EasyTestRunner. Exception is : ", e);
+            LOG.error("Exception occured while instantiating the DataDrivenTestRunner. Exception is : ", e);
             throw new RuntimeException(e);
         }
 
+    }
+    
+
+    /**
+     * Set whether the tests should be run in parallel or serial.
+     */
+    protected void setSchedulingStrategy() {
+        Class<?> testClass = getTestClass().getJavaClass();
+        super.setScheduler(RunnerUtil.getScheduler(testClass));
+    }
+    
+    /**
+     * Overridden the compute test method to make it save the method list as class instance, so that the method does not
+     * run multiple times. Also, this method now is responsible for creating multiple {@link FrameworkMethod} instances
+     * for a given method with multiple test data. So, if a given test method needs to run three times with three set of
+     * input test data, then this method will actually create three instances of {@link FrameworkMethod}. In order to
+     * allow the user to override the default name, {@link FrameworkMethod} is extended with {@link EasyFrameworkMethod}
+     * and {@link EasyFrameworkMethod#setName(String)} method introduced.
+     * 
+     * @return list of {@link FrameworkMethod}
+     */
+
+    protected List<FrameworkMethod> computeMethodsForTest() {
+
+        List<FrameworkMethod> finalList = RunnerUtil.testMethods(getTestClass(), testReportContainer, writableData);
+        if (finalList.isEmpty()) {
+            Assert.fail("No method exists for the Test Runner");
+        }
+        return finalList;
     }
 
     /**
@@ -169,40 +190,12 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
     }
 
     /**
-     * Set whether the tests should be run in parallel or serial.
-     */
-    protected void setSchedulingStrategy() {
-        Class<?> testClass = getTestClass().getJavaClass();
-        super.setScheduler(RunnerUtil.getScheduler(testClass));
-    }
-
-    /**
      * Compute any test methods
      * 
      * @return a list of {@link FrameworkMethod}s
      */
     protected List<FrameworkMethod> computeTestMethods() {
         return frameworkMethods;
-    }
-
-    /**
-     * Overridden the compute test method to make it save the method list as class instance, so that the method does not
-     * run multiple times. Also, this method now is responsible for creating multiple {@link FrameworkMethod} instances
-     * for a given method with multiple test data. So, if a given test method needs to run three times with three set of
-     * input test data, then this method will actually create three instances of {@link FrameworkMethod}. In order to
-     * allow the user to override the default name, {@link FrameworkMethod} is extended with {@link EasyFrameworkMethod}
-     * and {@link EasyFrameworkMethod#setName(String)} method introduced.
-     * 
-     * @return list of {@link FrameworkMethod}
-     */
-
-    protected List<FrameworkMethod> computeMethodsForTest() {
-
-        List<FrameworkMethod> finalList = RunnerUtil.testMethods(getTestClass(), testReportContainer, writableData);
-        if (finalList.isEmpty()) {
-            Assert.fail("No method exists for the Test Runner");
-        }
-        return finalList;
     }
 
     /**
@@ -294,44 +287,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
 
     protected String testName(final FrameworkMethod method) {
-        String testName = method.getName();
-        Display methodDisplay = method.getMethod().getAnnotation(Display.class);
-        Display classDisplay = getTestClass().getJavaClass().getAnnotation(Display.class);
-        Display policyDisplay = null;
-        TestPolicy testPolicy = getTestClass().getJavaClass().getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
-            Class<?> policyClass = testPolicy.value();
-            policyDisplay = policyClass.getAnnotation(Display.class);
-        }
-        Display displayAnnotation = methodDisplay != null ? methodDisplay : classDisplay != null ? classDisplay : policyDisplay;
-            
-        if(displayAnnotation != null) {
-            StringBuilder fieldsToConcatenate = new StringBuilder("");
-            String[] fields = displayAnnotation.fields();
-            EasyFrameworkMethod fMethod = (EasyFrameworkMethod)method;
-            Map<String , Object> testData = fMethod.getTestData();
-            if(testData != null) {
-                for(int i = 0 ; i < fields.length ; i++) {
-                    Object data = testData.get(fields[i]);
-                    if(data != null) {
-                        fieldsToConcatenate = fieldsToConcatenate.append(data.toString()).append(",");
-                    }
-                }
-                
-                
-                if(!fieldsToConcatenate.toString().equals("")) {
-                    if(fieldsToConcatenate.lastIndexOf(",") > 0) {
-                        fieldsToConcatenate = fieldsToConcatenate.deleteCharAt(fieldsToConcatenate.lastIndexOf(","));
-                    }
-                    
-                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate.toString()).concat("}");
-                }
-                
-            }
-            
-        }
-
-        return String.format("%s", testName);
+        return RunnerUtil.getTestName(getTestClass(), method);
     }
 
     /**

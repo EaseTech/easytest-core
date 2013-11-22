@@ -1,5 +1,7 @@
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.annotation.Display;
+
 import java.util.ArrayList;
 
 import org.easetech.easytest.internal.SystemProperties;
@@ -233,5 +235,46 @@ public class RunnerUtil {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public static String getTestName(final TestClass testClass , final FrameworkMethod method) {
+        String testName = method.getName();
+        Display methodDisplay = method.getMethod().getAnnotation(Display.class);
+        Display classDisplay = testClass.getJavaClass().getAnnotation(Display.class);
+        Display policyDisplay = null;
+        TestPolicy testPolicy = testClass.getJavaClass().getAnnotation(TestPolicy.class);
+        if(testPolicy != null) {
+            Class<?> policyClass = testPolicy.value();
+            policyDisplay = policyClass.getAnnotation(Display.class);
+        }
+        Display displayAnnotation = methodDisplay != null ? methodDisplay : classDisplay != null ? classDisplay : policyDisplay;
+            
+        if(displayAnnotation != null) {
+            StringBuilder fieldsToConcatenate = new StringBuilder("");
+            String[] fields = displayAnnotation.fields();
+            EasyFrameworkMethod fMethod = (EasyFrameworkMethod)method;
+            Map<String , Object> testData = fMethod.getTestData();
+            if(testData != null) {
+                for(int i = 0 ; i < fields.length ; i++) {
+                    Object data = testData.get(fields[i]);
+                    if(data != null) {
+                        fieldsToConcatenate = fieldsToConcatenate.append(data.toString()).append(",");
+                    }
+                }
+                
+                
+                if(!fieldsToConcatenate.toString().equals("")) {
+                    if(fieldsToConcatenate.lastIndexOf(",") > 0) {
+                        fieldsToConcatenate = fieldsToConcatenate.deleteCharAt(fieldsToConcatenate.lastIndexOf(","));
+                    }
+                    
+                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate.toString()).concat("}");
+                }
+                
+            }
+            
+        }
+
+        return String.format("%s", testName);
     }
 }
