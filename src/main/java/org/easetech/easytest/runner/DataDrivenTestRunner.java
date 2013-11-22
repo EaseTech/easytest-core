@@ -124,8 +124,8 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
         super(klass);
         setSchedulingStrategy();
-        loadBeanConfiguration();
-        loadClassLevelData(klass);
+        RunnerUtil.loadBeanConfiguration(getTestClass().getJavaClass());
+        RunnerUtil.loadClassLevelData(klass, getTestClass(), writableData);
         try {
             // initialize report container class
             // TODO add condition whether reports must be switched on or off
@@ -173,46 +173,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     protected void setSchedulingStrategy() {
         Class<?> testClass = getTestClass().getJavaClass();
-        TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
-            Class<?> policyClass = testPolicy.value();
-            super.setScheduler(SchedulerStrategy.getScheduler(policyClass , false));
-            RunnerScheduler testClassScheduler = SchedulerStrategy.getScheduler(testClass , true);
-            if(testClassScheduler != null) {
-                super.setScheduler(testClassScheduler);
-            }
-            
-        } else {
-            super.setScheduler(SchedulerStrategy.getScheduler(testClass , false));
-        }
-        
-    }
-
-    /**
-     * @see TestConfigUtil#loadTestBeanConfig(Class)
-     */
-    protected void loadBeanConfiguration() {
-        
-        Class<?> testClass = getTestClass().getJavaClass();
-        TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
-            TestConfigUtil.loadTestBeanConfig(testPolicy.value());
-        }
-        TestConfigUtil.loadTestBeanConfig(testClass);
-    }
-
-    /**
-     * Load any class level test data
-     * 
-     * @see DataLoaderUtil#loadData(Class, FrameworkMethod, org.junit.runners.model.TestClass, Map)
-     * @param klass
-     */
-    protected void loadClassLevelData(Class<?> klass) {
-        TestPolicy testPolicy = getTestClass().getJavaClass().getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
-            DataLoaderUtil.loadData(testPolicy.value(), null, getTestClass(), writableData);
-        }
-        DataLoaderUtil.loadData(klass, null, getTestClass(), writableData);
+        super.setScheduler(RunnerUtil.getScheduler(testClass));
     }
 
     /**
@@ -222,126 +183,6 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     protected List<FrameworkMethod> computeTestMethods() {
         return frameworkMethods;
-    }
-
-    protected void categorizeTestMethods(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> methodsWithData) {
-        List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
-
-        Class<?> testClass = getTestClass().getJavaClass();
-        for (FrameworkMethod method : availableMethods) {
-            // Try loading the data if any at the method level
-            if (method.getAnnotation(DataLoader.class) != null) {
-                DataLoaderUtil.loadData(null, method, getTestClass(), writableData);
-                methodsWithData.add(method);
-            } else {
-                // Method does not have its own dataloader annotation
-                // Does method need input data ??
-                if (method.getMethod().getParameterTypes().length == 0) {
-                    methodsWithNoData.add(method);
-                } else {
-                    // Does method have data already loaded?
-                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter
-                        .getFullyQualifiedTestName(method.getName(), testClass));
-                    if (methodDataLoaded) {
-                        methodsWithData.add(method);
-                    } else {
-                        methodsWithNoData.add(method);
-                    }
-                }
-            }           
-        }
-    }
-
-    protected void handleMethodsWithData(List<FrameworkMethod> methodsWithData, List<FrameworkMethod> finalList) {
-        Class<?> testClass = getTestClass().getJavaClass();
-        List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
-        for (FrameworkMethod methodWithData : methodsWithData) {
-            String superMethodName = DataConverter.getFullyQualifiedTestName(methodWithData.getName(), testClass);
-            for (FrameworkMethod method : availableMethods) {
-                if (superMethodName.equals(DataConverter.getFullyQualifiedTestName(method.getName(), testClass))) {
-                    // Load the data,if any, at the method level
-                    List<Map<String, Object>> methodData = null;
-                    if (DataContext.getData() != null) {
-                        methodData = DataContext.getData().get(superMethodName);
-                    }
-                    if (methodData == null) {
-                        Assert.fail("Method with name : " + superMethodName
-                            + " expects some input test data. But there doesnt seem to be any test "
-                            + "data for the given method. Please check the Test Data file for the method data. "
-                            + "Possible cause could be that the data did not get loaded at all from the file "
-                            + "or a spelling mismatch in the method name. Check logs for more details.");
-                    }
-                    for (Map<String, Object> testData : methodData) {
-                        Repeat repeatTests = method.getAnnotation(Repeat.class);
-                        if (repeatTests != null || getRepeatCount() != null) {
-                            int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
-                            for (int count = 0; count < repeatCount; count++) {
-                                TestResultBean testResultBean = new TestResultBean(
-                                    methodWithData.getMethod().getName(), new Date());
-                                testReportContainer.addTestResult(testResultBean);
-                                // Create a new FrameworkMethod for each set of test data
-                                EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
-                                    testResultBean, method.getName().concat(testData.toString()));
-                                easyMethod.setName(method.getName().concat("_").concat(String.valueOf(count))
-                                    .concat(testData.toString()));
-                                finalList.add(easyMethod);
-                            }
-                        } else {
-                            TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod().getName(),
-                                new Date());
-                            testReportContainer.addTestResult(testResultBean);
-                            // Create a new FrameworkMethod for each set of test data
-                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
-                                testResultBean, method.getName().concat(testData.toString()));
-                            easyMethod.setName(method.getName().concat(testData.toString()));
-                            finalList.add(easyMethod);
-                        }
-
-                    }
-
-                    // Since the runner only ever handles a single method, we break out of the loop as soon as we
-                    // have
-                    // found our method.
-                    break;
-                }
-            }
-        }
-    }
-    
-    protected Integer getRepeatCount() {
-        Integer count = null;
-        String repeatCount = System.getProperty(SystemProperties.REPEAT_COUNT.getValue());
-        if(repeatCount != null) {
-            count = Integer.valueOf(repeatCount);
-        }
-        return count;
-        
-    }
-
-    protected void HandleMethodsWithNoData(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> finalList) {
-        for (FrameworkMethod fMethod : methodsWithNoData) {
-
-            Repeat repeatTests = fMethod.getAnnotation(Repeat.class);
-            if (repeatTests != null || getRepeatCount() != null) {
-                int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
-                for (int count = 0; count < repeatCount; count++) {
-                    TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
-                    testReportContainer.addTestResult(testResultBean);
-                    // Create a new FrameworkMethod for each set of test data
-                    EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod(), null, testResultBean,
-                        fMethod.getName());
-                    easyMethod.setName(fMethod.getName().concat("_").concat(String.valueOf(count)));
-                    finalList.add(easyMethod);
-                }
-            } else {
-                TestResultBean testResultBean = new TestResultBean(fMethod.getMethod().getName(), new Date());
-                testReportContainer.addTestResult(testResultBean);
-                EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(fMethod.getMethod(), null, testResultBean,
-                    fMethod.getName());
-                finalList.add(easyMethod);
-            }
-
-        }
     }
 
     /**
@@ -357,12 +198,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
 
     protected List<FrameworkMethod> computeMethodsForTest() {
 
-        List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
-        List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
-        List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
-        categorizeTestMethods(methodsWithNoData, methodsWithData);
-        handleMethodsWithData(methodsWithData, finalList);
-        HandleMethodsWithNoData(methodsWithNoData, finalList);
+        List<FrameworkMethod> finalList = RunnerUtil.testMethods(getTestClass(), testReportContainer, writableData);
         if (finalList.isEmpty()) {
             Assert.fail("No method exists for the Test Runner");
         }
@@ -428,30 +264,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
     }
 
-    /**
-     * Determine the right class loader to use to load the class
-     * 
-     * @param fieldType
-     * @param testClass
-     * @return the classLoader or null if none found
-     */
-    protected ClassLoader determineClassLoader(Class<?> fieldType, Class<?> testClass) {
-        ClassLoader cl = testClass.getClassLoader();
-        try {
-            if (Class.forName(fieldType.getName(), false, cl) == fieldType) {
-                return cl;
-            } else {
-                cl = Thread.currentThread().getContextClassLoader();
-                if (Class.forName(fieldType.getName(), false, cl) == fieldType) {
-                    return cl;
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 
     /**
      * Method responsible for registering the converters with the EasyTest framework
@@ -693,7 +506,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         Class<?> fieldType, Object fieldInstance) throws InstantiationException, IllegalAccessException {
         LOG.debug("The field of type :" + fieldType + " will be proxied using JDK dynamic proxies.");
 
-        ClassLoader classLoader = determineClassLoader(fieldType, getTestClass().getJavaClass());
+        ClassLoader classLoader = RunnerUtil.determineClassLoader(fieldType, getTestClass().getJavaClass());
 
         Class<?>[] interfaces = { fieldType };
         // use JDK dynamic proxy
