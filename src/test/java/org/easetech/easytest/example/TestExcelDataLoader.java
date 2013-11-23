@@ -1,17 +1,15 @@
 
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.annotation.Display;
-
 import javax.inject.Inject;
 import junit.framework.Assert;
 import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Display;
 import org.easetech.easytest.annotation.Intercept;
-import org.easetech.easytest.annotation.Parallel;
 import org.easetech.easytest.annotation.Param;
-import org.easetech.easytest.annotation.Report;
-import org.easetech.easytest.annotation.TestConfigProvider;
+import org.easetech.easytest.annotation.TestPolicy;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,11 +18,7 @@ import org.slf4j.LoggerFactory;
 
 
 @RunWith(DataDrivenTestRunner.class)
-@DataLoader(filePaths = { "classpath:org/easetech/data/testExcelData.xls" })
-@Report
-@TestConfigProvider({TestConfigProviderClass.class})
-@Parallel(threads=8)
-@Display(fields={"Description"})
+@TestPolicy(TestExcelDataLoaderPolicy.class)
 public class TestExcelDataLoader {
     
     @Intercept
@@ -39,6 +33,11 @@ public class TestExcelDataLoader {
     @Before
     public void before(){
         System.out.println("BEFORE");
+    }
+    
+    @After
+    public void after(){
+        System.out.println("AFTER");
     }
     
     @Test
@@ -88,7 +87,7 @@ public class TestExcelDataLoader {
     }
 
     @Test
-    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" })
+    @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" } , writeData=false)
     public Item getExcelTestDataWithReturnType(@Param(name="libraryId")
     Float libraryId, @Param(name="itemId")
     Float itemId) {

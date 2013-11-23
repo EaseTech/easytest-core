@@ -1,9 +1,8 @@
 
 package org.easetech.easytest.example;
 
-import org.easetech.easytest.converter.AbstractConverter;
-
 import java.util.Map;
+import org.easetech.easytest.converter.AbstractConverter;
 
 public class ItemConverter extends AbstractConverter<Item> {
 

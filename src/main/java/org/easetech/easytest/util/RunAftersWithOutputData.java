@@ -1,7 +1,5 @@
 package org.easetech.easytest.util;
 
-import org.easetech.easytest.internal.SystemProperties;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.annotation.TestPolicy;
 import org.easetech.easytest.converter.ConverterManager;
+import org.easetech.easytest.internal.SystemProperties;
 import org.easetech.easytest.io.ResourceLoader;
 import org.easetech.easytest.io.ResourceLoaderStrategy;
 import org.easetech.easytest.reports.data.ReportDataContainer;
@@ -122,18 +122,16 @@ public class RunAftersWithOutputData extends Statement {
         }
         MultipleFailureException.assertEmpty(errors);
         // Write any output test data to the file only if there is a write data associated with the test method.
-        for (TestInfo testInfo : testInfoList) {
-            if (testInfo.getFilePaths() != null && testInfo.getDataLoader() != null) {
-                try {
-                    ResourceLoader resourceLoader = new ResourceLoaderStrategy(testInfo.getTestClass().getJavaClass());
-                    for(String filePath : testInfo.getFilePaths()){
-                        testInfo.getDataLoader().writeData(resourceLoader.getResource(filePath), writableData, testInfo.getMethodName());
-                    }
-                } catch (Exception e) {
-                    throw new ParameterizedAssertionError(e, testInfo.getMethodName(), testInfo);
-                }
+        String writeData = System.getProperty(SystemProperties.WRITE_DATA.name());
+        if(writeData != null) {
+            if(Boolean.getBoolean(writeData)) {
+                writeData();
             }
+        } else {
+            
+            writeData();
         }
+        
 
         if (submit != null) {
         	long start = System.nanoTime();
@@ -145,11 +143,33 @@ public class RunAftersWithOutputData extends Statement {
         //ConfigContext.cleanConfigContext();
         //DataContext.cleanData();
     }
+    
+    private void writeData() {
+        for (TestInfo testInfo : testInfoList) {
+            if (testInfo.getFilePaths() != null && testInfo.getDataLoader() != null && testInfo.getWriteData()) {
+                try {
+                    ResourceLoader resourceLoader = new ResourceLoaderStrategy(testInfo.getTestClass().getJavaClass());
+                    for(String filePath : testInfo.getFilePaths()){
+                        testInfo.getDataLoader().writeData(resourceLoader.getResource(filePath), writableData, testInfo.getMethodName());
+                    }
+                } catch (Exception e) {
+                    throw new ParameterizedAssertionError(e, testInfo.getMethodName(), testInfo);
+                }
+            }
+        }
+    }
 
     private Future<Boolean> processReports(ReportDataContainer testReportContainer) {
     	Future<Boolean> submit = null;
         if (testReportContainer != null) {
-        	Report annotation = testReportContainer.getTestClass().getAnnotation(Report.class);
+            TestPolicy testPolicy = testReportContainer.getTestClass().getAnnotation(TestPolicy.class);
+            Report policyLevelReport = null;
+            if(testPolicy != null) {
+                Class<?> policyClass = testPolicy.value();
+                policyLevelReport = policyClass.getAnnotation(Report.class);
+            }
+            Report testClassLevelReport = testReportContainer.getTestClass().getAnnotation(Report.class);
+        	Report annotation = testClassLevelReport != null ? testClassLevelReport : policyLevelReport;
 
         	ReportParametersBean reportParameters = null;
 

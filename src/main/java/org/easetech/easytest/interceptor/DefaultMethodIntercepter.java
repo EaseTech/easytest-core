@@ -1,9 +1,8 @@
 package org.easetech.easytest.interceptor;
 
+import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
 
 /**
  * A default implementation of {@link MethodIntercepter} to log the time taken by a method

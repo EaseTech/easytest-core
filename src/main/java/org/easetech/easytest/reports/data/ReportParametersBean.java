@@ -2,7 +2,6 @@ package org.easetech.easytest.reports.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
 import org.slf4j.Logger;

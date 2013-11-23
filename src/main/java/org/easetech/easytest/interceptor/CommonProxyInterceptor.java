@@ -1,17 +1,12 @@
 package org.easetech.easytest.interceptor;
 
-import org.easetech.easytest.reports.data.MethodUnderTestDuration;
-
-import java.util.Observable;
-
 import java.lang.reflect.Method;
-
+import java.util.Observable;
+import junit.framework.Assert;
+import org.easetech.easytest.annotation.Duration;
+import org.easetech.easytest.reports.data.MethodUnderTestDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import junit.framework.Assert;
-
-import org.easetech.easytest.annotation.Duration;
 
 /**
  * A common class for both {@link InternalInterceptor} as well as {@link InternalInvocationhandler}

@@ -1,13 +1,9 @@
 package org.easetech.easytest.example;
 
 import org.easetech.easytest.annotation.Parallel;
-
-import org.easetech.easytest.runner.EasyTestSuite;
-
 import org.easetech.easytest.annotation.ParallelSuite;
-
+import org.easetech.easytest.runner.EasyTestSuite;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**

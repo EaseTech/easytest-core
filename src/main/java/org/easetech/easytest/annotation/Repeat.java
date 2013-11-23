@@ -1,10 +1,9 @@
 package org.easetech.easytest.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import java.lang.annotation.Retention;
 
 /**
  * Annotation to repeat the test method 'n' times where 'n' is identified by the attribute {@link #times()}
@@ -16,6 +15,7 @@ import java.lang.annotation.Retention;
  * 
  * Currently, there is no way to specify the repeat for a given set of test input. 
  *
+ *@author Anuj Kumar
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})

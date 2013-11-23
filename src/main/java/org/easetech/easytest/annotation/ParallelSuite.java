@@ -1,13 +1,12 @@
 package org.easetech.easytest.annotation;
 
-import org.junit.runners.Suite;
-
-import java.util.concurrent.Executors;
-
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.Executors;
+import org.junit.runners.Suite;
 
 /**
  * {@link Suite} level Annotation that is used
@@ -18,9 +17,11 @@ import java.lang.annotation.Target;
  * In case the value of threads attribute is specified and it is greater than 0,
  * {@link Executors#newFixedThreadPool(int)} method is used to create a fixed thread pool
  *
+ *@author Anuj Kumar
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
+@Inherited
 public @interface ParallelSuite {
     
     /** Number of threads to start while executing the test classes in the given suite class 

@@ -1,11 +1,10 @@
 
 package org.easetech.easytest.util;
 
-import org.easetech.easytest.annotation.TestConfigProvider;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.easetech.easytest.annotation.TestBean;
+import org.easetech.easytest.annotation.TestConfigProvider;
 
 /**
  * A context class for holding the Configuration beans declared by the user. This class provides a utility for the

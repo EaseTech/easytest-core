@@ -1,9 +1,5 @@
 package org.easetech.easytest.example;
 
-import org.junit.Ignore;
-
-import java.util.AbstractCollection;
-import java.util.AbstractList;
 import java.util.AbstractQueue;
 import java.util.AbstractSequentialList;
 import java.util.AbstractSet;

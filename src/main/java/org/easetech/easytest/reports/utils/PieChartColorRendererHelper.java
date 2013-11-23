@@ -2,7 +2,6 @@ package org.easetech.easytest.reports.utils;
 
 import java.awt.Color;
 import java.util.List;
-
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 

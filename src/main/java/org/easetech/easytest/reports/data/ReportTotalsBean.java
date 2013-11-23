@@ -2,7 +2,6 @@ package org.easetech.easytest.reports.data;
 
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-
 import org.easetech.easytest.util.CommonUtils;
 
 /**

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.internal.EasyAssignments;
-import org.easetech.easytest.loader.DataConverter;
 import org.easetech.easytest.loader.Loader;
 import org.easetech.easytest.reports.data.TestMethodDuration;
 import org.easetech.easytest.reports.data.TestResultBean;
@@ -107,8 +106,7 @@ public class InternalParameterizedStatement extends Statement {
      */
     protected void runWithAssignment(EasyAssignments parameterAssignment) throws Throwable {
         while (!parameterAssignment.isComplete()) {
-            List<PotentialAssignment> potentialAssignments = parameterAssignment.potentialsForNextUnassigned(DataConverter.getFullyQualifiedTestName(fTestMethod.getMethodNameForTestData(),
-                getTestClass().getJavaClass()));
+            List<PotentialAssignment> potentialAssignments = parameterAssignment.potentialsForNextUnassigned(fTestMethod);
             boolean isFirstSetOfArguments = listOfAssignments.isEmpty();
             for (int i = 0; i < potentialAssignments.size(); i++) {
                 if (isFirstSetOfArguments) {

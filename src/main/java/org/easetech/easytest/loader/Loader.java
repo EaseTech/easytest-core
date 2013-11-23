@@ -1,9 +1,8 @@
 package org.easetech.easytest.loader;
 
-import org.easetech.easytest.annotation.DataLoader;
-
 import java.util.List;
 import java.util.Map;
+import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.io.Resource;
 
 /**

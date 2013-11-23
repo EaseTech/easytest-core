@@ -1,14 +1,11 @@
 
 package org.easetech.easytest.util;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.apache.commons.lang.ArrayUtils;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import java.util.Arrays;
 
-import java.util.regex.Matcher;
-
-import java.util.regex.Pattern;
+import org.easetech.easytest.internal.DateTimeFormat;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,16 +17,19 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author gpcmol
  * 
  */
+//PENDING: Refactor this class to make it easier to use
 public class GeneralUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(GeneralUtil.class);
@@ -66,6 +67,19 @@ public class GeneralUtil {
     public static Double getRounded(double valueToRound, int numberOfDecimalPlaces) {
         BigDecimal bigDecimal = new BigDecimal(valueToRound).setScale(numberOfDecimalPlaces, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
+    }
+    
+    /**
+     * Util method to get the String value
+     * 
+     * @param paramName the name of the parameter to get the String value for
+     * @param data the data that contains the include Holdings value
+     * @return String value or null if it is not set in the data.
+     */
+    public static String getStringValue(String paramName, Map<String, Object> data) {
+        return (data.get(paramName) != null && !data.get(paramName).equals("null") ? data.get(paramName).toString()
+            : null);
+
     }
 
     /**
@@ -109,16 +123,6 @@ public class GeneralUtil {
         return absoluteLocation;
     }
 
-    /**
-     * Format date with pattern ddMMyyyyHHmmss
-     * 
-     * @param date
-     * @return string with formatted date
-     */
-    public static String getFormattedDate(Date date) {
-        DateFormat instance = new SimpleDateFormat("ddMMyyyyHHmmss");
-        return instance.format(date);
-    }
 
     /**
      * Returns absulute path of either the classpath of file location
@@ -159,20 +163,15 @@ public class GeneralUtil {
     /**
      * Method to convert object to java.sql.Timestamp type It checks the instance of the object is of different datatype
      * then it gets the value from the object and casts it to required data type.
-     * 
-     * @param Object object
-     * @return java.sql.Timestamp converted value.
+     * @param object The object to convert to SQL Timestamp
+     * @param dateTimeFormat the date time format to use
+     * @return converted timestamp value
      */
 
-    public static Timestamp convertToSQLTimestamp(Object object) {
+    public static Timestamp convertToSQLTimestamp(Object object , DateTimeFormat dateTimeFormat) {
         Timestamp timestamp = null;
         if (object != null && !object.toString().isEmpty()) {
-            timestamp = new java.sql.Timestamp(convertToUtilDate(object).getTime());
-            /*
-             * if(object instanceof java.util.Date){ timestamp = new Timestamp(((java.util.Date) object).getTime()); }
-             * else if(object instanceof Double){ timestamp = new Timestamp(((Double) object).longValue()); } else
-             * if(object instanceof String){ timestamp = new Timestamp(Long.valueOf((String) object)); }
-             */
+            timestamp = new java.sql.Timestamp(convertToUtilDate(object , dateTimeFormat).getTime());
         }
 
         return timestamp;
@@ -181,12 +180,12 @@ public class GeneralUtil {
     /**
      * Method to convert object to java.util.Date type It checks the instance of the object is of different datatype
      * then it gets the value from the object and casts it to required data type.
-     * 
-     * @param Object object
+     * @param object the object to convert to date
+     * @param dateTimeFormat the date and time format to use to convert 
      * @return java.util.Date converted value.
      */
 
-    public static Date convertToUtilDate(Object object) {
+    public static Date convertToUtilDate(Object object , DateTimeFormat dateTimeFormat) {
         Date date = null;
         if (object != null && !object.toString().isEmpty()) {
             if (object instanceof java.util.Date) {
@@ -195,12 +194,14 @@ public class GeneralUtil {
                 date = new Date(((Double) object).longValue());
             } else if (object instanceof String) {
                 try {
-                    date = DateUtils.parseDate((String) object, new String[] { "dd/MM/yy", "dd/MM/yyyy", "MM/dd/yy",
-                        "MM/dd/yyyy", "dd-MM-yy", "dd-MM-YYYY", "MM-dd-yy", "MM-dd-yyyy", "dd/MM/yy HH:MM:SS",
-                        "dd/MM/yyyy HH:MM:SS", "MM/dd/yy HH:MM:SS", "MM/dd/yyyy HH:MM:SS", "dd-MM-yy HH:MM:SS",
-                        "dd-MM-YYYY HH:MM:SS", "MM-dd-yy HH:MM:SS", "MM-dd-yyyy HH:MM:SS", "HH:MM:SS" });
+                    String[] formats = (String[]) ArrayUtils.addAll(dateTimeFormat.getDateTimeFormat(), dateTimeFormat.getDateFormat());
+                    String[] availableFormats = (String[]) ArrayUtils.addAll(formats, dateTimeFormat.getTimeFormat());
+                    
+                    date = DateUtils.parseDate((String) object, availableFormats);
+                    
                 } catch (ParseException e) {
-                    date = new Date(Long.valueOf((String) object));
+                    LOG.error("Parse exception occured while trying to convert {} to java util date using formats {}", object , dateTimeFormat);
+                    throw new RuntimeException(e);
                 }
 
             }
@@ -212,16 +213,16 @@ public class GeneralUtil {
     /**
      * Method to convert object to java.sql.Date type It checks the instance of the object is of different datatype then
      * it gets the value from the object and casts it to required data type.
-     * 
-     * @param Object object
+     * @param object the object to convert to SQL Date 
+     * @param dateTimeFormat the user specified date time format
      * @return java.sql.Date converted value.
      */
 
-    public static java.sql.Date convertToSQLDate(Object object) {
+    public static java.sql.Date convertToSQLDate(Object object , DateTimeFormat dateTimeFormat) {
         java.sql.Date sqlDate = null;
         if (object != null && !object.toString().isEmpty()) {
-            sqlDate = new java.sql.Date(convertToUtilDate(object).getTime());
-            ;
+            sqlDate = new java.sql.Date(convertToUtilDate(object , dateTimeFormat).getTime());
+            
         }
 
         return sqlDate;
@@ -230,12 +231,12 @@ public class GeneralUtil {
     /**
      * Method to convert object to java.sql.Tim type It checks the instance of the object is of different datatype then
      * it gets the value from the object and casts it to required data type.
-     * 
-     * @param Object object
+     * @param object the object to convert to SQL Time 
+     * @param dateTimeFormat the date time format to use
      * @return java.sql.Tim converted value.
      */
 
-    public static java.sql.Time convertToSQLTime(Object object) {
+    public static java.sql.Time convertToSQLTime(Object object , DateTimeFormat dateTimeFormat) {
         java.sql.Time time = null;
         if (object != null && !object.toString().isEmpty()) {
 
@@ -246,12 +247,14 @@ public class GeneralUtil {
             } else if (object instanceof String) {
                 Date date;
                 try {
-                    date = DateUtils.parseDate((String) object, new String[] { "HH:MM:SS" });
+                    date = DateUtils.parseDate((String) object, dateTimeFormat.getTimeFormat());
                 } catch (ParseException e) {
+                    LOG.debug("Parse Exception occured while trying to convert to SQL TimeStamp. " +
+                    		"The object to convert to : {} and the fomat used to convert to SQL Time : {}" ,
+                    		object, dateTimeFormat.getTimeFormat());
                     date = new Date(Long.valueOf((String) object));
                 }
                 time = new java.sql.Time(date.getTime());
-                ;
             }
         }
 
@@ -322,11 +325,9 @@ public class GeneralUtil {
                 longvalue = ((Double) object).longValue();
             } else if (object instanceof String) {
                 String strLongValue = (String) object;
-                if ("".equalsIgnoreCase(strLongValue)) {
-                    longvalue = (long) 0;
-                } else {
+                if (!"".equalsIgnoreCase(strLongValue)) {
                     longvalue = Long.valueOf((String) object);
-                }
+                } 
             }
         }
         return longvalue;
@@ -348,7 +349,7 @@ public class GeneralUtil {
                 doublevalue = ((Integer) object).doubleValue();
             } else if (object instanceof Double) {
                 doublevalue = ((Double) object).doubleValue();
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 doublevalue = Double.valueOf((String) object);
             }
         }
@@ -371,7 +372,7 @@ public class GeneralUtil {
                 floatvalue = ((Integer) object).floatValue();
             } else if (object instanceof Double) {
                 floatvalue = ((Double) object).floatValue();
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 floatvalue = Float.valueOf((String) object);
             }
         }
@@ -394,7 +395,7 @@ public class GeneralUtil {
                 booleanValue = stringToBoolean(((Integer) object).toString());
             } else if (object instanceof Double) {
                 booleanValue = stringToBoolean(((Double) object).toString());
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 booleanValue = stringToBoolean((String) object);
             }
         }
@@ -418,7 +419,7 @@ public class GeneralUtil {
                 byteValue = Byte.valueOf(((Integer) object).toString());
             } else if (object instanceof Double) {
                 byteValue = Byte.valueOf(((Double) object).toString());
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 byteValue = Byte.valueOf((String) object);
             }
         }
@@ -441,7 +442,7 @@ public class GeneralUtil {
                 chValue = Character.valueOf((char) ((Integer) object).intValue());
             } else if (object instanceof Double) {
                 chValue = Character.valueOf((char) ((Double) object).doubleValue());
-            } else if (object instanceof String) {
+            } else if (object instanceof String && !"".equals((String)object)) {
                 chValue = Character.valueOf(((String) object).charAt(0));
             } else if (object instanceof Character) {
                 chValue = (Character) object;
@@ -551,24 +552,29 @@ public class GeneralUtil {
      * 
      * @param idClass
      * @param object
-     * @return
+     * @param convertEmptyToNull 
+     * @return a converted object
      */
-    public static Object convertToTargetType(Class<?> idClass, Object object) {
+    public static Object convertToTargetType(Class<?> idClass, Object object , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) {
         Object returnObj = null;
         if (object == null || NULL_STR.equals(object.toString())) {
             return null;
         }
-
+        if(convertEmptyToNull) {
+            if("".equals(object.toString())){
+                return null;
+            }
+        }
         if (String.class.isAssignableFrom(idClass)) {
             returnObj = convertToString(object);
         } else if (Timestamp.class.isAssignableFrom(idClass)) {
-            returnObj = convertToSQLTimestamp(object);
+            returnObj = convertToSQLTimestamp(object , dateTimeFormat);
         } else if (Time.class.isAssignableFrom(idClass)) {
-            returnObj = GeneralUtil.convertToSQLTime(object);
+            returnObj = GeneralUtil.convertToSQLTime(object , dateTimeFormat);
         } else if (java.sql.Date.class.isAssignableFrom(idClass)) {
-            returnObj = convertToSQLDate(object);
+            returnObj = convertToSQLDate(object , dateTimeFormat);
         } else if (Date.class.isAssignableFrom(idClass)) {
-            returnObj = convertToUtilDate(object);
+            returnObj = convertToUtilDate(object , dateTimeFormat);
         } else if (Double.class.isAssignableFrom(idClass) || double.class.isAssignableFrom(idClass)) {
             returnObj = convertToDouble(object);
         } else if (Float.class.isAssignableFrom(idClass) || float.class.isAssignableFrom(idClass)) {
@@ -669,67 +675,47 @@ public class GeneralUtil {
         return false;
     }
 
-    /**
-     * Method responsible for calling a constructor on an object to try to fill it with data.
-     * 
-     * @param idClass
-     * @param convertFrom
-     * @param finalData
-     * @param paramName
-     * @return Boolean in case the data is successfuly filled else false
-     * @throws IllegalArgumentException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     */
-    public static Boolean populateParamData(Class<?> idClass, List<Map<String, Object>> convertFrom,
-        List<PotentialAssignment> finalData, String paramName) throws IllegalArgumentException, InstantiationException,
-        IllegalAccessException, InvocationTargetException {
-        return fillDataUsingConstructor(idClass, convertFrom, finalData, paramName, null);
-
-    }
-
     public static Boolean fillDataUsingConstructor(Class<?> idClass, List<Map<String, Object>> convertFrom,
-        List<PotentialAssignment> finalData, String paramName, Collection collectionInstance)
+        List<PotentialAssignment> finalData, String paramName, Collection collectionInstance , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         // See if the parameter class has a constructor that we can use.
         Constructor constructor = getConstructor(idClass, Long.class) == null ? getConstructor(idClass, long.class)
             : getConstructor(idClass, Long.class);
         if (constructor != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Long.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Long.class, collectionInstance , convertEmptyToNull , dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, String.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, String.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, String.class, collectionInstance , convertEmptyToNull , dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Integer.class) == null ? getConstructor(idClass, int.class)
             : getConstructor(idClass, Integer.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Integer.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Integer.class, collectionInstance, convertEmptyToNull , dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Byte.class) == null ? getConstructor(idClass, byte.class)
             : getConstructor(idClass, Byte.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Byte.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Byte.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Character.class) == null ? getConstructor(idClass, char.class)
             : getConstructor(idClass, Character.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Character.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Character.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Date.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Date.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Date.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, java.util.Date.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, java.util.Date.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, java.util.Date.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Timestamp.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Timestamp.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Timestamp.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Time.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Time.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Time.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Double.class) == null ? getConstructor(idClass, double.class)
             : getConstructor(idClass, Double.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Double.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Double.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Float.class) == null ? getConstructor(idClass, float.class)
             : getConstructor(idClass, Float.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Float.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Float.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Boolean.class) == null ? getConstructor(idClass,
             boolean.class) : getConstructor(idClass, Boolean.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Boolean.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Boolean.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Short.class) == null ? getConstructor(idClass, short.class)
             : getConstructor(idClass, Boolean.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Short.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Short.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else if ((constructor = getConstructor(idClass, Enum.class)) != null) {
-            fill(idClass, paramName, constructor, finalData, convertFrom, Enum.class, collectionInstance);
+            fill(idClass, paramName, constructor, finalData, convertFrom, Enum.class, collectionInstance, convertEmptyToNull, dateTimeFormat);
         } else {
             return false;
         }
@@ -740,16 +726,16 @@ public class GeneralUtil {
     @SuppressWarnings({ "unused" })
     private static <T> Boolean fill(Class idClass, String paramName, Constructor constructor,
         List<PotentialAssignment> finalData, List<Map<String, Object>> convertFrom, Class<T> argType,
-        Collection collectionInstance) throws IllegalArgumentException, InstantiationException, IllegalAccessException,
+        Collection collectionInstance , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) throws IllegalArgumentException, InstantiationException, IllegalAccessException,
         InvocationTargetException {
         if (GeneralUtil.isStandardObjectInstance(argType)) {
             for (Map<String, Object> object : convertFrom) {
                 T target = null;
                 Object result = null;
                 if (collectionInstance != null) {
-                    fillCollectionData(idClass, object, paramName, constructor, finalData, argType, collectionInstance);
+                    fillCollectionData(idClass, object, paramName, constructor, finalData, argType, collectionInstance, convertEmptyToNull , dateTimeFormat);
                 } else {
-                    fillData(idClass, object, paramName, constructor, finalData, argType);
+                    fillData(idClass, object, paramName, constructor, finalData, argType, convertEmptyToNull , dateTimeFormat);
                 }
 
             }
@@ -762,7 +748,7 @@ public class GeneralUtil {
 
     @SuppressWarnings("unchecked")
     private static <T> void fillCollectionData(Class<?> idClass, Map<String, Object> object, String paramName,
-        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Collection collectionInstance)
+        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Collection collectionInstance, Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Object result = null;
         T target = null;
@@ -770,7 +756,7 @@ public class GeneralUtil {
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
             String[] strValues = ((String) object.get(paramName)).split(COLON);
             for (int i = 0; i < strValues.length; i++) {
-                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
+                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i], convertEmptyToNull , dateTimeFormat);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
             }
@@ -778,7 +764,7 @@ public class GeneralUtil {
         } else {
             String[] strValues = ((String) object.get(idClass.getSimpleName())).split(COLON);
             for (int i = 0; i < strValues.length; i++) {
-                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i]);
+                target = (T) GeneralUtil.convertToTargetType(argType, strValues[i], convertEmptyToNull, dateTimeFormat);
                 result = constructor.newInstance(target);
                 collectionInstance.add(result);
             }
@@ -788,18 +774,18 @@ public class GeneralUtil {
 
     @SuppressWarnings("unchecked")
     private static <T> void fillData(Class<?> idClass, Map<String, Object> object, String paramName,
-        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType)
+        Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Object result = null;
         T target = null;
 
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
-            target = (T) GeneralUtil.convertToTargetType(argType, object.get(paramName));
+            target = (T) GeneralUtil.convertToTargetType(argType, object.get(paramName), convertEmptyToNull, dateTimeFormat);
             result = constructor.newInstance(target);
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, result));
         } else {
             result = constructor.newInstance((T) GeneralUtil.convertToTargetType(argType,
-                object.get(idClass.getSimpleName())));
+                object.get(idClass.getSimpleName()), convertEmptyToNull, dateTimeFormat));
             finalData.add(PotentialAssignment.forValue(EMPTY_STRING, result));
         }
     }

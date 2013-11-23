@@ -1,13 +1,10 @@
 
 package org.easetech.easytest.converter;
 
-import java.util.Map;
-
 import java.lang.reflect.Modifier;
-
-import junit.framework.Assert;
-
 import java.lang.reflect.ParameterizedType;
+import java.util.Map;
+import junit.framework.Assert;
 
 /**
  * 
@@ -26,7 +23,14 @@ import java.lang.reflect.ParameterizedType;
 public abstract class AbstractConverter<Type> implements ParamAwareConverter<Type> {
     
     /** The name of the parameter to which this converter is serving */
+    @Deprecated
     private String paramName;
+    
+    /**
+     * A convenient support class that gives users access to various defined 
+     * parameters that may be useful during data conversion
+     */
+    private ConverterSupport converterSupport;
 
     /**
      * Get the Class variable representing the Type object
@@ -42,6 +46,7 @@ public abstract class AbstractConverter<Type> implements ParamAwareConverter<Typ
     
     public Type convert(Map<String , Object> convertFrom , String paramName) {
         setParamName(paramName);
+        
         return convert(convertFrom);
     }
 
@@ -88,12 +93,37 @@ public abstract class AbstractConverter<Type> implements ParamAwareConverter<Typ
         return type;
     }
 
+    @Deprecated
+    /**
+     * Use {@link #getConverterSupport()#getParamName()}
+     */
     public String getParamName() {
         return paramName;
     }
 
+    @Deprecated
+    /**
+     * Use {@link #getConverterSupport()#setParamName()}
+     */
     public void setParamName(String paramName) {
         this.paramName = paramName;
     }
 
+    /**
+     * Get the converter support instance
+     * @return the converterSupport
+     */
+    public ConverterSupport getConverterSupport() {
+        return converterSupport;
+    }
+
+    /**
+     * Set the converter support instance
+     * @param converterSupport the converterSupport to set
+     */
+    public void setConverterSupport(ConverterSupport converterSupport) {
+        this.converterSupport = converterSupport;
+    }
+
+    
 }

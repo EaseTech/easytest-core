@@ -1,15 +1,13 @@
 
 package org.easetech.easytest.runner;
 
-import javax.inject.Named;
-
-import javax.inject.Inject;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.easetech.easytest.annotation.Provided;
 import org.easetech.easytest.annotation.TestBean;
 import org.easetech.easytest.annotation.TestConfigProvider;

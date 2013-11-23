@@ -1,11 +1,10 @@
 
 package org.easetech.easytest.strategy;
 
-import org.easetech.easytest.annotation.ParallelSuite;
-
-import org.easetech.easytest.internal.SystemProperties;
-
 import org.easetech.easytest.annotation.Parallel;
+import org.easetech.easytest.annotation.ParallelSuite;
+import org.easetech.easytest.annotation.TestPolicy;
+import org.easetech.easytest.internal.SystemProperties;
 import org.junit.runners.model.RunnerScheduler;
 
 /**
@@ -24,9 +23,10 @@ public class SchedulerStrategy {
      * Get the correct Scheduler requested by the user based on the {@link Parallel} annotation.
      * 
      * @param testClass the Class under test
+     * @param policyApplied Identifies whether a test Policy identified by {@link TestPolicy} annotation has been applied or not
      * @return an implementation of {@link RunnerScheduler}
      */
-    public static RunnerScheduler getScheduler(Class<?> testClass) {
+    public static RunnerScheduler getScheduler(Class<?> testClass , Boolean policyApplied) {
         Parallel parallelAnnotation = testClass.getAnnotation(Parallel.class);
         String parallelThreadsStr = System.getProperty(SystemProperties.PARALLEL_THREAD_COUNT.getValue());
         Integer parallelThreads = null;
@@ -49,6 +49,9 @@ public class SchedulerStrategy {
                 }
 
             }
+        }
+        if(policyApplied) {
+            return null;
         }
         return new SerialScheduler();
 

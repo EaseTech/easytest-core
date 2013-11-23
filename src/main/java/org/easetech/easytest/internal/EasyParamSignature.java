@@ -47,6 +47,7 @@ public class EasyParamSignature {
                 //It is not a generic parameter but a simple parameter
                 parameterType = (Class)genericParameterType;
             }
+            
             sigs.add(new EasyParamSignature(parameterType, parameterAnnotations[i], genericParameterArgType));
             
         }

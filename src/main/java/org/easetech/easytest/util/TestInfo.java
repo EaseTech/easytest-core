@@ -2,7 +2,6 @@
 package org.easetech.easytest.util;
 
 import java.util.Arrays;
-
 import org.easetech.easytest.loader.Loader;
 import org.junit.runners.model.TestClass;
 
@@ -34,6 +33,27 @@ public class TestInfo {
      * The name of the method
      */
     private String methodName;
+    
+    /**
+     * Write the data back to the file
+     */
+    private Boolean writeData;
+
+    /**
+     * whether to write data back to the file or not
+     * @return the writeData whether to write data back to the file or not
+     */
+    public Boolean getWriteData() {
+        return writeData;
+    }
+
+    /**
+     * whether to write data back to the file or not
+     * @param writeData the writeData to set
+     */
+    public void setWriteData(Boolean writeData) {
+        this.writeData = writeData;
+    }
 
     /**
      * 

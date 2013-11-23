@@ -1,11 +1,10 @@
 package org.easetech.easytest.annotation;
 
-import java.util.Properties;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Properties;
 
 /**
  * A Class level annotation that is applied of Config classes that defines the {@link TestBean}s.

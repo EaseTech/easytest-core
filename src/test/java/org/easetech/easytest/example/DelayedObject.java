@@ -1,8 +1,7 @@
 package org.easetech.easytest.example;
 
-import java.util.concurrent.TimeUnit;
-
 import java.util.concurrent.Delayed;
+import java.util.concurrent.TimeUnit;
 
 public class DelayedObject implements Delayed {
     

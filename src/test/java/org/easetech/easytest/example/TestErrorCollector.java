@@ -1,13 +1,12 @@
 package org.easetech.easytest.example;
 
-import org.junit.Ignore;
-
 import javax.inject.Inject;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Intercept;
 import org.easetech.easytest.annotation.Param;
 import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.runner.DataDrivenTestRunner;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
