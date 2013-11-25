@@ -40,11 +40,10 @@ public class TestExcelDataLoader {
         System.out.println("AFTER");
     }
     
-    @Test
-    public String testNoData(){
-        System.out.println("Executing testNoData");
-        return "Anuj";
-    }
+//    @Test
+//    public void testException(){
+//        throw new RuntimeException("Failed");
+//    }
 
     @Display(fields={"libraryId"})
     @Test
@@ -88,9 +87,11 @@ public class TestExcelDataLoader {
 
     @Test
     @DataLoader(filePaths = { "classpath:org/easetech/data/test-update.xls" } , writeData=false)
+    @Inject
     public Item getExcelTestDataWithReturnType(@Param(name="libraryId")
     Float libraryId, @Param(name="itemId")
-    Float itemId) {
+    Float itemId , RealItemService localItemService) {
+        Assert.assertNotNull(localItemService);
         System.out.println("Executing  getExcelTestDataWithReturnType : ");
         LOG.debug("LibraryId is :" + libraryId + " and Item Id is :" + itemId);
         if(libraryId == null){
@@ -99,7 +100,10 @@ public class TestExcelDataLoader {
         if(itemId == null){
             return null;
         }
-        Item item = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
+        Item item = localItemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
+            new ItemId(Long.valueOf(itemId.longValue())));
+        
+        Item itemFromClassService = itemService.findItem(new LibraryId(Long.valueOf(libraryId.longValue())),
             new ItemId(Long.valueOf(itemId.longValue())));
         LOG.debug("return item: " + item.toString());
         
@@ -121,7 +125,12 @@ public class TestExcelDataLoader {
     }
     
     
-    
+    @Test
+    @Inject
+    public void testInjectData( RealItemService itemService){
+        Assert.assertNotNull(itemService);
+        
+    }
    
 
 }

@@ -97,7 +97,7 @@ public class EasyAssignments {
         String testMethodName = DataConverter.getFullyQualifiedTestName(testMethod.getMethodNameForTestData(),
             fClass.getJavaClass());
         EasyParamSignature unassigned = nextUnassigned();
-        return getSupplier(testMethod).getValueSources(testMethodName , unassigned);
+        return getSupplier(testMethod).getValueSources(testMethod, testMethodName , unassigned);
     }
 
     /**

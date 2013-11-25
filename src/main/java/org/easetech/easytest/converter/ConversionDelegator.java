@@ -1,15 +1,11 @@
 
 package org.easetech.easytest.converter;
 
-import org.easetech.easytest.internal.DateTimeFormat;
-
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import junit.framework.Assert;
+import org.easetech.easytest.internal.DateTimeFormat;
 import org.easetech.easytest.internal.EasyParamSignature;
-import org.easetech.easytest.util.GeneralUtil;
 import org.junit.experimental.theories.PotentialAssignment;
 
 /**
@@ -132,9 +128,6 @@ public class ConversionDelegator implements BaseConverter<List<Map<String, Objec
             if(potentialAssignments != null) {
                 break;
             }
-        }
-        if(potentialAssignments == null) {
-            Assert.fail("Unable to find any test data conversion strategy for parameter with name " + paramName + "and type "+ signature.getParameterType());
         }
         return potentialAssignments;
     }

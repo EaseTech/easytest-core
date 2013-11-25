@@ -1,116 +1,112 @@
+
 package org.easetech.easytest.runner;
 
-import org.easetech.easytest.annotation.Display;
-
 import java.util.ArrayList;
-
-import org.easetech.easytest.internal.SystemProperties;
-
-import org.easetech.easytest.reports.data.ReportDataContainer;
-
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import org.easetech.easytest.annotation.DataLoader;
+import org.easetech.easytest.annotation.Display;
 import org.easetech.easytest.annotation.Repeat;
+import org.easetech.easytest.annotation.TestPolicy;
+import org.easetech.easytest.internal.SystemProperties;
+import org.easetech.easytest.loader.DataConverter;
+import org.easetech.easytest.loader.DataLoaderUtil;
+import org.easetech.easytest.reports.data.ReportDataContainer;
 import org.easetech.easytest.reports.data.TestResultBean;
+import org.easetech.easytest.strategy.SchedulerStrategy;
 import org.easetech.easytest.util.DataContext;
 import org.junit.Assert;
-
-import org.easetech.easytest.annotation.DataLoader;
-import org.easetech.easytest.loader.DataConverter;
 import org.junit.Test;
-
-import org.junit.runners.model.TestClass;
-
-import java.util.List;
-
-import java.util.Map;
-import org.easetech.easytest.loader.DataLoaderUtil;
 import org.junit.runners.model.FrameworkMethod;
-
-import org.easetech.easytest.annotation.TestPolicy;
-import org.easetech.easytest.strategy.SchedulerStrategy;
-
 import org.junit.runners.model.RunnerScheduler;
+import org.junit.runners.model.TestClass;
 
 /**
  * A utility class that doctrines JUnit Runners to EasyTest Runners
- *
+ * 
  */
 public class RunnerUtil {
 
     public static RunnerScheduler getScheduler(Class<?> testClass) {
         RunnerScheduler scheduler = null;
         TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
+        if (testPolicy != null) {
             Class<?> policyClass = testPolicy.value();
-            scheduler = SchedulerStrategy.getScheduler(policyClass , false);
-            RunnerScheduler testClassScheduler = SchedulerStrategy.getScheduler(testClass , true);
-            if(testClassScheduler != null) {
+            scheduler = SchedulerStrategy.getScheduler(policyClass, false);
+            RunnerScheduler testClassScheduler = SchedulerStrategy.getScheduler(testClass, true);
+            if (testClassScheduler != null) {
                 scheduler = testClassScheduler;
             }
-            
+
         } else {
-            scheduler = SchedulerStrategy.getScheduler(testClass , false);
+            scheduler = SchedulerStrategy.getScheduler(testClass, false);
         }
         return scheduler;
     }
-    
+
     /**
-     * @param testClass 
+     * @param testClass
      * @see TestConfigUtil#loadTestBeanConfig(Class)
      */
     public static void loadBeanConfiguration(Class<?> testClass) {
         TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
+        if (testPolicy != null) {
             TestConfigUtil.loadTestBeanConfig(testPolicy.value());
         }
         TestConfigUtil.loadTestBeanConfig(testClass);
     }
-    
+
     /**
      * Load any class level test data
      * 
      * @see DataLoaderUtil#loadData(Class, FrameworkMethod, org.junit.runners.model.TestClass, Map)
      * @param klass
-     * @param testClass 
-     * @param writableData 
+     * @param testClass
+     * @param writableData
      */
-    public static void loadClassLevelData(Class<?> klass , TestClass testClass , Map<String, List<Map<String, Object>>> writableData) {
+    public static void loadClassLevelData(Class<?> klass, TestClass testClass,
+        Map<String, List<Map<String, Object>>> writableData) {
         TestPolicy testPolicy = testClass.getJavaClass().getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
+        if (testPolicy != null) {
             DataLoaderUtil.loadData(testPolicy.value(), null, testClass, writableData);
         }
         DataLoaderUtil.loadData(klass, null, testClass, writableData);
     }
-    
-    public static void categorizeTestMethods(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> methodsWithData , TestClass testClazz , Map<String, List<Map<String, Object>>> writableData) {
+
+    public static void categorizeTestMethods(List<FrameworkMethod> methodsWithNoData,
+        List<FrameworkMethod> methodsWithData, TestClass testClazz,
+        Map<String, List<Map<String, Object>>> writableData) {
         List<FrameworkMethod> availableMethods = testClazz.getAnnotatedMethods(Test.class);
 
         Class<?> testClass = testClazz.getJavaClass();
         for (FrameworkMethod method : availableMethods) {
+
             // Try loading the data if any at the method level
             if (method.getAnnotation(DataLoader.class) != null) {
                 DataLoaderUtil.loadData(null, method, testClazz, writableData);
                 methodsWithData.add(method);
             } else {
-                // Method does not have its own dataloader annotation
-                // Does method need input data ??
+
                 if (method.getMethod().getParameterTypes().length == 0) {
                     methodsWithNoData.add(method);
                 } else {
-                    // Does method have data already loaded?
-                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter
-                        .getFullyQualifiedTestName(method.getName(), testClass));
+                 // Does method have data already loaded?
+                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
+                        method.getName(), testClass));
                     if (methodDataLoaded) {
                         methodsWithData.add(method);
                     } else {
                         methodsWithNoData.add(method);
                     }
                 }
-            }           
+                
+            }
         }
     }
-    
-    public static void handleMethodsWithData(List<FrameworkMethod> methodsWithData, List<FrameworkMethod> finalList , TestClass testClazz , ReportDataContainer testReportContainer) {
+
+    public static void handleMethodsWithData(List<FrameworkMethod> methodsWithData, List<FrameworkMethod> finalList,
+        TestClass testClazz, ReportDataContainer testReportContainer) {
         Class<?> testClass = testClazz.getJavaClass();
         List<FrameworkMethod> availableMethods = testClazz.getAnnotatedMethods(Test.class);
         for (FrameworkMethod methodWithData : methodsWithData) {
@@ -122,7 +118,8 @@ public class RunnerUtil {
                     if (DataContext.getData() != null) {
                         methodData = DataContext.getData().get(superMethodName);
                     }
-                    if (methodData == null) {
+                    if (methodData == null || methodData.isEmpty()) {
+
                         Assert.fail("Method with name : " + superMethodName
                             + " expects some input test data. But there doesnt seem to be any test "
                             + "data for the given method. Please check the Test Data file for the method data. "
@@ -165,18 +162,19 @@ public class RunnerUtil {
             }
         }
     }
-    
+
     public static Integer getRepeatCount() {
         Integer count = null;
         String repeatCount = System.getProperty(SystemProperties.REPEAT_COUNT.getValue());
-        if(repeatCount != null) {
+        if (repeatCount != null) {
             count = Integer.valueOf(repeatCount);
         }
         return count;
-        
+
     }
-    
-    public static void handleMethodsWithNoData(List<FrameworkMethod> methodsWithNoData, List<FrameworkMethod> finalList , ReportDataContainer testReportContainer) {
+
+    public static void handleMethodsWithNoData(List<FrameworkMethod> methodsWithNoData,
+        List<FrameworkMethod> finalList, ReportDataContainer testReportContainer) {
         for (FrameworkMethod fMethod : methodsWithNoData) {
 
             Repeat repeatTests = fMethod.getAnnotation(Repeat.class);
@@ -201,17 +199,19 @@ public class RunnerUtil {
 
         }
     }
-    
-    public static List<FrameworkMethod> testMethods(TestClass testClazz , ReportDataContainer testReportContainer , Map<String, List<Map<String, Object>>> writableData) {
+
+
+    public static List<FrameworkMethod> testMethods(TestClass testClazz, ReportDataContainer testReportContainer,
+        Map<String, List<Map<String, Object>>> writableData) {
         List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
         categorizeTestMethods(methodsWithNoData, methodsWithData, testClazz, writableData);
         handleMethodsWithData(methodsWithData, finalList, testClazz, testReportContainer);
-        handleMethodsWithNoData(methodsWithNoData, finalList , testReportContainer);
+        handleMethodsWithNoData(methodsWithNoData, finalList, testReportContainer);
         return finalList;
     }
-    
+
     /**
      * Determine the right class loader to use to load the class
      * 
@@ -236,43 +236,44 @@ public class RunnerUtil {
         }
         return null;
     }
-    
-    public static String getTestName(final TestClass testClass , final FrameworkMethod method) {
+
+    public static String getTestName(final TestClass testClass, final FrameworkMethod method) {
         String testName = method.getName();
         Display methodDisplay = method.getMethod().getAnnotation(Display.class);
         Display classDisplay = testClass.getJavaClass().getAnnotation(Display.class);
         Display policyDisplay = null;
         TestPolicy testPolicy = testClass.getJavaClass().getAnnotation(TestPolicy.class);
-        if(testPolicy != null) {
+        if (testPolicy != null) {
             Class<?> policyClass = testPolicy.value();
             policyDisplay = policyClass.getAnnotation(Display.class);
         }
-        Display displayAnnotation = methodDisplay != null ? methodDisplay : classDisplay != null ? classDisplay : policyDisplay;
-            
-        if(displayAnnotation != null) {
+        Display displayAnnotation = methodDisplay != null ? methodDisplay : classDisplay != null ? classDisplay
+            : policyDisplay;
+
+        if (displayAnnotation != null) {
             StringBuilder fieldsToConcatenate = new StringBuilder("");
             String[] fields = displayAnnotation.fields();
-            EasyFrameworkMethod fMethod = (EasyFrameworkMethod)method;
-            Map<String , Object> testData = fMethod.getTestData();
-            if(testData != null) {
-                for(int i = 0 ; i < fields.length ; i++) {
+            EasyFrameworkMethod fMethod = (EasyFrameworkMethod) method;
+            Map<String, Object> testData = fMethod.getTestData();
+            if (testData != null) {
+                for (int i = 0; i < fields.length; i++) {
                     Object data = testData.get(fields[i]);
-                    if(data != null) {
+                    if (data != null) {
                         fieldsToConcatenate = fieldsToConcatenate.append(data.toString()).append(",");
                     }
                 }
-                
-                
-                if(!fieldsToConcatenate.toString().equals("")) {
-                    if(fieldsToConcatenate.lastIndexOf(",") > 0) {
+
+                if (!fieldsToConcatenate.toString().equals("")) {
+                    if (fieldsToConcatenate.lastIndexOf(",") > 0) {
                         fieldsToConcatenate = fieldsToConcatenate.deleteCharAt(fieldsToConcatenate.lastIndexOf(","));
                     }
-                    
-                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate.toString()).concat("}");
+
+                    testName = method.getMethod().getName().concat("{").concat(fieldsToConcatenate.toString())
+                        .concat("}");
                 }
-                
+
             }
-            
+
         }
 
         return String.format("%s", testName);

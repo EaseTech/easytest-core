@@ -82,9 +82,8 @@ public final class TestConfigUtil {
                     Object object = method.invoke(classInstance, params);
                     if (!(beanName.length() <= 0)) {
                         ConfigContext.setTestBeanByName(beanName, object);
-                    } else {
-                        ConfigContext.setTestBeanByType(beanType, object);
-                    }
+                    } 
+                    ConfigContext.setTestBeanByType(beanType, object);
                 }
             }
         }
