@@ -65,9 +65,8 @@ public class ReportExporter {
 	}
 	
 	public void printReport(JRDataSource dataSource, Map<String, Object> jasperParameters,
-			String destinationFolder, String name, EXPORT_FORMAT[] formats, REPORT_TYPE[] types) throws JRException, IOException {
-		for (REPORT_TYPE type: types) {
-			switch (type) {
+			String destinationFolder, String name, EXPORT_FORMAT[] formats, REPORT_TYPE type) throws JRException, IOException {
+		switch (type) {
 			case DEFAULT:
 				printDefaultReport(dataSource, jasperParameters, destinationFolder, name, formats);
 				break;
@@ -76,7 +75,6 @@ public class ReportExporter {
 				break;
 			default:
 				break;
-			}
 		}
 	}
 	
