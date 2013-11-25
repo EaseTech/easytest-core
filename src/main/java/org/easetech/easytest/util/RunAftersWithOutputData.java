@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.easetech.easytest.annotation.Report;
 import org.easetech.easytest.annotation.Report.EXPORT_FORMAT;
+import org.easetech.easytest.annotation.Report.REPORT_TYPE;
 import org.easetech.easytest.annotation.TestPolicy;
 import org.easetech.easytest.converter.ConverterManager;
 import org.easetech.easytest.internal.SystemProperties;
@@ -177,15 +178,17 @@ public class RunAftersWithOutputData extends Statement {
         		reportParameters = new ReportParametersBean(
         		    System.getProperty(SystemProperties.REPORT_FORMAT.getValue()),
         		    System.getProperty(SystemProperties.REPORT_LOCATION.getValue()),
-        		    System.getProperty(SystemProperties.REPORT_PACKAGES.getValue()));
+        		    System.getProperty(SystemProperties.REPORT_PACKAGES.getValue()),
+        		    System.getProperty(SystemProperties.REPORT_TYPE.getValue()));
         	} else if (annotation != null) {
-                reportParameters = new ReportParametersBean(annotation.outputFormats(), annotation.outputLocation());
+                reportParameters = new ReportParametersBean(annotation.outputFormats(), annotation.reportTypes(), annotation.outputLocation());
         	} else {
         		return null;
         	}
 
         	String rawOutputLocation = reportParameters.getOutputLocation();
         	EXPORT_FORMAT[] outputFormats = reportParameters.getOutputFormats();
+        	REPORT_TYPE[] reportTypes = reportParameters.getReportTypes();
 
             String absoluteLocation = CommonUtils.getAbsoluteLocation(rawOutputLocation);
             String outputLocation = CommonUtils.createFolder(absoluteLocation);
@@ -194,11 +197,11 @@ public class RunAftersWithOutputData extends Statement {
                 ExecutorService executor = Executors.newCachedThreadPool();
 
                 LOG.info("Writing reports to folder: {} ", outputLocation);
-                ReportRunner reportExecuter = new ReportRunner(testReportContainer, outputFormats,
+                ReportRunner reportExecuter = new ReportRunner(testReportContainer, outputFormats, reportTypes,
                         outputLocation);
                 submit = executor.submit(reportExecuter);
             } else {
-                LOG.error("Can't write reports. Report output location {} "
+                LOG.error("Can't write reports. Report output locatison {} "
                         + " can't be created.",  rawOutputLocation);
             }
         }

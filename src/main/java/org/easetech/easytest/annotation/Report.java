@@ -20,7 +20,11 @@ public @interface Report {
 	public enum EXPORT_FORMAT {
 		PDF, HTML, XLS
 	}
-	
+
+	public enum REPORT_TYPE {
+		DEFAULT, METHOD_DURATION //ALL, PERFORMANCE
+	}
+
 	/**
 	 * The output path where the reports should be written to. prefix with file:
 	 * will output to filesystem's directory prefix with classpath: will output
@@ -30,5 +34,8 @@ public @interface Report {
 
 	/** The output format. Defaults to PDF. */
 	EXPORT_FORMAT[] outputFormats() default { EXPORT_FORMAT.PDF };
+
+	/** The default report to be outputted */
+	REPORT_TYPE[] reportTypes() default { REPORT_TYPE.DEFAULT };
 
 }

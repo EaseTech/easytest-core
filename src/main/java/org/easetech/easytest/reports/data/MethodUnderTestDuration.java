@@ -1,13 +1,13 @@
 package org.easetech.easytest.reports.data;
 
 
-import java.lang.reflect.Method;
 import org.easetech.easytest.annotation.Duration;
 import org.easetech.easytest.annotation.Intercept;
+import java.lang.reflect.Method;
 
 /**
  * Class encapsulating the run information
- * of a particular method of a class that is being tested by a particular Test Methoid.
+ * of a particular method of a class that is being tested by a particular Test Method.
  * This class is instantiated when a user wants to intercept the calls to the methods
  *  of a class under test using {@link Intercept} or {@link Duration} annotation.
  *  

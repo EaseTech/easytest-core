@@ -12,10 +12,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -468,6 +471,38 @@ public class CommonUtils {
      */
     public static URI toURI(String location) throws URISyntaxException {
         return new URI(replace(location, " ", "%20"));
+    }
+
+    /**
+     * Paramterized method to sort Map e.g. HashMap or Hashtable in Java
+     * throw NullPointerException if Map contains null key
+     */
+	public static <K extends Comparable,V extends Comparable> Map<K,V> sortByKeys(Map<K,V> map){
+        List<K> keys = new LinkedList<K>(map.keySet());
+        Collections.sort(keys);
+
+        Map<K,V> sortedMap = new LinkedHashMap<K,V>();
+        for(K key: keys){
+            sortedMap.put(key, map.get(key));
+        }
+      
+        return sortedMap;
+    }
+    
+    /**
+     * Partitions the list into smaller chunks
+     * @param <T> genetic type
+     * @param originalList original list
+     * @param partitionSize partition size
+     * @return result lists
+     */
+    public static <T> List<List<T>> partitionList(List<T> originalList, int partitionSize) {
+    	List<List<T>> partitions = new LinkedList<List<T>>();
+    	for (int i = 0; i < originalList.size(); i += partitionSize) {
+    		partitions.add(originalList.subList(i,
+    				i + Math.min(partitionSize, originalList.size() - i)));
+    	}
+    	return partitions;
     }
 
 }
