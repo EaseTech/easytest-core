@@ -23,7 +23,6 @@ import org.easetech.easytest.annotation.TestConfigProvider;
 import org.easetech.easytest.annotation.TestProperties;
 import org.easetech.easytest.converter.Converter;
 import org.easetech.easytest.converter.ConverterManager;
-import org.easetech.easytest.exceptions.ParamAssertionError;
 import org.easetech.easytest.interceptor.Empty;
 import org.easetech.easytest.interceptor.InternalInterceptor;
 import org.easetech.easytest.interceptor.InternalInvocationhandler;
