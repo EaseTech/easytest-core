@@ -88,14 +88,19 @@ public class RunnerUtil {
                 methodsWithData.add(method);
             } else {
 
-                // Does method have data already loaded?
-                boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
-                    method.getName(), testClass));
-                if (methodDataLoaded) {
-                    methodsWithData.add(method);
-                } else {
+                if (method.getMethod().getParameterTypes().length == 0) {
                     methodsWithNoData.add(method);
+                } else {
+                 // Does method have data already loaded?
+                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
+                        method.getName(), testClass));
+                    if (methodDataLoaded) {
+                        methodsWithData.add(method);
+                    } else {
+                        methodsWithNoData.add(method);
+                    }
                 }
+                
             }
         }
     }
@@ -201,11 +206,9 @@ public class RunnerUtil {
         List<FrameworkMethod> finalList = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
         List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
-        //List<FrameworkMethod> methodsWithInjectAnnotation = new ArrayList<FrameworkMethod>();
         categorizeTestMethods(methodsWithNoData, methodsWithData, testClazz, writableData);
         handleMethodsWithData(methodsWithData, finalList, testClazz, testReportContainer);
         handleMethodsWithNoData(methodsWithNoData, finalList, testReportContainer);
-        //handleMethodsWithInjectAnnotation(methodsWithInjectAnnotation, finalList, testReportContainer);
         return finalList;
     }
 
