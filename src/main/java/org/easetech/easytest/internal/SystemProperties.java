@@ -32,6 +32,12 @@ public enum SystemProperties {
     
     /**
      * System Property that a user can set at runtime using the -D option, 
+     * to specify the report type (main report, method duration report)
+     */
+    REPORT_TYPE("reports.type"),
+    
+    /**
+     * System Property that a user can set at runtime using the -D option, 
      * to specify the report location.
      */
     REPORT_LOCATION("reports.location"),

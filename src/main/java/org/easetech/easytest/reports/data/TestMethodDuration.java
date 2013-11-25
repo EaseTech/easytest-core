@@ -103,7 +103,7 @@ public class TestMethodDuration implements Serializable {
 	 * @return rounded difference in ms
 	 */
 	public BigDecimal getRoundedMsDifference() {
-		return new BigDecimal((double) this.getNanoDifference() / NANO_TO_MILLI);
+		return new BigDecimal((double) getMsDifference());
 	}
 
 	@Override

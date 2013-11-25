@@ -37,9 +37,6 @@ public class ReportDataContainer {
 	 */
 	private List<MethodUnderTestDuration> durationList;
 
-	// TODO map method, list duration ??? This can also be obtained from the
-	// testresultbean list
-
 	/**
 	 * Private constructor Initializes the report data structures
 	 */
@@ -91,7 +88,6 @@ public class ReportDataContainer {
 
 	        this.testResults.add(testResult);
         }
-		
 	}
 
 	public List<TestResultBean> getTestResults() {
@@ -123,5 +119,12 @@ public class ReportDataContainer {
     public void setDurationList(List<MethodUnderTestDuration> durationList) {
         this.durationList = durationList;
     }
+    
+	@Override
+	public String toString() {
+		return "ReportDataContainer [testClass=" + testClass + ", testResults="
+				+ testResults + ", methodTestResults=" + methodTestResults
+				+ ", durationList=" + durationList + "]";
+	}
 
 }
