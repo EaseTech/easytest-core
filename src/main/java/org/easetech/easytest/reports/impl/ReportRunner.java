@@ -57,7 +57,12 @@ public class ReportRunner implements Callable<Boolean> {
 
 		JRDataSource reportDataSource;
 
+		Boolean returnValue = true;
+		
 		for (REPORT_TYPE type: types) {
+			if (returnValue == false) {
+				return false;
+			}
 			switch (type) {
 			case DEFAULT:
 				reportDataSource = reportBuilder.buildDefaultTestReport(reportParameters);
@@ -68,24 +73,25 @@ public class ReportRunner implements Callable<Boolean> {
 			default:
 				return false;
 			}
-			return printReportForType(reportParameters, reportDataSource);
+			returnValue = printReportForType(reportParameters, reportDataSource, type);
 		}
-		return false;
+		return returnValue;
 	}
 
 	/**
 	 * Print report for type (main report or method dureation report)
 	 * @param reportParameters report parameters
 	 * @param reportDataSource datasource
+	 * @param type report type
 	 * @return true if succeeded, false otherwise
 	 */
-	private boolean printReportForType(Map<String, Object> reportParameters, JRDataSource reportDataSource) {
+	private boolean printReportForType(Map<String, Object> reportParameters, JRDataSource reportDataSource, REPORT_TYPE type) {
 		String className = testReportContainer.getClassName();
 		reportParameters.put("TEST_CLASS_NAME", className);
 
 		try {
 			reportExporter.printReport(reportDataSource, reportParameters, destinationLocation, className,
-					formats, types);
+					formats, type);
 		} catch (JRException e) {
 			System.out.println(e);
 			e.printStackTrace();
