@@ -241,7 +241,7 @@ public class InternalParameterizedStatement extends Statement {
 
             }
             eachRunNotifier.addFailure(e);
-            reportParameterizedError(e, complete.getArgumentStrings(true));
+            throw e;
         } finally {
             eachRunNotifier.fireTestFinished();
         }
@@ -259,11 +259,7 @@ public class InternalParameterizedStatement extends Statement {
         fInvalidParameters.add(e);
     }
 
-    protected void reportParameterizedError(Throwable e, Object... params) throws Throwable {
-        if (params.length == 0)
-            throw e;
-        throw new ParamAssertionError(e, fTestMethod.getName(), params);
-    }
+    
 
     
 }
