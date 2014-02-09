@@ -13,6 +13,9 @@ import java.util.Properties;
  * When you use this annotation, be sure to provide a field of type {@link Properties} 
  * in the class on which the annotation is used. This property will be provided the value of the loaded Properties
  * at runtime by the framework.
+ * 
+ * NOTE: For the moment the annotation does not work properly at the class level. This is a known bug and will be fixed in a future release.
+ * 
  *
  *@author Anuj Kumar
  */
