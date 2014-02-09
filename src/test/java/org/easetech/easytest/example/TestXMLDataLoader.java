@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import org.junit.BeforeClass;
+
 import java.util.Properties;
 import org.easetech.easytest.annotation.DataLoader;
 import org.easetech.easytest.annotation.Param;
@@ -12,7 +14,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "input-data.xml" })
-@TestProperties({ "config.properties" })
+//@TestProperties({ "config.properties" })
 public class TestXMLDataLoader {
 
     /**
@@ -20,6 +22,14 @@ public class TestXMLDataLoader {
      */
     @TestProperties({ "anotherConfig.properties" })
     private Properties loadedProperties;
+    
+    private static Properties prop;
+    
+    @BeforeClass
+    public static void beforeClass() {
+        prop = new Properties();
+        prop.setProperty("key", "value");
+    }
 
     @Test
     public Item getItemsDataFromXMLLoader(@Param(name = "libraryId")
@@ -28,6 +38,7 @@ public class TestXMLDataLoader {
     String itemType, @Param(name = "globalParam")
     String globalParam, @Param(name = "expectedItems")
     String expectedItems) {
+        Assert.assertNotNull(prop);
         System.out.println("Print Property :" + loadedProperties.getProperty("simple.property"));
         System.out.print("Executing getItemsDataFromXMLLoader :");
         System.out.println("LibraryId :" + libraryId + " itemId : " + itemId + " itemType :" + itemType

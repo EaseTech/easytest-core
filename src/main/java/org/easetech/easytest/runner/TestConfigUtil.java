@@ -117,8 +117,9 @@ public final class TestConfigUtil {
                     TestProperties fieldResource = field.getAnnotation(TestProperties.class);
                     if (fieldResource != null) {
                         fieldProperties = getProperties(fieldResource, configClass);
+                        field.set(classInstance, fieldProperties != null ? fieldProperties : properties);
                     }
-                    field.set(classInstance, fieldProperties != null ? fieldProperties : properties);
+                    
 
                 } catch (Exception e) {
                     LOG.error(
