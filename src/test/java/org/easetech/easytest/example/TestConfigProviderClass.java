@@ -6,9 +6,10 @@ import org.easetech.easytest.annotation.TestProperties;
 import org.junit.Ignore;
 
 @Ignore
-@TestProperties({"config.properties", "anotherConfig.properties"})
+
 public class TestConfigProviderClass {
     
+    @TestProperties({"config.properties", "anotherConfig.properties"})
     private Properties props;
     
     @TestBean("itemService") public RealItemService itemService(){
