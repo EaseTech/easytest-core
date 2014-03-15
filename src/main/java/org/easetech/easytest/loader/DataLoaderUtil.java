@@ -239,9 +239,9 @@ public final class DataLoaderUtil {
                     // implies that there exists a CUSTOM loader that loads the data using Java classes
                     Map<String, List<Map<String, Object>>> data = dataLoader.loadData(new EmptyResource());
                     // We also maintain the copy of the actual data for our write functionality.
-                    writableData.putAll(data);
-                    DataContext.setData(DataConverter.appendClassName(data, currentTestClass.getJavaClass()));
-                    DataContext.setConvertedData(DataConverter.convert(data, currentTestClass.getJavaClass()));
+                    fillWritableData(writableData , data , testData.appendData());
+                    DataContext.setData(DataConverter.appendClassName(data, currentTestClass.getJavaClass()), testData.appendData());
+                    DataContext.setConvertedData(DataConverter.convert(data, currentTestClass.getJavaClass()) , testData.appendData());
                 } else {
                     ResourceLoader resourceLoader = new ResourceLoaderStrategy(currentTestClass.getJavaClass());
                     for (String filePath : testInfo.getFilePaths()) {
@@ -250,11 +250,11 @@ public final class DataLoaderUtil {
                             if (resource.exists()) {
                                 Map<String, List<Map<String, Object>>> data = dataLoader.loadData(resource);
                                 // We also maintain the copy of the actual data for our write functionality.
-                                writableData.putAll(data);
+                                fillWritableData(writableData , data , testData.appendData());
                                 DataContext
-                                    .setData(DataConverter.appendClassName(data, currentTestClass.getJavaClass()));
+                                    .setData(DataConverter.appendClassName(data, currentTestClass.getJavaClass()), testData.appendData());
                                 DataContext.setConvertedData(DataConverter.convert(data,
-                                    currentTestClass.getJavaClass()));
+                                    currentTestClass.getJavaClass()), testData.appendData());
                             } else {
                                 LOG.warn(
                                     "Resource {} does not exists in the specified path. If it is a classpath resource, use 'classpath:' "
@@ -266,6 +266,22 @@ public final class DataLoaderUtil {
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    private static void fillWritableData(Map<String, List<Map<String, Object>>> writableData , Map<String, List<Map<String, Object>>> availableData, boolean appendData) {
+        if(!appendData) {
+            writableData.putAll(availableData);
+        } else {
+            for(String key : availableData.keySet()) {
+                List<Map<String,Object>> newData = writableData.get(key);
+                if(newData != null) {
+                    newData.addAll(availableData.get(key));
+                } else {
+                    newData = availableData.get(key);
+                }
+                writableData.put(key, newData);
             }
         }
     }

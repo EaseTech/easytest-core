@@ -78,5 +78,12 @@ public @interface DataLoader {
      * Default behavior is that the data will be written back to the file.
      */
     boolean writeData() default true;
+    
+    /**
+     * Boolean identifying whether data specified in two different files for the same method
+     * should be appended or replaced. Default behavior is to replace the data present in one file from the other
+     * @return whether data should be appended or not
+     */
+    boolean appendData() default false;
 
 }

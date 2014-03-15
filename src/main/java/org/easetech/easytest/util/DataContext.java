@@ -58,14 +58,27 @@ public final class DataContext {
      * Note that this is different from {@link #setConvertedData(Map)} in the sense that the method name does not have the attributes at the end.
      * 
      */
-    public static void setData(Map<String, List<Map<String , Object>>> data) {
+    public static void setData(Map<String, List<Map<String , Object>>> data , Boolean appendData) {
         Map<String, List<Map<String , Object>>> testData = dataContextThreadLocal.get();
         if(testData == null || testData.isEmpty()){
             dataContextThreadLocal.set(data);
         }else{  
-            for(String key : data.keySet()){  
-                testData.put(key, data.get(key));
+            if(appendData) {
+                for(String key : data.keySet()){  
+                    List<Map<String,Object>> availableData = testData.get(key);
+                    if(availableData != null) {
+                        availableData.addAll(data.get(key));
+                    } else {
+                        availableData = data.get(key);
+                    }
+                    testData.put(key, availableData);
+                }
+            } else {
+                for(String key : data.keySet()){  
+                    testData.put(key, data.get(key));
+                }
             }
+            
             dataContextThreadLocal.set(testData);
         }
         
@@ -92,28 +105,37 @@ public final class DataContext {
      * actualData.put("org.easetech.easytest.example.TestExcelDataLoader:getExcelTestDataWithDouble{libraryId=0009, itemId=0008}" , Collections.singletonList(attributeData));
      * </code>
      */
-    public static void setConvertedData(Map<String, List<Map<String , Object>>> data) {
+    public static void setConvertedData(Map<String, List<Map<String , Object>>> data , Boolean appendData) {
         Map<String, List<Map<String , Object>>> testData = convertedDataThreadLocal.get();
         if(testData == null || testData.isEmpty()){
             convertedDataThreadLocal.set(data);
         }else{ 
-            boolean removedOldKeys = false;
-            for(String key : data.keySet()){
-                if(!removedOldKeys){
-                    String newKeyMethod = key.substring(0 , key.indexOf("{"));
-                    Iterator<Map.Entry<String,List<Map<String,Object>>>> testDataItr = testData.entrySet().iterator();
-                    while(testDataItr.hasNext()){
-                        Map.Entry<String,List<Map<String,Object>>> entry = testDataItr.next();
-                        String oldKey = entry.getKey();
-                        String oldKeyMethod = oldKey.substring(0 , oldKey.indexOf("{"));
-                        if(oldKeyMethod.equals(newKeyMethod)){
-                            testDataItr.remove();                        
-                        }
-                        removedOldKeys = true;
-                    }
+            if(appendData) {
+                for (String key : data.keySet()) {
+                    testData.put(key, data.get(key));
                 }
-                testData.put(key, data.get(key));
+                
             }
+            else {
+                boolean removedOldKeys = false;
+                for(String key : data.keySet()){
+                    if(!removedOldKeys){
+                        String newKeyMethod = key.substring(0 , key.indexOf("{"));
+                        Iterator<Map.Entry<String,List<Map<String,Object>>>> testDataItr = testData.entrySet().iterator();
+                        while(testDataItr.hasNext()){
+                            Map.Entry<String,List<Map<String,Object>>> entry = testDataItr.next();
+                            String oldKey = entry.getKey();
+                            String oldKeyMethod = oldKey.substring(0 , oldKey.indexOf("{"));
+                            if(oldKeyMethod.equals(newKeyMethod)){
+                                testDataItr.remove();                        
+                            }
+                            removedOldKeys = true;
+                        }
+                    }
+                    testData.put(key, data.get(key));
+                }
+            }
+            
             convertedDataThreadLocal.set(testData);
         }
         
