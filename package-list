@@ -10,4 +10,5 @@ org.easetech.easytest.reports.data
 org.easetech.easytest.reports.impl
 org.easetech.easytest.reports.utils
 org.easetech.easytest.runner
+org.easetech.easytest.strategy
 org.easetech.easytest.util
