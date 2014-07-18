@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * A Class level annotation used to identify the Test Configuration provider class.
+ * This annotation is used right at the place where RunWith annotation is used.
  *
  *@author Anuj Kumar
  */

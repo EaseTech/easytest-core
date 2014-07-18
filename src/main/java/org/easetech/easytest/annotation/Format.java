@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation that can be used by the user to specify various formating options to be used by EasyTest while 
- * converting the raw data to a specific object.
+ * converting the raw data to a specific object. Currently user has the option to specify the format of date, time and datetime type fields.
  *  
  * @author Anuj Kumar
  */

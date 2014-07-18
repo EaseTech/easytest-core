@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import org.easetech.easytest.annotation.Provided;
 
 /**
- * implementation of the {@link InvocationHandler} interface for internal usage.
+ * Implementation of the {@link InvocationHandler} interface for internal usage.
  * This is used when the user has {@link Provided} annotation on a field whose type is an Interface.
  * EasyTest uses JDK dynamic proxies to intercept calls to the method on Interface type fields.
  * For Concrete classes, EasyTest uses CGLIB.

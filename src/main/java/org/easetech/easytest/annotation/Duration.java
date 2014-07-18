@@ -11,7 +11,7 @@ import org.easetech.easytest.interceptor.MethodIntercepter;
 
 /**
  * Duration is similar to {@link Intercept} annotation in that it intercepts the call to the methods
- * of the Class that it is annotating. But it has got extra attributes for the user to specify the 
+ * of the Class annotated with Duration annotation. But it has got extra attributes for the user to specify the 
  * maximum duration a method under test should take to execute.
  * If the total time taken by the method exceeds the time specified (using the attribute <i><b>timeInMillis</b></i>),
  * the test method will fail.

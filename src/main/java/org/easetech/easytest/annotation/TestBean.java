@@ -7,6 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * A Method level annotation to identify a test bean.
+ * Since EasyTest supports Inversion of Control, A user can specify 
+ * his test beans in a config class and use the Injection mechanism of easytest to inject these test beans in the test classes.
+ * Look at {@link Provided} annotation for details. These beans should be defined in the class that is identified by the {@link TestConfigProvider}
  * 
  * @author Anuj Kumar
  *

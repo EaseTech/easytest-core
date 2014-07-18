@@ -421,6 +421,12 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         Field field, Object testInstance) throws IllegalArgumentException, IllegalAccessException,
         InstantiationException {
         Object fieldInstance = field.get(testInstance);
+        if(fieldInstance == null) {
+            Assert.fail("Unable to get the instance value of field :" + field.getName() + 
+                ". Are you injecting the field using dependency injection support of Easytest? " +
+            		"Then, please check that the bean is configured in the configuration file. " +
+            		"If the problem persist, please contact anujkumar@easetech.org");
+        }
         Object targetInstance = null;
 
         Object proxiedObject = null;
