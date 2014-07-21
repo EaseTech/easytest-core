@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.loader;
 
+import java.util.ArrayList;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -275,12 +277,12 @@ public final class DataLoaderUtil {
             writableData.putAll(availableData);
         } else {
             for(String key : availableData.keySet()) {
-                List<Map<String,Object>> newData = writableData.get(key);
-                if(newData != null) {
-                    newData.addAll(availableData.get(key));
-                } else {
-                    newData = availableData.get(key);
+                List<Map<String,Object>> newData = new ArrayList<Map<String,Object>>();
+                if(writableData.get(key) != null) {
+                    newData.addAll(writableData.get(key));
                 }
+                newData.addAll(availableData.get(key));
+                
                 writableData.put(key, newData);
             }
         }
