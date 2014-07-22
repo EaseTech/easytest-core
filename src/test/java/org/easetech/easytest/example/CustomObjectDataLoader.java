@@ -19,9 +19,14 @@ public class CustomObjectDataLoader implements Loader {
     public Map<String, List<Map<String, Object>>> loadData(Resource resource) {
         Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("LibraryId", new LibraryId(1L));
-        list.add(map);
+        Map<String, Object> map1 = new HashMap<String, Object>();
+        Map<String, Object> map2 = new HashMap<String, Object>();
+        Item item1 = new Item (1, "Item1");
+        Item item2= new Item (1, "Item2");
+        map1.put("Item", item1);
+        map2.put("Item", item2);
+        list.add(map1);
+        list.add(map2);
         result.put("testGetItemsWithCustomLoader", list);
         return result;
     }

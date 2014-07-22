@@ -8,6 +8,15 @@ public class Item {
     private String itemType;
 
     private ItemId itemId;
+    
+    public Item() {
+        
+    }
+    
+    public Item(long itemId , String itemType) {
+        this.itemId = new ItemId(itemId);
+        this.itemType = itemType;
+    }
 
     /**
      * @return the description

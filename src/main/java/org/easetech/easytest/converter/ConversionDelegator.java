@@ -87,15 +87,15 @@ public class ConversionDelegator implements BaseConverter<List<Map<String, Objec
      */
     public ConversionDelegator(EasyParamSignature signature, String paramName , Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat) {
         this.signature = signature;
-        this.paramName = paramName;
-        converters.put(DATA_ALREADY_CONVERTED_CONVERTER, new DataAlreadyConvertedConverter(signature.getParameterType(), paramName, convertEmptyToNull));
+        this.paramName = paramName == null ? signature.getParameterType().getSimpleName() : paramName;
+        converters.put(DATA_ALREADY_CONVERTED_CONVERTER, new DataAlreadyConvertedConverter(signature.getParameterType(), this.paramName, convertEmptyToNull));
         converters.put(MAP_OBJECT_CONVERTER, new MapConverter(signature.getParameterType()));
-        converters.put(COLLECTIONS_CONVERTER, new CollectionConverter(signature, paramName , convertEmptyToNull , dateTimeFormat));
-        converters.put(STANDARD_OBJECT_CONVERTER, new StandardObjectConverter(signature.getParameterType(), paramName , convertEmptyToNull , dateTimeFormat));
-        converters.put(PROPERTY_EDITOR_CONVERTER, new PropertyEditorConverter(signature.getParameterType(), paramName));
-        converters.put(USER_DEFINED_CONVERTER, new UserDefinedConverter(signature.getParameterType(), paramName , convertEmptyToNull , dateTimeFormat));
-        converters.put(JSON_DATA_CONVERTER, new JSONDataConverter(signature.getParameterType(), paramName));
-        converters.put(PARAM_CONSTRUCTOR_CONVERTER, new ParamConstructorConverter(signature.getParameterType(), paramName , null , convertEmptyToNull , dateTimeFormat));
+        converters.put(COLLECTIONS_CONVERTER, new CollectionConverter(signature, this.paramName , convertEmptyToNull , dateTimeFormat));
+        converters.put(STANDARD_OBJECT_CONVERTER, new StandardObjectConverter(signature.getParameterType(), this.paramName , convertEmptyToNull , dateTimeFormat));
+        converters.put(PROPERTY_EDITOR_CONVERTER, new PropertyEditorConverter(signature.getParameterType(), this.paramName));
+        converters.put(USER_DEFINED_CONVERTER, new UserDefinedConverter(signature.getParameterType(), this.paramName , convertEmptyToNull , dateTimeFormat));
+        converters.put(JSON_DATA_CONVERTER, new JSONDataConverter(signature.getParameterType(), this.paramName));
+        converters.put(PARAM_CONSTRUCTOR_CONVERTER, new ParamConstructorConverter(signature.getParameterType(), this.paramName , null , convertEmptyToNull , dateTimeFormat));
         
     }
     
@@ -109,7 +109,7 @@ public class ConversionDelegator implements BaseConverter<List<Map<String, Objec
      */
     public ConversionDelegator(EasyParamSignature signature, String paramName, LinkedHashMap<String , BaseConverter<List<Map<String, Object>>, List<PotentialAssignment>>> converters) {
         this.signature = signature;
-        this.paramName = paramName;
+        this.paramName = paramName == null ? signature.getParameterType().getSimpleName() : paramName;
         this.converters.putAll(converters);
         
         
