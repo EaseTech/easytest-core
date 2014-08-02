@@ -1,6 +1,7 @@
 package org.easetech.easytest.runner;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import org.easetech.easytest.annotation.Repeat;
 import org.easetech.easytest.reports.data.TestResultBean;
@@ -12,6 +13,22 @@ import org.junit.runners.model.FrameworkMethod;
  *
  */
 public class EasyFrameworkMethod extends FrameworkMethod {
+    
+    private List<EasyFrameworkMethod> childMethods;
+
+    /**
+     * @return the childMethods
+     */
+    public List<EasyFrameworkMethod> getChildMethods() {
+        return childMethods;
+    }
+
+    /**
+     * @param childMethods the childMethods to set
+     */
+    public void setChildMethods(List<EasyFrameworkMethod> childMethods) {
+        this.childMethods = childMethods;
+    }
 
     /**
      * The name of the method

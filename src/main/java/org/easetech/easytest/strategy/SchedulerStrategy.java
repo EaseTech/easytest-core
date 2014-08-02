@@ -38,7 +38,7 @@ public class SchedulerStrategy {
             if (parallelThreads <= 0) {
                 return new ParallelScheduler();
             } else {
-                return new ParallelScheduler(parallelAnnotation.threads());
+                return new ParallelScheduler(parallelThreads);
             }
         } else {
             if (parallelAnnotation != null) {

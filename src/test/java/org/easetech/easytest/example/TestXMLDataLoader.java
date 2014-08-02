@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.example;
 
+import org.easetech.easytest.annotation.Report;
+
 import org.junit.BeforeClass;
 
 import java.util.Properties;
@@ -15,6 +17,7 @@ import org.junit.runner.RunWith;
 @RunWith(DataDrivenTestRunner.class)
 @DataLoader(filePaths = { "input-data.xml" })
 //@TestProperties({ "config.properties" })
+@Report(outputFormats={Report.EXPORT_FORMAT.PDF, Report.EXPORT_FORMAT.HTML}, reportTypes={Report.REPORT_TYPE.DEFAULT, Report.REPORT_TYPE.METHOD_DURATION},outputLocation="file:/Users/anuj/reports")
 public class TestXMLDataLoader {
 
     /**

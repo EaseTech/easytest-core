@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class InternalParameterizedStatement extends Statement {
+    
+    private final Statement originalStatement;
 
     /**
      * An instance of logger associated with the test framework.
@@ -75,13 +77,14 @@ public class InternalParameterizedStatement extends Statement {
      */
     private Object testInstance;
 
-    public InternalParameterizedStatement(EasyFrameworkMethod fTestMethod,
+    public InternalParameterizedStatement(Statement originalStatement, EasyFrameworkMethod fTestMethod,
         
         TestClass testClass, Object testInstance) {
         this.fTestMethod = fTestMethod;
         this.listOfAssignments = new ArrayList<EasyAssignments>();
         this.fTestClass = testClass;
         this.testInstance = testInstance;
+        this.originalStatement = originalStatement;
 
     }
 
@@ -90,7 +93,11 @@ public class InternalParameterizedStatement extends Statement {
     }
 
     public void evaluate() throws Throwable {
+        if(originalStatement != null) {
+            originalStatement.evaluate();
+        }
         runWithAssignment(EasyAssignments.allUnassigned(fTestMethod.getMethod(), getTestClass()));
+        
         
     }
 

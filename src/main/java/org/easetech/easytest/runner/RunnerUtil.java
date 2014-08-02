@@ -1,6 +1,8 @@
 
 package org.easetech.easytest.runner;
 
+import org.easetech.easytest.annotation.PreserveContext;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,8 +77,7 @@ public class RunnerUtil {
     }
 
     public static void categorizeTestMethods(List<FrameworkMethod> methodsWithNoData,
-        List<FrameworkMethod> methodsWithData, TestClass testClazz,
-        Map<String, List<Map<String, Object>>> writableData) {
+        List<FrameworkMethod> methodsWithData, TestClass testClazz, Map<String, List<Map<String, Object>>> writableData) {
         List<FrameworkMethod> availableMethods = testClazz.getAnnotatedMethods(Test.class);
 
         Class<?> testClass = testClazz.getJavaClass();
@@ -91,16 +92,16 @@ public class RunnerUtil {
                 if (method.getMethod().getParameterTypes().length == 0) {
                     methodsWithNoData.add(method);
                 } else {
-                 // Does method have data already loaded?
-                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
-                        method.getName(), testClass));
+                    // Does method have data already loaded?
+                    boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter
+                        .getFullyQualifiedTestName(method.getName(), testClass));
                     if (methodDataLoaded) {
                         methodsWithData.add(method);
                     } else {
                         methodsWithNoData.add(method);
                     }
                 }
-                
+
             }
         }
     }
@@ -126,30 +127,85 @@ public class RunnerUtil {
                             + "Possible cause could be that the data did not get loaded at all from the file "
                             + "or a spelling mismatch in the method name. Check logs for more details.");
                     }
+                    Boolean runInContext = false;
+                    PreserveContext preserveContext = method.getAnnotation(PreserveContext.class);
+                    if(preserveContext != null) {
+                        runInContext = preserveContext.value();
+                    }
+                    
+                    Boolean isParent = true;
+                    EasyFrameworkMethod parentMethod = null;
                     for (Map<String, Object> testData : methodData) {
-                        Repeat repeatTests = method.getAnnotation(Repeat.class);
-                        if (repeatTests != null || getRepeatCount() != null) {
-                            int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
-                            for (int count = 0; count < repeatCount; count++) {
+                        if (runInContext) {
+                            Repeat repeatTests = method.getAnnotation(Repeat.class);
+                            if (repeatTests != null || getRepeatCount() != null) {
+                                int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
+                                for (int count = 0; count < repeatCount; count++) {
+                                    TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod()
+                                        .getName(), new Date());
+                                    testReportContainer.addTestResult(testResultBean);
+                                    // Create a new FrameworkMethod for each set of test data
+                                    EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(),
+                                        testData, testResultBean, method.getName().concat(testData.toString()));
+                                    easyMethod.setName(method.getName().concat("_").concat(String.valueOf(count))
+                                        .concat(testData.toString()));
+                                    if (isParent) {
+                                        List<EasyFrameworkMethod> childMethods = new ArrayList<EasyFrameworkMethod>();
+                                        easyMethod.setChildMethods(childMethods);
+                                        finalList.add(easyMethod);
+                                        isParent = false;
+                                        parentMethod = easyMethod;
+                                    } else {
+                                        parentMethod.getChildMethods().add(easyMethod);
+                                    }
+
+                                }
+                            } else {
                                 TestResultBean testResultBean = new TestResultBean(
                                     methodWithData.getMethod().getName(), new Date());
                                 testReportContainer.addTestResult(testResultBean);
                                 // Create a new FrameworkMethod for each set of test data
                                 EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
                                     testResultBean, method.getName().concat(testData.toString()));
-                                easyMethod.setName(method.getName().concat("_").concat(String.valueOf(count))
-                                    .concat(testData.toString()));
-                                finalList.add(easyMethod);
+                                easyMethod.setName(method.getName().concat(testData.toString()));
+                                // finalList.add(easyMethod);
+                                if (isParent) {
+                                    List<EasyFrameworkMethod> childMethods = new ArrayList<EasyFrameworkMethod>();
+                                    easyMethod.setChildMethods(childMethods);
+                                    isParent = false;
+                                    finalList.add(easyMethod);
+                                    parentMethod = easyMethod;
+                                } else {
+                                    parentMethod.getChildMethods().add(easyMethod);
+
+                                    // finalList.add(easyMethod);
+                                }
                             }
                         } else {
-                            TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod().getName(),
-                                new Date());
-                            testReportContainer.addTestResult(testResultBean);
-                            // Create a new FrameworkMethod for each set of test data
-                            EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
-                                testResultBean, method.getName().concat(testData.toString()));
-                            easyMethod.setName(method.getName().concat(testData.toString()));
-                            finalList.add(easyMethod);
+                            Repeat repeatTests = method.getAnnotation(Repeat.class);
+                            if (repeatTests != null || getRepeatCount() != null) {
+                                int repeatCount = getRepeatCount() != null ? getRepeatCount() : repeatTests.times();
+                                for (int count = 0; count < repeatCount; count++) {
+                                    TestResultBean testResultBean = new TestResultBean(methodWithData.getMethod()
+                                        .getName(), new Date());
+                                    testReportContainer.addTestResult(testResultBean);
+                                    // Create a new FrameworkMethod for each set of test data
+                                    EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(),
+                                        testData, testResultBean, method.getName().concat(testData.toString()));
+                                    easyMethod.setName(method.getName().concat("_").concat(String.valueOf(count))
+                                        .concat(testData.toString()));
+                                    finalList.add(easyMethod);
+                                }
+                            } else {
+                                TestResultBean testResultBean = new TestResultBean(
+                                    methodWithData.getMethod().getName(), new Date());
+                                testReportContainer.addTestResult(testResultBean);
+                                // Create a new FrameworkMethod for each set of test data
+                                EasyFrameworkMethod easyMethod = new EasyFrameworkMethod(method.getMethod(), testData,
+                                    testResultBean, method.getName().concat(testData.toString()));
+                                easyMethod.setName(method.getName().concat(testData.toString()));
+                                finalList.add(easyMethod);
+                            }
                         }
 
                     }
@@ -199,7 +255,6 @@ public class RunnerUtil {
 
         }
     }
-
 
     public static List<FrameworkMethod> testMethods(TestClass testClazz, ReportDataContainer testReportContainer,
         Map<String, List<Map<String, Object>>> writableData) {

@@ -378,6 +378,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
      */
     protected Statement methodInvoker(FrameworkMethod method, Object testInstance) {
         registerConverter(method.getAnnotation(Converters.class));
+        
         if (method.getAnnotation(Duration.class) != null) {
             try {
                 handleDuration(method, testInstance);
@@ -389,7 +390,23 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
                 throw new RuntimeException(e);
             }
         }
-        return new InternalParameterizedStatement((EasyFrameworkMethod) method, getTestClass(), testInstance);
+        Statement statement = new InternalParameterizedStatement(null, (EasyFrameworkMethod) method, getTestClass(), testInstance);
+        
+        if(((EasyFrameworkMethod)method).getChildMethods()!= null && !((EasyFrameworkMethod)method).getChildMethods().isEmpty()) {
+            for(EasyFrameworkMethod childMethod : ((EasyFrameworkMethod)method).getChildMethods()) {
+                try {
+                    handleDuration(childMethod, testInstance);
+                } catch (IllegalArgumentException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                } catch (InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+                statement = new InternalParameterizedStatement(statement, childMethod, getTestClass(), testInstance);
+            }
+        }
+        return statement;
     }
 
     private void handleDuration(FrameworkMethod method, Object testInstance) throws IllegalArgumentException,
