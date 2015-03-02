@@ -1,6 +1,16 @@
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
-An updated version of EasyTest Core(1.2.7) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+An updated version of EasyTest Core(1.3.2) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
+
+What's new in Version 1.3.2
+---------------------------
+* [appendData](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/DataLoader.java) attribute in DataLoader annotation to optionally specify whether data specified in two different files for the same method be appended or replaced.
+* A complete rewrite of the Framework to be faster and easier to work with. Advanced Users can now easily debug the source code as it is modularized and separated out cleanly.
+* [Intercept](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/Intercept.java) annotation. A field level annotation that can be used to intercept calls to methods within the class that is under test.
+* [PreserveContext](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/PreserveContext.java) Method level annotation tat can be used to specify whther the context of the test should be preserved between test runs. The default value is true.
+* Bug fixes
+
+For a more indepth into the new features or for any queries, please contact anujkumar@easetech.org
 
 What's new in Version 1.2.7
 ---------------------------
