@@ -2,6 +2,8 @@ EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
 An updated version of EasyTest Core(1.3.2) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
 
+[Some of the companies using Easytest](https://github.com/EaseTech/easytest-core/wiki/Clients-of-EasyTest-Framework)
+
 What's new in Version 1.3.2
 ---------------------------
 * [appendData](https://github.com/EaseTech/easytest-core/blob/master/src/main/java/org/easetech/easytest/annotation/DataLoader.java) attribute in DataLoader annotation to optionally specify whether data specified in two different files for the same method be appended or replaced.
