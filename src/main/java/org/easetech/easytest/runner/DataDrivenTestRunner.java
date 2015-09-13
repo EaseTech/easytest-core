@@ -221,6 +221,17 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         }
     }
 
+    
+    /**
+     * Overridden to avoid any caching of method description as it was interfering with the way EasyTest behaved.
+     */
+    @Override
+    protected Description describeChild(FrameworkMethod method) {
+    	return Description.createTestDescription(getTestClass().getJavaClass(),
+                testName(method), method.getAnnotations());
+
+    }
+    
     private boolean shouldRun(Filter filter, FrameworkMethod each) {
         return filter.shouldRun(describeFiltarableChild(each));
     }
