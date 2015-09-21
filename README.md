@@ -3,7 +3,7 @@ EasyTest Core Module: A Data Driven Testing approach to JUnit
 An updated version of EasyTest Core(1.4.0) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
 
 [Some of the companies using Easytest](https://github.com/EaseTech/easytest-core/wiki/Clients-of-EasyTest-Framework)
-Quick Links to EasyTest
+Quick Links to EasyTest Documentation
 -----------------------
 
 #### [EasyTest Introduction](https://github.com/EaseTech/easytest/wiki/EasyTest-:-An-Introduction) 
