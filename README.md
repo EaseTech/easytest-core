@@ -3,6 +3,19 @@ EasyTest Core Module: A Data Driven Testing approach to JUnit
 An updated version of EasyTest Core(1.4.0) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
 
 [Some of the companies using Easytest](https://github.com/EaseTech/easytest-core/wiki/Clients-of-EasyTest-Framework)
+Quick Links to EasyTest
+-----------------------
+
+#### [EasyTest Introduction](https://github.com/EaseTech/easytest/wiki/EasyTest-:-An-Introduction) 
+#### [Load data using CSV](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Loading-Data-using-CSV-file)
+#### [Load data using XML](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Loading-Data-using-XML)
+#### [Load data using Excel](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Loading-Data-using-Excel)
+#### [EasyTest Spring Support](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Spring-Integration)
+#### [Intercepting method calls](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-@Intercept-and-@SpringIntercept-annotation)
+#### [@Param annotation and passing parameters to test method](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-@Param-annotation)
+#### [Complex objects as parameters and Converters support](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-Converters-Support)
+#### [Property Editors Support](https://github.com/EaseTech/easytest/wiki/EasyTest-:-Understanding-Property-Editor-Support)
+####[JSON Support in EasyTest](https://github.com/EaseTech/easytest-core/wiki/Passing-JSON-Object-in-test-data)
 
 What's new in Version 1.4.0
 ---------------------------
