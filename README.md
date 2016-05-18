@@ -1,3 +1,5 @@
+EasyTest is an actively maintained project. If you have any questions/queries please either log an issue or mail anujkumar@easetech.org
+
 EasyTest Core Module: A Data Driven Testing approach to JUnit
 ------------------------------------------------------------------------------------------------------
 An updated version of EasyTest Core(1.4.0) module is now available in [Maven Central Repository](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.easetech%22%20AND%20a%3A%22easytest-core%22)
