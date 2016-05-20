@@ -625,7 +625,7 @@ public class GeneralUtil {
     public static Boolean populateJSONData(Class<?> idClass, List<Map<String, Object>> convertFrom,
         List<PotentialAssignment> potentialAssignments, String paramName){
         Boolean result = false;
-        Object value = null;
+        Object value;
         for (Map<String, Object> object : convertFrom) {
             if (paramName != null && !EMPTY_STRING.equals(paramName)){
                 value = object.get(paramName);
@@ -732,7 +732,6 @@ public class GeneralUtil {
                 } else {
                     fillData(idClass, object, paramName, constructor, finalData, argType, convertEmptyToNull , dateTimeFormat);
                 }
-
             }
             return true;
         } else {
@@ -745,8 +744,8 @@ public class GeneralUtil {
     private static <T> void fillCollectionData(Class<?> idClass, Map<String, Object> object, String paramName,
         Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Collection collectionInstance, Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Object result = null;
-        T target = null;
+        Object result;
+        T target;
 
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
             String[] strValues = ((String) object.get(paramName)).split(COLON);
@@ -771,8 +770,8 @@ public class GeneralUtil {
     private static <T> void fillData(Class<?> idClass, Map<String, Object> object, String paramName,
         Constructor constructor, List<PotentialAssignment> finalData, Class<T> argType, Boolean convertEmptyToNull , DateTimeFormat dateTimeFormat)
         throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Object result = null;
-        T target = null;
+        Object result;
+        T target;
 
         if (paramName != null && !EMPTY_STRING.equals(paramName)) {
             target = (T) GeneralUtil.convertToTargetType(argType, object.get(paramName), convertEmptyToNull, dateTimeFormat);

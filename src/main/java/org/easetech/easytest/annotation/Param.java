@@ -176,7 +176,7 @@ public @interface Param {
             List<PotentialAssignment> listOfData = null; 
             Map<String, List<Map<String, Object>>> data = DataContext.getConvertedData();
             List<Map<String, Object>> methodData = data.get(testMethodName);
-            List<PotentialAssignment> listOfDataWithInject = null;
+            List<PotentialAssignment> listOfDataWithInject;
             if (methodData == null && injectData(method)) {
                 listOfDataWithInject = handleMethodInjection(method, signature);
                 if(listOfDataWithInject != null) {
@@ -236,7 +236,7 @@ public @interface Param {
                 // Check if it is Named wiring
                 Named namedInjection = signature.getAnnotation(Named.class);
                 String providerBeanName = null;
-                Object beanInstance = null;
+                Object beanInstance;
                 if (namedInjection != null) {
                     providerBeanName = namedInjection.value();
                     beanInstance = ConfigContext.getBeanByName(providerBeanName);

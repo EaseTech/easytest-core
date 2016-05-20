@@ -117,7 +117,7 @@ public class CSVDataLoader implements Loader {
         throws IOException {
         Map<String, List<Map<String, Object>>> data = new HashMap<String, List<Map<String, Object>>>();
         CsvReader csvReader = new CsvReader(new InputStreamReader(csvFile), COMMA_SEPARATOR);
-        Boolean isKeyRow = true;
+        Boolean isKeyRow;
         List<Map<String, Object>> dataValues = null;
         Map<Integer, String> tempData = new HashMap<Integer, String>();
         data = new HashMap<String, List<Map<String, Object>>>();

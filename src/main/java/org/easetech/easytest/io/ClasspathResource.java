@@ -139,7 +139,7 @@ public class ClasspathResource implements Resource {
      * @return the input stream associated with the given file path.
      */
     public InputStream getInputStream() {
-        InputStream is = null;
+        InputStream is;
         if (getClassObj() != null) {
             is = getClassObj().getResourceAsStream(getPath());
             if (is == null) {
@@ -161,7 +161,7 @@ public class ClasspathResource implements Resource {
      * @return the url associated with the given file path.
      */
     public URL getURL() {
-        URL url = null;
+        URL url;
         if (getClassObj() != null) {
             url = getClassObj().getResource(getPath());
             if (url == null) {

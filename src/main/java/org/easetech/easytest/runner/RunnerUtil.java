@@ -31,7 +31,7 @@ import org.junit.runners.model.TestClass;
 public class RunnerUtil {
 
     public static RunnerScheduler getScheduler(Class<?> testClass) {
-        RunnerScheduler scheduler = null;
+        RunnerScheduler scheduler;
         TestPolicy testPolicy = testClass.getAnnotation(TestPolicy.class);
         if (testPolicy != null) {
             Class<?> policyClass = testPolicy.value();

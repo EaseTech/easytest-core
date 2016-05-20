@@ -73,7 +73,7 @@ public class PropertyEditorCollectionConverter implements BaseConverter<List<Map
             potentialAssignments = new ArrayList<PotentialAssignment>();
             LOG.debug("Editor for class {} found", genericType);
             for (Map<String, Object> object : convertFrom) {
-                String strValue = null;
+                String strValue;
                 if (paramName != null && !EMPTY_STRING.equals(paramName)) {
                     strValue = GeneralUtil.getStringValue(paramName, object);
                 } else {

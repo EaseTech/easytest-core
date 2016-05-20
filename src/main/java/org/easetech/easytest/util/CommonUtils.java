@@ -278,7 +278,7 @@ public class CommonUtils {
         }
         else {
             int pos = 0;
-            int delPos = 0;
+            int delPos;
             while ((delPos = str.indexOf(delimiter, pos)) != -1) {
                 result.add(deleteAny(str.substring(pos, delPos), charsToDelete));
                 pos = delPos + delimiter.length();

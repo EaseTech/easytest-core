@@ -83,7 +83,7 @@ public class ResourceLoaderStrategy implements ResourceLoader {
      * @return {@link Resource} instance.
      */
     public Resource getResource(String location) {
-        Resource resource = null;
+        Resource resource;
         
         if (location == null || location.length() <= 0) {
             Assert.fail("The location specified can not be Null or empty");
