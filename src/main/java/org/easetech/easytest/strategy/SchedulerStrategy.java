@@ -18,6 +18,10 @@ import org.junit.runners.model.RunnerScheduler;
  * 
  */
 public class SchedulerStrategy {
+    
+    private SchedulerStrategy() {
+        
+    }
 
     /**
      * Get the correct Scheduler requested by the user based on the {@link Parallel} annotation.

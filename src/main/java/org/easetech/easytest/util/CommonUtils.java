@@ -46,6 +46,10 @@ public class CommonUtils {
     
     /** URL protocol for a file in the file system: "file" */
     public static final String URL_PROTOCOL_FILE = "file";
+    
+    private CommonUtils() {
+        
+    }
 
 	/**
 	 * Rounds a value with number of decimals

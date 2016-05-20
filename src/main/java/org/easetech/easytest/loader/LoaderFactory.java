@@ -10,6 +10,10 @@ import junit.framework.Assert;
  */
 public class LoaderFactory {
     
+    private LoaderFactory() {
+        
+    }
+    
     /**
      * Return an instance of {@link Loader} based on the type of file or return null.
      * @param loaderType the type of the loader

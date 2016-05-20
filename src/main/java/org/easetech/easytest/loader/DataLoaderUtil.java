@@ -38,6 +38,10 @@ public final class DataLoaderUtil {
 
     /** Pattern for runtime expression */
     private static final Pattern RUNTIME_EXPR_PATTERN = Pattern.compile("\\$\\{.*\\}");
+    
+    private DataLoaderUtil() {
+        
+    }
 
 
     /**
