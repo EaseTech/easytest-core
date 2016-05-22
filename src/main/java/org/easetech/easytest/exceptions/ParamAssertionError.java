@@ -31,7 +31,7 @@ public class ParamAssertionError extends RuntimeException {
 
     public static String join(String delimiter,
             Collection<Object> values) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         Iterator<Object> iter = values.iterator();
         while (iter.hasNext()) {
             Object next = iter.next();

@@ -225,7 +225,7 @@ public class CommonUtils {
             return "";
         }
         
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Iterator it = coll.iterator();
         while (it.hasNext()) {
             sb.append(prefix).append(it.next()).append(suffix);
@@ -317,7 +317,7 @@ public class CommonUtils {
         if (!hasLength(inString) || !hasLength(charsToDelete)) {
             return inString;
         }
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
         for (int i = 0; i < inString.length(); i++) {
             char c = inString.charAt(i);
             if (charsToDelete.indexOf(c) == -1) {
@@ -360,7 +360,7 @@ public class CommonUtils {
             return inString;
         }
 
-        StringBuffer sbuf = new StringBuffer();
+        StringBuilder sbuf = new StringBuilder();
         // output StringBuffer we'll build up
         int pos = 0; // our position in the old string
         int index = inString.indexOf(oldPattern);
