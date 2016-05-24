@@ -560,10 +560,8 @@ public class GeneralUtil {
         if (object == null || NULL_STR.equals(object.toString())) {
             return null;
         }
-        if(convertEmptyToNull) {
-            if("".equals(object.toString())){
-                return null;
-            }
+        if(convertEmptyToNull && "".equals(object.toString())) {
+            return null;
         }
         if (String.class.isAssignableFrom(idClass)) {
             returnObj = convertToString(object);
