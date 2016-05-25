@@ -110,7 +110,7 @@ public class ResourceLoaderStrategy implements ResourceLoader {
                 resource = new FileSystemResource(location);
             }
         }
-        if(resource == null || !resource.exists()){
+        if(!resource.exists()){
             LOG.error("Could not load the resource with path {} as either a Classpath, FileSystem or a URL resource", location);
             Assert.fail("Could not load the resource with path " + location + " as either a Classpath, " +
                     "FileSystem or a URL resource. Please check the path and try again" );
