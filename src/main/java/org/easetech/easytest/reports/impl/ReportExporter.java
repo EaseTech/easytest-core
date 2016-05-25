@@ -40,13 +40,13 @@ public class ReportExporter {
 	private static final String DEFAULT_REPORT_JRXML = "/reports/MainReport_pdf.jrxml";
 	private static final String DEFAULT_REPORT_JRXML_XLS = "/reports/MainReport_xls.jrxml";
 	private JasperReport defaultMainReport;
-	private JasperReport defaultMainReport_xls;
+	private JasperReport defaultMainReportXls;
 
 	/* The method duration report */
 	private static final String METHOD_DURATION_REPORT_JRXML = "/reports/MethodDurationReport_pdf.jrxml";
 	private static final String METHOD_DURTION_REPORT_JRXML_XLS = "/reports/MethodDurationReport_xls.jrxml";
 	private JasperReport methodDurationReport;
-	private JasperReport methodDurationReport_xls;
+	private JasperReport methodDurationReportXls;
 
 	/**
 	 * Constructor
@@ -55,9 +55,9 @@ public class ReportExporter {
 	public ReportExporter() {
 		try {
 			defaultMainReport = getJasperReport(DEFAULT_REPORT_JRXML);
-			defaultMainReport_xls = getJasperReport(DEFAULT_REPORT_JRXML_XLS);
+			defaultMainReportXls = getJasperReport(DEFAULT_REPORT_JRXML_XLS);
 			methodDurationReport = getJasperReport(METHOD_DURATION_REPORT_JRXML);
-			methodDurationReport_xls = getJasperReport(METHOD_DURTION_REPORT_JRXML_XLS);
+			methodDurationReportXls = getJasperReport(METHOD_DURTION_REPORT_JRXML_XLS);
 		} catch (JRException e) {
 			System.out.println(e);
 			LOG.error("Error compiling report", e);
@@ -149,13 +149,13 @@ public class ReportExporter {
 	private JasperReport getCompiledReport(Report.REPORT_TYPE type, EXPORT_FORMAT export_FORMAT) {
 		if (type == Report.REPORT_TYPE.DEFAULT) {
 			if (export_FORMAT == EXPORT_FORMAT.XLS) {
-				return defaultMainReport_xls;
+				return defaultMainReportXls;
 			} else {
 				return defaultMainReport;
 			}
 		} else if (type == Report.REPORT_TYPE.METHOD_DURATION) {
 			if (export_FORMAT == EXPORT_FORMAT.XLS) {
-				return methodDurationReport_xls;
+				return methodDurationReportXls;
 			} else {
 				return methodDurationReport;
 			}

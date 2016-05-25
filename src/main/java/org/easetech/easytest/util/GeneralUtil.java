@@ -730,8 +730,6 @@ public class GeneralUtil {
         InvocationTargetException {
         if (GeneralUtil.isStandardObjectInstance(argType)) {
             for (Map<String, Object> object : convertFrom) {
-                T target = null;
-                Object result = null;
                 if (collectionInstance != null) {
                     fillCollectionData(idClass, object, paramName, constructor, finalData, argType, collectionInstance, convertEmptyToNull , dateTimeFormat);
                 } else {
