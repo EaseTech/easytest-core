@@ -77,8 +77,8 @@ public class GeneralUtil {
      * @return String value or null if it is not set in the data.
      */
     public static String getStringValue(String paramName, Map<String, Object> data) {
-        return (data.get(paramName) != null && !data.get(paramName).equals("null") ? data.get(paramName).toString()
-            : null);
+        return data.get(paramName) != null && !data.get(paramName).equals("null") ? data.get(paramName).toString()
+            : null;
 
     }
 
@@ -318,7 +318,7 @@ public class GeneralUtil {
         Long longvalue = null;
         if (object != null) {
             if (object instanceof Long) {
-                longvalue = ((Long) object).longValue();
+                longvalue = (Long) object;
             } else if (object instanceof Integer) {
                 longvalue = ((Integer) object).longValue();
             } else if (object instanceof Double) {
@@ -348,7 +348,7 @@ public class GeneralUtil {
             } else if (object instanceof Integer) {
                 doublevalue = ((Integer) object).doubleValue();
             } else if (object instanceof Double) {
-                doublevalue = ((Double) object).doubleValue();
+                doublevalue = (Double) object;
             } else if (object instanceof String && !"".equals((String)object)) {
                 doublevalue = Double.valueOf((String) object);
             }

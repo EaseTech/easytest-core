@@ -342,7 +342,7 @@ public class CSVDataLoader implements Loader {
                     String[] finalValues = new String[dataKeys.length];
                     finalValues[0] = EMPTY_STRING;
                     for(int i=1 ;i<dataKeys.length ; i++){
-                        finalValues[i] = (currentRowData.get(dataKeys[i]) == null ? "null" :currentRowData.get(dataKeys[i]).toString());
+                        finalValues[i] = currentRowData.get(dataKeys[i]) == null ? "null" :currentRowData.get(dataKeys[i]).toString();
                     }
                     writeOutputData(currentRowData, finalValues, dataKeys);
                     writableData.add(finalValues);

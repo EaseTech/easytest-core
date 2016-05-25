@@ -67,7 +67,7 @@ public class EasyAssignments {
     }
 
     public boolean isComplete() {
-        return fUnassigned.size() == 0;
+        return fUnassigned.isEmpty();
     }
 
     public EasyParamSignature nextUnassigned() {
