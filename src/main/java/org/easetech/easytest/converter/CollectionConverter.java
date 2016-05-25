@@ -5,6 +5,7 @@ import org.easetech.easytest.internal.DateTimeFormat;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -162,9 +163,7 @@ public class CollectionConverter implements BaseConverter<List<Map<String, Objec
                 return (Collection) (parameterType.isInterface()
                     || Modifier.isAbstract(parameterType.getModifiers()) ? new LinkedList() : parameterType
                     .newInstance());
-            } else if ("Deque".equals(parameterType.getSimpleName())
-                || "LinkedBlockingDeque".equals(parameterType.getSimpleName())
-                || "BlockingDeque".equals(parameterType.getSimpleName())) {
+            } else if (Deque.class.isAssignableFrom(parameterType)) {
                 // Try to find an instance of the Class from the ConverterManager
                 Converter converter = ConverterManager.findConverter(parameterType);
                 if (converter == null) {
