@@ -75,8 +75,7 @@ public class CommonUtils {
 	
 	public static String getCurrentFolder() {
 		File file = new File("");
-		String absolutePath = file.getAbsolutePath();
-		return absolutePath;
+		return file.getAbsolutePath();
 	}
 	
 	/**

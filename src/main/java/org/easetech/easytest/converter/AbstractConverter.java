@@ -37,11 +37,10 @@ public abstract class AbstractConverter<Type> implements ParamAwareConverter<Typ
      * 
      * @return the Class variable representing the Type object
      */
+    @SuppressWarnings("unchecked")
     public Class<Type> convertTo() {
-        @SuppressWarnings("unchecked")
-        Class<Type> type = (Class<Type>) ((ParameterizedType) getClass().getGenericSuperclass())
+        return (Class<Type>) ((ParameterizedType) getClass().getGenericSuperclass())
             .getActualTypeArguments()[0];
-        return type;
     }
     
     public Type convert(Map<String , Object> convertFrom , String paramName) {
