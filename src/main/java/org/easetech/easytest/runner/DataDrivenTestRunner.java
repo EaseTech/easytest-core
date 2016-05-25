@@ -322,7 +322,7 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
         validatePublicVoidNoArgMethods(Before.class, false, errors);
         validateTestMethods(errors);
 
-        if (getTestClass().getAnnotatedMethods(Test.class).size() == 0)
+        if (getTestClass().getAnnotatedMethods(Test.class).isEmpty())
             errors.add(new Exception("No runnable methods"));
     }
 

@@ -86,7 +86,7 @@ public class TestMethodDuration implements Serializable {
 	 * @return Time difference in nano seconds
 	 */
 	public long getNanoDifference() {
-		return (this.endInNano - this.startInNano);
+		return this.endInNano - this.startInNano;
 	}
 
 	/**

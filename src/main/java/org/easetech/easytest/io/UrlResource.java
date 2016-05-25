@@ -78,7 +78,7 @@ public class UrlResource implements Resource {
             HttpURLConnection.setFollowRedirects(false);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("HEAD");
-            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+            return con.getResponseCode() == HttpURLConnection.HTTP_OK;
         } catch (Exception e) {
             Log.debug("Exception occured while trying to find whether the resource exists or not ", e);
             return false;
