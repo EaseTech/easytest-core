@@ -102,6 +102,51 @@ public class EasyFrameworkMethod extends FrameworkMethod {
     public TestResultBean getTestResult() {
         return testResult;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((childMethods == null) ? 0 : childMethods.hashCode());
+        result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+        result = prime * result + ((methodNameForTestData == null) ? 0 : methodNameForTestData.hashCode());
+        result = prime * result + ((testData == null) ? 0 : testData.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EasyFrameworkMethod other = (EasyFrameworkMethod) obj;
+        if (childMethods == null) {
+            if (other.childMethods != null)
+                return false;
+        } else if (!childMethods.equals(other.childMethods))
+            return false;
+        if (methodName == null) {
+            if (other.methodName != null)
+                return false;
+        } else if (!methodName.equals(other.methodName))
+            return false;
+        if (methodNameForTestData == null) {
+            if (other.methodNameForTestData != null)
+                return false;
+        } else if (!methodNameForTestData.equals(other.methodNameForTestData))
+            return false;
+        if (testData == null) {
+            if (other.testData != null)
+                return false;
+        } else if (!testData.equals(other.testData))
+            return false;
+        return true;
+    }
+    
+    
     
     
 
