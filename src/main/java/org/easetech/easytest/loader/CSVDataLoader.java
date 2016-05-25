@@ -320,16 +320,14 @@ public class CSVDataLoader implements Loader {
                         dataKeys = newSplitValues;
                     }
                     writableData.add(newSplitValues);
-                    if(length == 1){
+                    if(length == 1 && !currentMethodData.isEmpty()){
                         //implies that the test method does not take any input parameters
                         //We should then handle writing the output data specific to easyTest here and now.
-                        if(! currentMethodData.isEmpty()) {
-                            Map<String, Object> currentRowData = currentMethodData.get(dataRowIndex++);
-                            String[] finalValues = new String[dataKeys.length];
-                            finalValues[0] = EMPTY_STRING;
-                            writeOutputData(currentRowData, finalValues, dataKeys);
-                            writableData.add(finalValues);
-                        }
+                        Map<String, Object> currentRowData = currentMethodData.get(dataRowIndex++);
+                        String[] finalValues = new String[dataKeys.length];
+                        finalValues[0] = EMPTY_STRING;
+                        writeOutputData(currentRowData, finalValues, dataKeys);
+                        writableData.add(finalValues);
                         
                     }
                 } else {

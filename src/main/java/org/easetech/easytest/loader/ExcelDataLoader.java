@@ -351,14 +351,12 @@ public class ExcelDataLoader implements Loader {
             Object testDuration = methodData.get(DURATION);
             if(testDuration != null) {
             	
-            	if (!isTestDurationHeaderWritten) {
-                    if (recordNum != null) {
-                        // Write the test duration header.
-                        writeDataToCell(sheet, recordNum, columnNum, DURATION);
-                        //increment the rowNum
-                        rowNum = rowNum + recordNum;
-                        isTestDurationHeaderWritten = true;
-                    }
+            	if (!isTestDurationHeaderWritten && recordNum != null) {
+            	    // Write the test duration header.
+                    writeDataToCell(sheet, recordNum, columnNum, DURATION);
+                    //increment the rowNum
+                    rowNum = rowNum + recordNum;
+                    isTestDurationHeaderWritten = true;
                 }
             	
             	// Write the actual result and test status values.
@@ -376,15 +374,13 @@ public class ExcelDataLoader implements Loader {
             Object testStatus = methodData.get(TEST_STATUS);
             if (actualResult != null) {
                 
-                if (!isActualResultHeaderWritten) {
-                    if (recordNum != null) {
-                        // Write the actual result and test status headers.
-                        writeDataToCell(sheet, recordNum, columnNum+1, ACTUAL_RESULT);
-                        if (testStatus != null)
-                            writeDataToCell(sheet, recordNum, columnNum + 2, TEST_STATUS);
-                        //rowNum = rowNum + recordNum;
-                        isActualResultHeaderWritten = true;
-                    }
+                if (!isActualResultHeaderWritten && recordNum != null) {
+                    // Write the actual result and test status headers.
+                    writeDataToCell(sheet, recordNum, columnNum+1, ACTUAL_RESULT);
+                    if (testStatus != null)
+                        writeDataToCell(sheet, recordNum, columnNum + 2, TEST_STATUS);
+                    //rowNum = rowNum + recordNum;
+                    isActualResultHeaderWritten = true;
                 }
                 LOG.debug("rowNum:" + rowNum);
 
