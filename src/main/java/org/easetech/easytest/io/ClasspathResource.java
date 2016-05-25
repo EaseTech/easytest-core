@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import org.easetech.easytest.annotation.DataLoader;
 import org.junit.Assert;
 
@@ -26,6 +27,10 @@ import org.junit.Assert;
  * 
  */
 public class ClasspathResource implements Resource {
+
+    private static final String FILE_THE_SUPPLIED_PATH_MUST_BE_NON_EMPTY = "The supplied path must be a non empty and Not Null value";
+
+    private static final String FILE_CANNOT_BE_OPENED_BECAUSE_IT_DOES_NOT_EXIST = " cannot be opened because it does not exist";
 
     /**
      * The {@link ClassLoader} to load the class path resource
@@ -51,7 +56,7 @@ public class ClasspathResource implements Resource {
      */
     public ClasspathResource(String path) {
         if (path == null || path.length() <= 0) {
-            Assert.fail("The supplied path must be a non empty and Not Null value");
+            Assert.fail(FILE_THE_SUPPLIED_PATH_MUST_BE_NON_EMPTY);
         }
         this.path = path;
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -66,7 +71,7 @@ public class ClasspathResource implements Resource {
      */
     public ClasspathResource(String path, ClassLoader classLoader) {
         if (path == null || path.length() <= 0) {
-            Assert.fail("The supplied path must be a non empty and Not Null value");
+            Assert.fail(FILE_THE_SUPPLIED_PATH_MUST_BE_NON_EMPTY);
         }
         this.path = path;
         this.classLoader = classLoader;
@@ -81,7 +86,7 @@ public class ClasspathResource implements Resource {
      */
     public ClasspathResource(String path, Class<?> classObj) {
         if (path == null || path.length() <= 0) {
-            Assert.fail("The supplied path must be a non empty and Not Null value");
+            Assert.fail(FILE_THE_SUPPLIED_PATH_MUST_BE_NON_EMPTY);
         }
         this.path = path;
         this.classObj = classObj;
@@ -89,7 +94,7 @@ public class ClasspathResource implements Resource {
 
     public ClasspathResource(String path, ClassLoader classLoader, Class<?> classObj) {
         if (path == null || path.length() <= 0) {
-            Assert.fail("The supplied path must be a non empty and Not Null value");
+            Assert.fail(FILE_THE_SUPPLIED_PATH_MUST_BE_NON_EMPTY);
         }
         this.path = path;
         this.classObj = classObj;
@@ -144,7 +149,7 @@ public class ClasspathResource implements Resource {
             is = getClassLoader().getResourceAsStream(getPath());
         }
         if (is == null) {
-            throw new RuntimeException("File : " + getPath() + " cannot be opened because it does not exist");
+            throw new RuntimeException("File : " + getPath() + FILE_CANNOT_BE_OPENED_BECAUSE_IT_DOES_NOT_EXIST);
         }
         return is;
 
@@ -166,7 +171,7 @@ public class ClasspathResource implements Resource {
             url = getClassLoader().getResource(getPath());
         }
         if (url == null) {
-            throw new RuntimeException("File : " + getPath() + " cannot be opened because it does not exist");
+            throw new RuntimeException("File : " + getPath() + FILE_CANNOT_BE_OPENED_BECAUSE_IT_DOES_NOT_EXIST);
         }
         return url;
     }
@@ -220,7 +225,7 @@ public class ClasspathResource implements Resource {
                 try {
                     outputStream = new FileOutputStream(getResourceName());
                 } catch (FileNotFoundException e1) {
-                    throw new RuntimeException(getResourceName() + " cannot be opened because it does not exist");
+                    throw new RuntimeException(getResourceName() + FILE_CANNOT_BE_OPENED_BECAUSE_IT_DOES_NOT_EXIST);
                 }
 
             }
