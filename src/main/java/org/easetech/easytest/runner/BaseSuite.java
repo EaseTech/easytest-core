@@ -87,27 +87,27 @@ public class BaseSuite extends Suite {
         
         //-----------------------------------------
         List<FrameworkMethod> availableMethods = getTestClass().getAnnotatedMethods(Test.class);
-        List<FrameworkMethod> methodsWithNoData = new ArrayList<FrameworkMethod>();
-        List<FrameworkMethod> methodsWithData = new ArrayList<FrameworkMethod>();
+        List<FrameworkMethod> methodsWithNoDataTmp = new ArrayList<FrameworkMethod>();
+        List<FrameworkMethod> methodsWithDataTmp = new ArrayList<FrameworkMethod>();
         for (FrameworkMethod method : availableMethods) {
             // Try loading the data if any at the method level
             if (method.getAnnotation(DataLoader.class) != null) {
                 DataLoaderUtil.loadData(null, method, getTestClass(), writableData);
-                methodsWithData.add(method);
+                methodsWithDataTmp.add(method);
             } else {
                 // Method does not have its own dataloader annotation
                  //Does method need input data ??
                 if(method.getMethod().getParameterTypes().length == 0){
-                    methodsWithNoData.add(method);
+                    methodsWithNoDataTmp.add(method);
                 }
                 else{
                  // Does method have data already loaded?
                     boolean methodDataLoaded = DataLoaderUtil.isMethodDataLoaded(DataConverter.getFullyQualifiedTestName(
                         method.getName(), testClass));
                     if (methodDataLoaded) {
-                        methodsWithData.add(method);
+                        methodsWithDataTmp.add(method);
                     } else {
-                        methodsWithNoData.add(method);
+                        methodsWithNoDataTmp.add(method);
                     }
                 }
             }
@@ -117,12 +117,12 @@ public class BaseSuite extends Suite {
         }
         // Finally create a runner for methods that do not have Data specified with them.
         // These are potentially the methods with no method parameters and with @Test annotation.
-        if (!methodsWithNoData.isEmpty()) {
-            this.methodsWithNoData = methodsWithNoData;
+        if (!methodsWithNoDataTmp.isEmpty()) {
+            this.methodsWithNoData = methodsWithNoDataTmp;
 
         }
-        if (!methodsWithData.isEmpty()) {
-            this.methodsWithData = methodsWithData;
+        if (!methodsWithDataTmp.isEmpty()) {
+            this.methodsWithData = methodsWithDataTmp;
         }
 
     }

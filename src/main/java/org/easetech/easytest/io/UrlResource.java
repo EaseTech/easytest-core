@@ -29,7 +29,7 @@ public class UrlResource implements Resource {
     /**
      * The URL of the resource
      */
-    private URL URL;
+    private URL url;
 
     /**
      * 
@@ -42,7 +42,7 @@ public class UrlResource implements Resource {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = path;
-        this.URL = new URL(path);
+        this.url = new URL(path);
     }
     
     /**
@@ -55,7 +55,7 @@ public class UrlResource implements Resource {
             Assert.fail("The supplied path must be a non empty and Not Null value");
         }
         this.path = url.getPath();
-        this.URL = url;
+        this.url = url;
     }
     
 
@@ -76,7 +76,7 @@ public class UrlResource implements Resource {
     public boolean exists() {
         try {
             HttpURLConnection.setFollowRedirects(false);
-            HttpURLConnection con = (HttpURLConnection) URL.openConnection();
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("HEAD");
             return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class UrlResource implements Resource {
      * @throws IOException
      */
     public InputStream getInputStream() throws IOException{
-        URLConnection con = this.URL.openConnection();
+        URLConnection con = this.url.openConnection();
         con.setUseCaches(false);
         return con.getInputStream();
         
@@ -102,7 +102,7 @@ public class UrlResource implements Resource {
      * @return the URL associated with the resource
      */
     public URL getURL() {
-        return URL;
+        return url;
     }
 
     /**
@@ -138,7 +138,7 @@ public class UrlResource implements Resource {
      * Get the {@link OutputStream} associated with the resource
      */
     public OutputStream getOutputStream() throws IOException{
-        URLConnection con = this.URL.openConnection();
+        URLConnection con = this.url.openConnection();
         con.setUseCaches(false);
         return con.getOutputStream();
     }
@@ -147,7 +147,7 @@ public class UrlResource implements Resource {
      * @return
      */
     public String toString() {
-        return "UrlResource [path=" + path + ", URL=" + URL + "]";
+        return "UrlResource [path=" + path + ", URL=" + url + "]";
     }
 
 }
