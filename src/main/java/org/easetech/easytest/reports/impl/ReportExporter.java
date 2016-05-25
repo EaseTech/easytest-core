@@ -165,14 +165,12 @@ public class ReportExporter {
 	
 	private JasperPrint getJasperPrint(JasperReport jasperReport, JRDataSource dataSource,
 			Map<String, Object> jasperParameters) throws JRException {
-		JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, jasperParameters, dataSource);
-		return jasperPrint;
+		return JasperFillManager.fillReport(jasperReport, jasperParameters, dataSource);
 	}
 
 	private JasperReport getJasperReport(String reportResource) throws JRException {
 		InputStream defaultReportInputStream = ClassLoader.class.getResourceAsStream(reportResource);
-		JasperReport jasperReport = JasperCompileManager.compileReport(defaultReportInputStream);
-		return jasperReport;
+		return JasperCompileManager.compileReport(defaultReportInputStream);
 	}
 
 	private void exportPDF(String destinationFolder, String reportName, JasperPrint jasperPrint) throws JRException {

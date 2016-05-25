@@ -62,8 +62,7 @@ public class ReportBuilder {
 	 * @param reportParameters
 	 */
 	public JRDataSource buildTestMethodDurationReport(Map<String, Object> reportParameters) {
-		JRDataSource methodDurationDataSource = fillMethodDurationReportDataParametersAndGetDataSource(reportParameters, reportDataContainer.getClassName(), reportDataContainer.getMethodTestResults());
-		return methodDurationDataSource;
+		return fillMethodDurationReportDataParametersAndGetDataSource(reportParameters, reportDataContainer.getClassName(), reportDataContainer.getMethodTestResults());
 	}
 
 	private void fillMainReportDataParameters(Map<String, Object> reportParameters, String className, Map<String, List<TestResultBean>> methodTestResults) {
@@ -112,9 +111,8 @@ public class ReportBuilder {
 		
 		reportParameters.put(CLASS_NAME, className);
 		
-		JRDataSource methodDurationDataSource = new JRBeanCollectionDataSource(methodDurationReportBeans);
+		return new JRBeanCollectionDataSource(methodDurationReportBeans);
 		
-		return methodDurationDataSource;
 	}
 	
 	/**
@@ -236,8 +234,7 @@ public class ReportBuilder {
 		DefaultPieDataset pieChartDataset = ChartUtils.getPieChartDataset(totalsDatasetValuesMap);
 
 		JFreeChart pieChart = ChartUtils.getPieChart("", pieChartDataset);
-		BufferedImage percentageImage = ChartUtils.getBufferedImageChartImage(pieChart, 150, 150);
-		return percentageImage;
+		return ChartUtils.getBufferedImageChartImage(pieChart, 150, 150);
 	}
 	
 	/**
@@ -251,8 +248,7 @@ public class ReportBuilder {
 		CategoryDataset lineDataset = ChartUtils.createDatasetCountLine(durationBeans, "count");
 
 		JFreeChart dualAxisChart = ChartUtils.getDualAxisChart(chartName, barDataset, lineDataset);
-		BufferedImage methodDurationImage = ChartUtils.getBufferedImageChartImage(dualAxisChart, 800, 600);
+		return ChartUtils.getBufferedImageChartImage(dualAxisChart, 800, 600);
 
-		return methodDurationImage;
 	}
 }

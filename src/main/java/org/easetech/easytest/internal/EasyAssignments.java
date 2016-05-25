@@ -141,8 +141,7 @@ public class EasyAssignments {
 
     private int getConstructorParameterCount() {
         List<EasyParamSignature> signatures = EasyParamSignature.signatures(fClass.getOnlyConstructor());
-        int constructorParameterCount = signatures.size();
-        return constructorParameterCount;
+        return signatures.size();
     }
 
     public Object[] getArgumentStrings(boolean nullsOk) throws CouldNotGenerateValueException {
@@ -192,8 +191,7 @@ public class EasyAssignments {
         }
         Format classLevelFormat = fClass.getJavaClass().getAnnotation(Format.class);
         Format methodLevelFormat = testMethod.getAnnotation(Format.class);
-        Format formatToUse = methodLevelFormat != null ? methodLevelFormat : classLevelFormat != null ? classLevelFormat : policyLevelFormat;
-        return formatToUse;
+        return methodLevelFormat != null ? methodLevelFormat : classLevelFormat != null ? classLevelFormat : policyLevelFormat;
     }
 
 }

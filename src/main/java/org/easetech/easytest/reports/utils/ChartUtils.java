@@ -42,8 +42,7 @@ public class ChartUtils {
 	 * @return BufferedImage
 	 */
 	public static BufferedImage getBufferedImageChartImage(JFreeChart chart, int width, int height) {
-		BufferedImage createBufferedImage = chart.createBufferedImage(width, height);
-		return createBufferedImage;
+		return chart.createBufferedImage(width, height);
 	}
 
 	/**
