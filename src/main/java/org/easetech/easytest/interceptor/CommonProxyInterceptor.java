@@ -16,6 +16,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CommonProxyInterceptor  extends Observable {
     
+    private static final String MILLISEC = " millisec";
+
+    private static final String MICROSEC = " microsec/";
+
+    private static final String NANOSEC = " nanosec/";
+
     /** Logger implementation*/
     protected static final Logger LOG = LoggerFactory.getLogger(CommonProxyInterceptor.class);
     
@@ -123,11 +129,11 @@ public class CommonProxyInterceptor  extends Observable {
             expectedTimeInMillis = (expectedTimeInNano / 1000)/1000;
             expectedTimeinMicros = expectedTimeInNano / 1000 ;
             
-            Assert.fail("Total time taken by method " + method.getName() +" ("+ timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec) is greater than the " +
-            		"expected time("+expectedTimeInNano+" nenosec/" +expectedTimeinMicros+" microsec/"+expectedTimeInMillis+" millisec)");
+            Assert.fail("Total time taken by method " + method.getName() +" ("+ timeTakenInNanos + NANOSEC + timeTakenInMicros + MICROSEC + timeTakenInMillis+ MILLISEC +") is greater than the " +
+            		"expected time("+expectedTimeInNano+ NANOSEC +expectedTimeinMicros+ MICROSEC +expectedTimeInMillis+" millisec)");
         } else {
-            System.out.println("Method " + method.getName() + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec" );
-            LOG.debug("Method " + method.getName() + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + " nanosec/"+ timeTakenInMicros +" microsec/"+ timeTakenInMillis+" millisec" );
+            System.out.println("Method " + method.getName() + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + NANOSEC + timeTakenInMicros + MICROSEC + timeTakenInMillis+MILLISEC );
+            LOG.debug("Method " + method.getName() + " on " + getTargetInstance().getClass()+ " took " + timeTakenInNanos + NANOSEC + timeTakenInMicros + MICROSEC + timeTakenInMillis+MILLISEC );
         }
         durationBean.setActualDurationinMillis(timeTakenInMillis);
         durationBean.setExpectedDurationinMillis(expectedTimeInMillis);
