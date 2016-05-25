@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class EasyParamSignature {
     
-    public static ArrayList<EasyParamSignature> signatures(Method method) {
+    public static List<EasyParamSignature> signatures(Method method) {
 
         return signatures(method.getGenericParameterTypes(), method
                 .getParameterAnnotations());
