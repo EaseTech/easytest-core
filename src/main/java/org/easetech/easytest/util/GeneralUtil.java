@@ -193,8 +193,8 @@ public class GeneralUtil {
                 date = new Date(((Double) object).longValue());
             } else if (object instanceof String) {
                 try {
-                    String[] formats = (String[]) ArrayUtils.addAll(dateTimeFormat.getDateTimeFormat(), dateTimeFormat.getDateFormat());
-                    String[] availableFormats = (String[]) ArrayUtils.addAll(formats, dateTimeFormat.getTimeFormat());
+                    String[] formats = (String[]) ArrayUtils.addAll(dateTimeFormat.getDateTimeFormats(), dateTimeFormat.getDateFormats());
+                    String[] availableFormats = (String[]) ArrayUtils.addAll(formats, dateTimeFormat.getTimeFormats());
                     
                     date = DateUtils.parseDate((String) object, availableFormats);
                     
@@ -246,11 +246,11 @@ public class GeneralUtil {
             } else if (object instanceof String) {
                 Date date;
                 try {
-                    date = DateUtils.parseDate((String) object, dateTimeFormat.getTimeFormat());
+                    date = DateUtils.parseDate((String) object, dateTimeFormat.getTimeFormats());
                 } catch (ParseException e) {
                     LOG.debug("Parse Exception occured while trying to convert to SQL TimeStamp. " +
                     		"The object to convert to : {} and the fomat used to convert to SQL Time : {}" ,
-                    		object, dateTimeFormat.getTimeFormat());
+                    		object, dateTimeFormat.getTimeFormats());
                     date = new Date(Long.valueOf((String) object));
                 }
                 time = new java.sql.Time(date.getTime());

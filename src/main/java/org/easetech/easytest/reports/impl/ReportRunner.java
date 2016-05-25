@@ -40,7 +40,7 @@ public class ReportRunner implements Callable<Boolean> {
 	 * @param types report types (main or method duration report)
 	 * @param destinationLocation destination
 	 */
-	public ReportRunner(ReportDataContainer testReportContainer, EXPORT_FORMAT formats[], REPORT_TYPE[] types, String destinationLocation) {
+	public ReportRunner(ReportDataContainer testReportContainer, EXPORT_FORMAT[] formats, REPORT_TYPE[] types, String destinationLocation) {
 		this.testReportContainer = testReportContainer;
 		this.formats = formats;
 		this.types = types;
@@ -60,7 +60,7 @@ public class ReportRunner implements Callable<Boolean> {
 		Boolean returnValue = true;
 		
 		for (REPORT_TYPE type: types) {
-			if (returnValue == false) {
+			if (!returnValue) {
 				return false;
 			}
 			switch (type) {
