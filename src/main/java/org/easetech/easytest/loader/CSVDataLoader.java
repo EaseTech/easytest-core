@@ -123,7 +123,7 @@ public class CSVDataLoader implements Loader {
         data = new HashMap<String, List<Map<String, Object>>>();
         
         while (csvReader.readRecord()) {
-            StringBuffer logBuffer = new StringBuffer("Record being read is :");
+            StringBuilder logBuffer = new StringBuilder("Record being read is :");
             Map<String, Object> actualData = new HashMap<String, Object>();   
             String[] splitValues = csvReader.getValues();
             if (splitValues.length > 0 && "".equals(splitValues[0])) {

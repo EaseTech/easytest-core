@@ -467,9 +467,9 @@ public class GeneralUtil {
      * @param Object object
      * @return Character converted value.
      */
-    public static StringBuffer convertToStringBuffer(Object object) {
+    public static StringBuilder convertToStringBuffer(Object object) {
         
-        return (object == null) ? null : new StringBuffer(object.toString());
+        return (object == null) ? null : new StringBuilder(object.toString());
     }
     
     /**

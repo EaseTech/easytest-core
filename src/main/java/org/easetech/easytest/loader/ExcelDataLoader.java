@@ -142,7 +142,7 @@ public class ExcelDataLoader implements Loader {
             actualData = initializeRowData(row , workbook , actualData);
             
             //Map<String, Object> actualData = new LinkedHashMap<String, Object>();
-            StringBuffer debugInfo = new StringBuffer("Row data being read is ");
+            StringBuilder debugInfo = new StringBuilder("Row data being read is ");
             for (Cell cell : row) {
                 Object cellData = objectFrom(workbook, cell);
                 debugInfo.append(":" + cellData);
