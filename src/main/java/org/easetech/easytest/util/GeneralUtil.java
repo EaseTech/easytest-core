@@ -65,7 +65,7 @@ public class GeneralUtil {
      * @return rounded double
      */
     public static Double getRounded(double valueToRound, int numberOfDecimalPlaces) {
-        BigDecimal bigDecimal = new BigDecimal(valueToRound).setScale(numberOfDecimalPlaces, RoundingMode.HALF_UP);
+        BigDecimal bigDecimal = BigDecimal.valueOf(valueToRound).setScale(numberOfDecimalPlaces, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
     }
     
