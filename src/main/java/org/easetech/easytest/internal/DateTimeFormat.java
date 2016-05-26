@@ -32,64 +32,64 @@ public class DateTimeFormat {
     /**
      * The date formats to use as specified by the user or the default formats
      */
-    private String[] dateFormats = {"dd/MM/yy" , "dd/MM/yyyy", "dd-MM-yy" , "dd-MM-yyyy"};
+    private String[] dateFormat = {"dd/MM/yy" , "dd/MM/yyyy", "dd-MM-yy" , "dd-MM-yyyy"};
     
     /**
      * The time formats to use as specified by the user or the default formats
      */
-    private String[] timeFormats = {"HH:MM:SS"};
+    private String[] timeFormat = {"HH:MM:SS"};
     
     /**
      * The date/time formats to use as specified by the user or the default formats
      */
-    private String[] dateTimeFormats = {"dd/MM/yy HH:MM:SS" ,"dd/MM/yyyy HH:MM:SS", "dd-MM-yy HH:MM:SS", "dd-MM-yyyy HH:MM:SS"};
+    private String[] dateTimeFormat = {"dd/MM/yy HH:MM:SS" ,"dd/MM/yyyy HH:MM:SS", "dd-MM-yy HH:MM:SS", "dd-MM-yyyy HH:MM:SS"};
 
     /**
      * Get the date formats to use as specified by the user or the default formats
      * @return the dateFormat
      */
-    public String[] getDateFormats() {
-        return dateFormats;
+    public String[] getDateFormat() {
+        return dateFormat;
     }
 
     /**
      * Set the date formats to use as specified by the user or the default formats
-     * @param dateFormats the dateFormat to set
+     * @param dateFormat the dateFormat to set
      */
-    public void setDateFormats(String[] dateFormats) {
-        this.dateFormats = dateFormats;
+    public void setDateFormat(String[] dateFormat) {
+        this.dateFormat = dateFormat;
     }
 
     /**
      * Get the time formats to use as specified by the user or the default formats
      * @return the timeFormat
      */
-    public String[] getTimeFormats() {
-        return timeFormats;
+    public String[] getTimeFormat() {
+        return timeFormat;
     }
 
     /**
      * Set the time formats to use as specified by the user or the default formats
-     * @param timeFormats the timeFormat to set
+     * @param timeFormat the timeFormat to set
      */
-    public void setTimeFormats(String[] timeFormats) {
-        this.timeFormats = timeFormats;
+    public void setTimeFormat(String[] timeFormat) {
+        this.timeFormat = timeFormat;
     }
 
     /**
      * Get the date/time formats to use as specified by the user or the default formats
      * @return the dateTimeFormat
      */
-    public String[] getDateTimeFormats() {
-        return dateTimeFormats;
+    public String[] getDateTimeFormat() {
+        return dateTimeFormat;
     }
 
     /**
      * Set the date/time formats to use as specified by the user or the default formats
-     * @param dateTimeFormats the dateTimeFormat to set
+     * @param dateTimeFormat the dateTimeFormat to set
      */
-    public void setDateTimeFormats(String[] dateTimeFormats) {
-        this.dateTimeFormats = dateTimeFormats;
+    public void setDateTimeFormat(String[] dateTimeFormat) {
+        this.dateTimeFormat = dateTimeFormat;
     }
 
     /**
@@ -98,8 +98,8 @@ public class DateTimeFormat {
      */
     @Override
     public String toString() {
-        return "DateTimeFormat [dateFormats=" + dateFormats + ", timeFormats=" + timeFormats + ", dateTimeFormats="
-            + dateTimeFormats + "]";
+        return "DateTimeFormat [dateFormat=" + dateFormat + ", timeFormat=" + timeFormat + ", dateTimeFormat="
+            + dateTimeFormat + "]";
     }
     
     
