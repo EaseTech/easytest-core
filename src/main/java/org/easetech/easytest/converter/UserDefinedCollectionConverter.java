@@ -79,7 +79,7 @@ public class UserDefinedCollectionConverter implements BaseConverter<List<Map<St
                 String[] splitValues = values.split(COLON);
                 for (int i = 0; i < splitValues.length; i++) {
                     tempMap.put(paramName, splitValues[i]);
-                    Object value = null;
+                    Object value;
                     if(converter instanceof ParamAwareConverter) {
                         value = ((ParamAwareConverter)converter).convert(tempMap, paramName);
                     } else {

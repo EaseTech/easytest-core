@@ -112,7 +112,7 @@ public final class TestConfigUtil {
             if (field.getType().isAssignableFrom(Properties.class)) {
                 field.setAccessible(true);
                 try {
-                    Properties fieldProperties = null;
+                    Properties fieldProperties;
                     // If the annotation TestProperties is present at the field level then it gets the priority
                     TestProperties fieldResource = field.getAnnotation(TestProperties.class);
                     if (fieldResource != null) {
@@ -183,7 +183,7 @@ public final class TestConfigUtil {
     }
 
     private static void injectTestBean(String providerBeanName, Field field, Object testInstance) {
-        Object beanInstance = null;
+        Object beanInstance;
         if (!(providerBeanName == null) && !(providerBeanName.length() <= 0)) {
             // Load the bean by name
             beanInstance = ConfigContext.getBeanByName(providerBeanName);

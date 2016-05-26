@@ -455,9 +455,9 @@ public class DataDrivenTestRunner extends BlockJUnit4ClassRunner {
             		"Then, please check that the bean is configured in the configuration file. " +
             		"If the problem persist, please contact anujkumar@easetech.org");
         }
-        Object targetInstance = null;
+        Object targetInstance;
 
-        Object proxiedObject = null;
+        Object proxiedObject;
         Class<?> fieldType = field.getType();
         Class<? extends MethodIntercepter> interceptorClass = interceptor;
         if (fieldType.isInterface()) {

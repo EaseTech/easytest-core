@@ -82,8 +82,7 @@ public final class DataLoaderUtil {
      */
     private static String[] determineFilePaths(DataLoader dataLoader) {
         String[] filePaths = dataLoader.filePaths();
-        String[] result = new String[filePaths.length];
-        result = handleSystemProperty();
+        String[] result = handleSystemProperty();
         if (result == null) {
             //filePaths cannot be null as the default is an empty array
             if(filePaths.length == 0) {
@@ -223,7 +222,7 @@ public final class DataLoaderUtil {
                 .fail("The framework should provide either the testClass parameter or the method parameter in order to load the test data.");
         }
         // We give priority to Class Loading and then to method loading
-        DataLoader testData = null;
+        DataLoader testData;
         if (testClass != null) {
             testData = testClass.getAnnotation(DataLoader.class);
         } else {

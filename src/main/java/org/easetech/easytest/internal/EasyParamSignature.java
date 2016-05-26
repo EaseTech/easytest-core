@@ -32,7 +32,7 @@ public class EasyParamSignature {
     private static ArrayList<EasyParamSignature> signatures(
             Type[] parameterTypes, Annotation[][] parameterAnnotations) {
         ArrayList<EasyParamSignature> sigs= new ArrayList<EasyParamSignature>();
-        Class<?> parameterType = null;
+        Class<?> parameterType;
         Class<?> genericParameterArgType = null;
         for (int i= 0; i < parameterTypes.length; i++) {
             Type genericParameterType = parameterTypes[i];

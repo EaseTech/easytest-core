@@ -83,7 +83,7 @@ public class UserDefinedConverter implements BaseConverter<List<Map<String, Obje
             potentialAssignments = new ArrayList<PotentialAssignment>();
             LOG.debug("Converter for class {} found.", parameterType);
             for (Map<String, Object> object : convertFrom) {
-                Object value = null;
+                Object value;
                 //TODO: This logic should be removed in future versions of EasyTest
                 if (converter instanceof ParamAwareConverter) {
                     value = ((ParamAwareConverter)converter).convert(object, paramName);

@@ -172,7 +172,7 @@ public class RunAftersWithOutputData extends Statement {
             Report testClassLevelReport = testReportContainer.getTestClass().getAnnotation(Report.class);
         	Report annotation = testClassLevelReport != null ? testClassLevelReport : policyLevelReport;
 
-        	ReportParametersBean reportParameters = null;
+        	ReportParametersBean reportParameters;
 
         	if (System.getProperty(SystemProperties.GENERATE_REPORT.getValue()) != null) {
         		reportParameters = new ReportParametersBean(

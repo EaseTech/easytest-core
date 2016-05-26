@@ -115,7 +115,7 @@ public class ReportExporter {
 		
 		for (EXPORT_FORMAT export_FORMAT : formats) {
 			JasperReport jasperReport = this.getCompiledReport(type, export_FORMAT);
-			JasperPrint jasperPrint = null;
+			JasperPrint jasperPrint;
 
 			// datasource can't be reused, so it needs to be instantiated again
 			Collection<?> data = ((JRBeanCollectionDataSource)dataSource).getData();
