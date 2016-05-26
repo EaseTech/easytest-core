@@ -107,7 +107,7 @@ public class ConversionDelegator implements BaseConverter<List<Map<String, Objec
      * @param paramName the optional name of the parameter with which to search for the data.
      * @param converters The list of converters that a user can specify. 
      */
-    public ConversionDelegator(EasyParamSignature signature, String paramName, LinkedHashMap<String , BaseConverter<List<Map<String, Object>>, List<PotentialAssignment>>> converters) {
+    public ConversionDelegator(EasyParamSignature signature, String paramName, Map<String , BaseConverter<List<Map<String, Object>>, List<PotentialAssignment>>> converters) {
         this.signature = signature;
         this.paramName = paramName == null ? signature.getParameterType().getSimpleName() : paramName;
         this.converters.putAll(converters);
