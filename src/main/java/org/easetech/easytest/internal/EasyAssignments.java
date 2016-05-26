@@ -113,13 +113,13 @@ public class EasyAssignments {
         Param.DataSupplier supplier = new Param.DataSupplier();
         DateTimeFormat dateTimeFormat = new DateTimeFormat();
         if(getDateFormat(testMethod) != null) {
-            dateTimeFormat.setDateFormats(getDateFormat(testMethod));
+            dateTimeFormat.setDateFormat(getDateFormat(testMethod));
         }
         if(getDateTimeFormat(testMethod) != null) {
-            dateTimeFormat.setDateTimeFormats(getDateTimeFormat(testMethod));
+            dateTimeFormat.setDateTimeFormat(getDateTimeFormat(testMethod));
         }
         if(getTimeFormat(testMethod) != null) {
-            dateTimeFormat.setTimeFormats(getTimeFormat(testMethod));
+            dateTimeFormat.setTimeFormat(getTimeFormat(testMethod));
         }
         supplier.setDateTimeFormatToUse(dateTimeFormat);
         return supplier;

@@ -143,18 +143,18 @@ public class ReportExporter {
 	/**
 	 * Select the right compiled report
 	 * @param type type of report DEFAULT or METHOD_DURATION
-	 * @param exportFORMAT format type PDF/HTML/XLS
+	 * @param export_FORMAT format type PDF/HTML/XLS
 	 * @return the compiled report
 	 */
-	private JasperReport getCompiledReport(Report.REPORT_TYPE type, EXPORT_FORMAT exportFORMAT) {
+	private JasperReport getCompiledReport(Report.REPORT_TYPE type, EXPORT_FORMAT export_FORMAT) {
 		if (type == Report.REPORT_TYPE.DEFAULT) {
-			if (exportFORMAT == EXPORT_FORMAT.XLS) {
+			if (export_FORMAT == EXPORT_FORMAT.XLS) {
 				return defaultMainReportXls;
 			} else {
 				return defaultMainReport;
 			}
 		} else if (type == Report.REPORT_TYPE.METHOD_DURATION) {
-			if (exportFORMAT == EXPORT_FORMAT.XLS) {
+			if (export_FORMAT == EXPORT_FORMAT.XLS) {
 				return methodDurationReportXls;
 			} else {
 				return methodDurationReport;

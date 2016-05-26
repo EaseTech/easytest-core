@@ -148,9 +148,9 @@ public @interface Param {
          * If the user has not specified any date time formats using {@link Format} annotation,
          * then a default list of values are used.
          * 
-         *  @see DateTimeFormat#getDateFormats()
-         *  @see DateTimeFormat#getDateTimeFormats()
-         *  @see DateTimeFormat#getTimeFormats()
+         *  @see DateTimeFormat#getDateFormat()
+         *  @see DateTimeFormat#getDateTimeFormat()
+         *  @see DateTimeFormat#getTimeFormat()
          */
         private DateTimeFormat dateTimeFormatToUse;
 
