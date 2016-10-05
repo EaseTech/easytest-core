@@ -32,6 +32,10 @@ public final class TestConfigUtil {
      * An instance of logger associated with the test framework.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(TestConfigUtil.class);
+    
+    private TestConfigUtil() {
+        
+    }
 
     /**
      * Load the test configurations using the provided {@link TestConfigProvider} annotation values

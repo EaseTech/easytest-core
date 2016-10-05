@@ -29,6 +29,10 @@ import org.jfree.data.general.DefaultPieDataset;
  * 
  */
 public class ChartUtils {
+    
+    private ChartUtils() {
+        
+    }
 
 	/**
 	 * Returns a BufferedImage of JFreeChart object

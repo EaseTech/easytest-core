@@ -29,6 +29,10 @@ import org.junit.runners.model.TestClass;
  * 
  */
 public class RunnerUtil {
+    
+    private RunnerUtil() {
+        
+    }
 
     public static RunnerScheduler getScheduler(Class<?> testClass) {
         RunnerScheduler scheduler;

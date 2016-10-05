@@ -56,6 +56,10 @@ public class GeneralUtil {
     private static final Pattern OBJECT_PATTERN = Pattern.compile("\\{.*\\}");
 
     private static final Pattern ARRAY_PATTERN = Pattern.compile("\\[.*\\]");
+    
+    private GeneralUtil() {
+        
+    }
 
     /**
      * Rounds a value with number of decimals
