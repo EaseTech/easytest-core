@@ -25,6 +25,8 @@ import org.easetech.easytest.io.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.poi.ss.usermodel.CellType.*;
+
 /**
  * An implementation of {@link Loader} for the EXCEL(xls) based files. This Loader is responsible for reading a list of
  * xls based files and converting them into a data structure which is understandable by the EasyTest framework. It
@@ -225,15 +227,15 @@ public class ExcelDataLoader implements Loader {
     private Object objectFrom(final HSSFWorkbook workbook, final Cell cell) {
         Object cellValue = null;
 
-        if (cell == null || cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+        if (cell == null || cell.getCellType() == BLANK) {
             cellValue = null;
-        } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+        } else if (cell.getCellType() == STRING) {
             cellValue = cell.getRichStringCellValue().getString();
-        } else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        } else if (cell.getCellType() == NUMERIC) {
             cellValue = getNumericCellValue(cell);
-        } else if (cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+        } else if (cell.getCellType() == BOOLEAN) {
             cellValue = cell.getBooleanCellValue();
-        } else if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+        } else if (cell.getCellType() == FORMULA) {
             cellValue = evaluateCellFormula(workbook, cell);
         }
 
@@ -273,11 +275,11 @@ public class ExcelDataLoader implements Loader {
         CellValue cellValue = evaluator.evaluate(cell);
         Object result = null;
 
-        if (cellValue.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+        if (cellValue.getCellType() == BOOLEAN) {
             result = cellValue.getBooleanValue();
-        } else if (cellValue.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        } else if (cellValue.getCellType() == NUMERIC) {
             result = cellValue.getNumberValue();
-        } else if (cellValue.getCellType() == Cell.CELL_TYPE_STRING) {
+        } else if (cellValue.getCellType() == STRING) {
             result = cellValue.getStringValue();
         }
 
@@ -460,22 +462,22 @@ public class ExcelDataLoader implements Loader {
         }
 
         if (value instanceof String) {
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(STRING);
             cell.setCellValue((String)trimActualResult(value.toString()));
         } else if (value instanceof Double) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellType(NUMERIC);
             cell.setCellValue((Double) value);
         } else if (value instanceof Integer) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellType(NUMERIC);
             cell.setCellValue((Integer) value);
         } else if (value instanceof Long) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellType(NUMERIC);
             cell.setCellValue((Long) value);
         } else if (value instanceof Float) {
-            cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+            cell.setCellType(NUMERIC);
             cell.setCellValue((Float) value);
         } else if (value != null) {
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(STRING);
             cell.setCellValue((String)trimActualResult(value.toString()));
         }
     }
